@@ -1,6 +1,7 @@
 # Dore Production Inventory Management System
 
-Welcome to the **Dore Production Inventory Management System**! This project is designed to streamline the inventory management process for Dore Production, a company specializing in sound and lighting equipment rental for events.
+**Dore Production Inventory Management System** 
+This project is designed to streamline the inventory management process for Dore Production, a company specializing in sound and lighting equipment rental for events.
 
 ## 📖 Overview
 

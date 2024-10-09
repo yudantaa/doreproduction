@@ -8,4 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class ItemHistory extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'item_id',
+        'status',
+        'changed_by'
+    ];
+
+    public function item()
+    {
+        return $this->belongsTo(Item::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'changed_by');
+    }
 }

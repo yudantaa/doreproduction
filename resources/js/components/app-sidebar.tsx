@@ -2,15 +2,11 @@
 
 import * as React from "react";
 import {
-    BookAIcon,
     BoxIcon,
     CalendarCheck2Icon,
-    Command,
-    Frame,
     Home,
     LifeBuoy,
     Send,
-    SquareTerminal,
     User2Icon,
 } from "lucide-react";
 
@@ -27,14 +23,14 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link, usePage } from "@inertiajs/react";
-import { PageProps } from "@/types";
+import { PageProps, User } from "@/types";
 
 const data = {
-    user: {
-        name: "shadcn",
-        email: "m@example.com",
-        avatar: "/avatars/shadcn.jpg",
-    },
+    // user: {
+    //     name: "shadcn",
+    //     email: "m@example.com",
+    //     avatar: "/avatars/shadcn.jpg",
+    // },
     navMain: [
         {
             title: "Dashboard",
@@ -61,25 +57,11 @@ const data = {
             title: "Manajemen Pinjaman",
             url: "#",
             icon: CalendarCheck2Icon,
-            isActive: true,
-            items: [
-                {
-                    title: "List Pinjaman",
-                    url: "#",
-                },
-            ],
         },
         {
             title: "Manajemen Pegawai",
             url: "#",
             icon: User2Icon,
-            isActive: true,
-            items: [
-                {
-                    title: "List Pegawai",
-                    url: "#",
-                },
-            ],
         },
     ],
     navSecondary: [
@@ -98,6 +80,11 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { auth } = usePage<PageProps>().props;
+    const userRole = auth.user?.role;
+
+    const filteredNavMain = userRole === "SUPER ADMIN"
+    ? data.navMain
+    : data.navMain.filter(item => item.title !== "Manajemen Pegawai");
 
     return (
         <Sidebar variant="inset" {...props}>
@@ -118,7 +105,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                         Dore Production
                                     </span>
                                     <span className="truncate text-xs">
-                                        Dashboard
+                                        <div className="font-bold text-green-500">
+                                            {userRole}
+                                        </div>
                                     </span>
                                 </div>
                             </Link>
@@ -127,7 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <NavMain items={filteredNavMain} />
                 <NavSecondary items={data.navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>

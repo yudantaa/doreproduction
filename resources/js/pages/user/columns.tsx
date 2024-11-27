@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import { ArrowUpDown } from "lucide-react"
 import { useToast } from "@/components/hooks/use-toast";
 import {
     AlertDialog,
@@ -54,11 +54,31 @@ export type User = {
 export const columns: ColumnDef<User>[] = [
     {
         accessorKey: "name",
-        header: "Nama",
+        header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Nama
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            )
+          },
     },
     {
         accessorKey: "email",
-        header: "Email",
+        header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Email
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            )
+          },
     },
     {
         accessorKey: "role",
@@ -66,7 +86,17 @@ export const columns: ColumnDef<User>[] = [
     },
     {
         accessorKey: "created_at",
-        header: "Tanggal Didaftarkan",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Tanggal Didaftarkan
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
         cell: ({ row }) => {
             const date = new Date(row.original.created_at);
             return date.toLocaleDateString("id-ID", {
@@ -74,6 +104,11 @@ export const columns: ColumnDef<User>[] = [
                 month: "long",
                 year: "numeric",
             });
+        },
+        sortFn: (rowA, rowB) => {
+            const dateA = new Date(rowA.original.created_at);
+            const dateB = new Date(rowB.original.created_at);
+            return dateA - dateB;
         },
     },
     {

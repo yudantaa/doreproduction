@@ -60,7 +60,7 @@ const data = {
         },
         {
             title: "Manajemen Pegawai",
-            url: "#",
+            url: "/dashboard/users",
             icon: User2Icon,
         },
     ],

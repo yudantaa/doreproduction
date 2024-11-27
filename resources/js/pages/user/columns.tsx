@@ -86,6 +86,7 @@ export const columns: ColumnDef<User>[] = [
             const openDialog = () => setFormData(user); // Pass row data to dialog
             const closeDialog = () => setFormData(null);
             const { toast } = useToast();
+            const roles = ["ADMIN", "SUPER ADMIN"];
 
             return (
                 <AlertDialog>
@@ -137,11 +138,10 @@ export const columns: ColumnDef<User>[] = [
                         {formData && (
                             <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
-                                    <DialogTitle>
-                                        Ubah Data
-                                    </DialogTitle>
+                                    <DialogTitle>Ubah Data</DialogTitle>
                                     <DialogDescription>
-                                        Ubah data dari pegawai ini, setelah selesai, silakan menekan tombol ubah.
+                                        Ubah data dari pegawai ini, setelah
+                                        selesai, silakan menekan tombol ubah.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">
@@ -203,12 +203,14 @@ export const columns: ColumnDef<User>[] = [
                                                 <SelectValue placeholder="Select Role" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="SUPER ADMIN">
-                                                    SUPER ADMIN
-                                                </SelectItem>
-                                                <SelectItem value="ADMIN">
-                                                    ADMIN
-                                                </SelectItem>
+                                                {roles.map((role, index) => (
+                                                    <SelectItem
+                                                        key={index}
+                                                        value={role}
+                                                    >
+                                                        {role}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </div>

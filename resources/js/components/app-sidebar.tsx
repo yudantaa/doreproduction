@@ -26,11 +26,6 @@ import { Link, usePage } from "@inertiajs/react";
 import { PageProps, User } from "@/types";
 
 const data = {
-    // user: {
-    //     name: "shadcn",
-    //     email: "m@example.com",
-    //     avatar: "/avatars/shadcn.jpg",
-    // },
     navMain: [
         {
             title: "Dashboard",

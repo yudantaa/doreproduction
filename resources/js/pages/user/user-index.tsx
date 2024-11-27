@@ -13,12 +13,12 @@ interface UsersPageProps {
   export default function UsersIndex({ users }: UsersPageProps) {
     return (
         <AuthenticatedLayout
-        header={'User Management'}
+        header={'Manajemen Pegawai'}
     >
         <Head title="Users" />
 
       <div className="container mx-auto py-10 bg-muted/50 rounded-xl">
-        <Head title="User Management" />
+        <Head title="Manajemen Pegawai" />
 
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Manajemen Pegawai</h1>

@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import {
     ColumnDef,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
+    getFilteredRowModel,
     SortingState,
     getSortedRowModel,
 } from "@tanstack/react-table";
@@ -28,23 +31,41 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
-
-    const [sorting, setSorting] = useState<SortingState>([])
-
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onColumnFiltersChange: setColumnFilters,
+        getFilteredRowModel: getFilteredRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         state: {
             sorting,
+            columnFilters,
         },
     });
 
     return (
         <div>
+            <div className="flex items-center py-4">
+                <Input
+                    placeholder="Filter emails..."
+                    value={
+                        (table
+                            .getColumn("email")
+                            ?.getFilterValue() as string) ?? ""
+                    }
+                    onChange={(event) =>
+                        table
+                            .getColumn("email")
+                            ?.setFilterValue(event.target.value)
+                    }
+                    className="max-w-sm"
+                />
+            </div>
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>

@@ -17,7 +17,7 @@ interface UsersPageProps {
     >
         <Head title="Users" />
 
-      <div className="container mx-auto py-10 bg-muted/50">
+      <div className="container mx-auto py-10 bg-muted/50 rounded">
         <Head title="User Management" />
 
         <div className="flex justify-between items-center mb-4">

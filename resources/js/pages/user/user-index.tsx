@@ -21,9 +21,9 @@ interface UsersPageProps {
         <Head title="User Management" />
 
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">User Management</h1>
-          <Button>
-            <PlusIcon className="mr-2 h-4 w-4" /> Add New User
+          <h1 className="text-2xl font-bold">Manajemen Pegawai</h1>
+          <Button className="bg-zinc-600">
+            <PlusIcon className="mr-2 h-4 w-4" /> Tambah Pegawai Baru
           </Button>
         </div>
 

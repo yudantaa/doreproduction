@@ -41,6 +41,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { DropdownMenuArrow } from "@radix-ui/react-dropdown-menu";
 
 export type User = {
     id: string;
@@ -87,7 +88,6 @@ export const columns: ColumnDef<User>[] = [
             const { toast } = useToast();
 
             return (
-
                 <AlertDialog>
                     <Dialog>
                         <DropdownMenu>
@@ -106,6 +106,8 @@ export const columns: ColumnDef<User>[] = [
                                         Ubah Data
                                     </DropdownMenuItem>
                                 </DialogTrigger>
+
+                                <DropdownMenuSeparator></DropdownMenuSeparator>
 
                                 <AlertDialogTrigger>
                                     <DropdownMenuItem className="text-red-600">
@@ -136,11 +138,10 @@ export const columns: ColumnDef<User>[] = [
                             <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
                                     <DialogTitle>
-                                        Ubah Data User Ini
+                                        Ubah Data
                                     </DialogTitle>
                                     <DialogDescription>
-                                        Make changes to the user's data here.
-                                        Click save when you're done.
+                                        Ubah data dari pegawai ini, setelah selesai, silakan menekan tombol ubah.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">
@@ -218,7 +219,8 @@ export const columns: ColumnDef<User>[] = [
                                         onClick={() => {
                                             closeDialog();
                                             toast({
-                                                description: "Data berhasil diubah.",
+                                                description:
+                                                    "Data berhasil diubah.",
                                             });
                                         }}
                                     >

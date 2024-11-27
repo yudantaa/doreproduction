@@ -50,7 +50,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'] ?? 'User',
+            'role' => $validated['role'] ?? 'ADMIN',
         ]);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');

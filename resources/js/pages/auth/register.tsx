@@ -13,12 +13,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputError } from "@/components/ui/input-error";
 
-export default function Register() {
+export default function Register({
+    mode = 'register',
+    onSuccessfulRegistration,
+    isModal = false // New prop to control width
+}: {
+    mode?: 'register' | 'add-employee',
+    onSuccessfulRegistration?: () => void,
+    isModal?: boolean
+})  {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         email: "",
         password: "",
         password_confirmation: "",
+        role: mode === 'add-employee' ? 'ADMIN' : '' // Default role for employee mode
     });
 
     useEffect(() => {
@@ -30,28 +39,47 @@ export default function Register() {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route("register"));
+        // Dynamically choose the route based on the mode
+        const registrationRoute = mode === 'register'
+            ? route("register")  // Default registration route
+            : route("users.store");  // Admin adding a user route
+
+        post(registrationRoute, {
+            onSuccess: () => {
+                reset();
+                onSuccessfulRegistration?.();
+            },
+            onError: (errors) => {
+                console.error("Registration Errors:", errors);
+            }
+        });
     };
 
     return (
         <GuestLayout>
-            <Head title="Register" />
-
             <form onSubmit={submit}>
-                <Card className="mx-auto max-w-sm">
+                <Card  className={`mx-auto ${
+                        isModal
+                        ? 'max-w-xl w-full' // Wider when in modal
+                        : 'max-w-sm' // Original width
+                    }`}>
                     <CardHeader>
-                        <CardTitle className="text-xl">Sign Up</CardTitle>
+                        <CardTitle className="text-xl">
+                            {mode === 'register' ? 'Sign Up' : 'Tambah Pegawai Baru'}
+                        </CardTitle>
                         <CardDescription>
-                            Enter your information to create an account
+                            {mode === 'register'
+                                ? 'Enter your information to create an account'
+                                : 'Masukkan informasi pegawai baru'}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="grid gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Nama Pegawai</Label>
                                 <Input
                                     id="name"
-                                    placeholder="John Doe"
+                                    placeholder="Contoh Nama"
                                     onChange={(e) =>
                                         setData("name", e.target.value)
                                     }
@@ -65,7 +93,7 @@ export default function Register() {
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="m@example.com"
+                                    placeholder="contoh@email.com"
                                     onChange={(e) =>
                                         setData("email", e.target.value)
                                     }
@@ -88,7 +116,7 @@ export default function Register() {
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
-                                    Retype Password
+                                    Masukan Ulang Password
                                 </Label>
                                 <Input
                                     id="password_confirmation"
@@ -106,15 +134,18 @@ export default function Register() {
                                 />
                             </div>
                             <Button type="submit" className="w-full">
-                                Create an account
+                                {mode === 'register' ? 'Create an account' : 'Tambah Pegawai'}
                             </Button>
                         </div>
-                        <div className="mt-4 text-center text-sm">
-                            Already have an account?{" "}
-                            <Link href="/login" className="underline">
-                                Sign in
-                            </Link>
-                        </div>
+
+                        {mode === 'register' && (
+                            <div className="mt-4 text-center text-sm">
+                                Already have an account?{" "}
+                                <Link href="/login" className="underline">
+                                    Sign in
+                                </Link>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </form>

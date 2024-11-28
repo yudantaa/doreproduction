@@ -5,6 +5,8 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react"
 import { useToast } from "@/components/hooks/use-toast";
+import { router } from '@inertiajs/react';
+import Register from "../auth/register";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -41,7 +43,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { DropdownMenuArrow } from "@radix-ui/react-dropdown-menu";
 
 export type User = {
     id: string;
@@ -56,29 +57,29 @@ export const columns: ColumnDef<User>[] = [
         accessorKey: "name",
         header: ({ column }) => {
             return (
-              <Button
-                variant="ghost"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-              >
-                Nama
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Nama
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
             )
-          },
+        },
     },
     {
         accessorKey: "email",
         header: ({ column }) => {
             return (
-              <Button
-                variant="ghost"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-              >
-                Email
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Email
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
             )
-          },
+        },
     },
     {
         accessorKey: "role",
@@ -118,10 +119,31 @@ export const columns: ColumnDef<User>[] = [
         cell: ({ row }) => {
             const user = row.original;
             const [formData, setFormData] = useState<User | null>(null);
-            const openDialog = () => setFormData(user); // Pass row data to dialog
-            const closeDialog = () => setFormData(null);
             const { toast } = useToast();
             const roles = ["ADMIN", "SUPER ADMIN"];
+
+            const openDialog = () => setFormData({...user}); // Create a copy of user data
+            const closeDialog = () => setFormData(null);
+
+            const handleUpdate = () => {
+                if (formData) {
+                    router.put(`/users/${formData.id}`, formData, {
+                        onSuccess: () => {
+                            closeDialog();
+                            toast({
+                                description: "Data berhasil diubah.",
+                            });
+                        },
+                        onError: (errors) => {
+                            toast({
+                                title: "Gagal Mengubah Data",
+                                description: "Silakan periksa kembali input Anda.",
+                                variant: "destructive"
+                            });
+                        }
+                    });
+                }
+            };
 
             return (
                 <AlertDialog>
@@ -152,6 +174,8 @@ export const columns: ColumnDef<User>[] = [
                                 </AlertDialogTrigger>
                             </DropdownMenuContent>
                         </DropdownMenu>
+
+                        {/* Delete Confirmation Dialog */}
                         <AlertDialogContent>
                             <AlertDialogHeader>
                                 <AlertDialogTitle>
@@ -165,105 +189,50 @@ export const columns: ColumnDef<User>[] = [
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction className="bg-red-600">
+                                <AlertDialogAction
+                                    className="bg-red-600"
+                                    onClick={() => {
+                                        router.delete(`/users/${user.id}`, {
+                                            onSuccess: () => {
+                                                toast({
+                                                    description: "Data berhasil dihapus.",
+                                                });
+                                            },
+                                            onError: () => {
+                                                toast({
+                                                    description: "Gagal menghapus data.",
+                                                    variant: "destructive"
+                                                });
+                                            }
+                                        });
+                                    }}
+                                >
                                     Lanjut Hapus
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
+
+                        {/* Update User Dialog */}
                         {formData && (
-                            <DialogContent className="sm:max-w-[425px]">
+                            <DialogContent className="sm:max-w-[625px]">
                                 <DialogHeader>
-                                    <DialogTitle>Ubah Data</DialogTitle>
+                                    <DialogTitle>Ubah Data Pegawai</DialogTitle>
                                     <DialogDescription>
                                         Ubah data dari pegawai ini, setelah
                                         selesai, silakan menekan tombol ubah.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label
-                                            htmlFor="name"
-                                            className="text-right"
-                                        >
-                                            Name
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            value={formData.name}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    name: e.target.value,
-                                                })
-                                            }
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label
-                                            htmlFor="email"
-                                            className="text-right"
-                                        >
-                                            Email
-                                        </Label>
-                                        <Input
-                                            id="email"
-                                            value={formData.email}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    email: e.target.value,
-                                                })
-                                            }
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label
-                                            htmlFor="role"
-                                            className="text-right"
-                                        >
-                                            Role
-                                        </Label>
-                                        <Select
-                                            onValueChange={(value) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    role: value,
-                                                })
-                                            }
-                                            defaultValue={formData.role}
-                                        >
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Select Role" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {roles.map((role, index) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={role}
-                                                    >
-                                                        {role}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button
-                                        type="submit"
-                                        onClick={() => {
-                                            closeDialog();
-                                            toast({
-                                                description:
-                                                    "Data berhasil diubah.",
-                                            });
-                                        }}
-                                    >
-                                        Ubah
-                                    </Button>
-                                </DialogFooter>
+
+                                <Register
+                                    mode="add-employee"
+                                    isModal={true}
+                                    onSuccessfulRegistration={() => {
+                                        closeDialog();
+                                        toast({
+                                            description: "Pegawai berhasil diperbarui.",
+                                        });
+                                    }}
+                                />
                             </DialogContent>
                         )}
                     </Dialog>

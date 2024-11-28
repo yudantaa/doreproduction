@@ -79,14 +79,14 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => "required|email|unique:users,email,{$user->id}",
-            'password' => 'nullable|string|min:8|confirmed',
+            // 'password' => 'nullable|string|min:8|confirmed',
             'role' => 'nullable|string|max:255',
         ]);
 
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
+            // 'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
             'role' => $validated['role'] ?? $user->role,
         ]);
 

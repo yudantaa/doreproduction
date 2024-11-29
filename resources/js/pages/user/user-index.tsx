@@ -24,47 +24,62 @@ export default function UsersIndex({ users }: UsersPageProps) {
     const [nameFilter, setNameFilter] = useState("");
 
     return (
-        <AuthenticatedLayout header={'Manajemen Pegawai'}>
+        <AuthenticatedLayout header={"Manajemen Pegawai"}>
             <Head title="Users" />
 
-            <div className="container mx-auto py-10 bg-muted/50 rounded-xl">
-                <Head title="Manajemen Pegawai" />
+            <Head title="Manajemen Pegawai" />
+            <div className="flex-1 rounded-xl h-full ">
+                <div className=" mx-auto py-10 rounded-xl w-11/12  ">
+                    <div className="flex justify-between items-center mb-4">
+                        <h1 className="text-2xl font-bold">
+                            Manajemen Pegawai
+                        </h1>
+                        <Dialog
+                            open={isRegisterModalOpen}
+                            onOpenChange={setIsRegisterModalOpen}
+                        >
+                            <DialogTrigger asChild>
+                                <Button className="bg-zinc-600">
+                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah
+                                    Pegawai Baru
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Tambah Pegawai Baru
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <Register
+                                    mode="add-employee"
+                                    onSuccessfulRegistration={() =>
+                                        setIsRegisterModalOpen(false)
+                                    }
+                                />
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                    <div className="flex items-center py-4">
+                        <Input
+                            placeholder="Filter berdasarkan nama..."
+                            value={nameFilter}
+                            onChange={(event) =>
+                                setNameFilter(event.target.value)
+                            }
+                            className="max-w-sm"
+                        />
+                    </div>
 
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold">Manajemen Pegawai</h1>
-                    <Dialog open={isRegisterModalOpen} onOpenChange={setIsRegisterModalOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="bg-zinc-600">
-                                <PlusIcon className="mr-2 h-4 w-4" /> Tambah Pegawai Baru
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>Tambah Pegawai Baru</DialogTitle>
-                            </DialogHeader>
-                            <Register
-                                mode="add-employee"
-                                onSuccessfulRegistration={() => setIsRegisterModalOpen(false)}
-                            />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-                <div className="flex items-center py-4">
-                    <Input
-                        placeholder="Filter berdasarkan nama..."
-                        value={nameFilter}
-                        onChange={(event) => setNameFilter(event.target.value)}
-                        className="max-w-sm"
+                    <DataTable
+                        columns={columns}
+                        data={users.filter((user) =>
+                            user.name
+                                .toLowerCase()
+                                .includes(nameFilter.toLowerCase())
+                        )}
                     />
                 </div>
-
-                <DataTable
-                    columns={columns}
-                    data={users.filter(user =>
-                        user.name.toLowerCase().includes(nameFilter.toLowerCase())
-                    )}
-                    />
             </div>
         </AuthenticatedLayout>
-    )
+    );
 }

@@ -17,16 +17,23 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'SUPER ADMIN',
-            'email' => 'admin@mail.com',
+            'email' => 'super@mail.com',
             'password' => 'asdasd123',
             'role' => 'SUPER ADMIN'
         ]);
 
         User::factory()->create([
             'name' => 'ADMIN',
-            'email' => 'employee@mail.com',
+            'email' => 'admin@mail.com',
             'password' => 'asdasd123',
             'role' => 'ADMIN'
         ]);
+
+        $this->call([
+            CategoriesSeeder::class,
+            ItemsSeeder::class,
+            LoansSeeder::class,
+        ]);
+
     }
 }

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
 import { router } from "@inertiajs/react";
-import Register from "../auth/register";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -226,9 +225,9 @@ export const columns: ColumnDef<User>[] = [
                 <Dialog open={!!formData} onOpenChange={closeDialog}>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
-                            <DialogTitle>Ubah Data User Ini</DialogTitle>
+                            <DialogTitle>Ubah data pegawai Ini</DialogTitle>
                             <DialogDescription>
-                                Make changes to the user's data here. Click save when you're done.
+                               Setelah selesai silahkan klik tombol ubah.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">

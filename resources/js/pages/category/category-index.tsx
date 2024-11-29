@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/layouts/authenticated-layout";
-import { User, columns } from "./columns";
+import { Category, columns } from "./columns";
 import { DataTable } from "@/components/ui/data-table";
 import { Head } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
@@ -13,43 +13,39 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import Register from "../auth/register";
 
-interface UsersPageProps {
-    users: User[];
+interface CategoriesPageProps {
+    categories: Category[];
 }
 
-export default function UsersIndex({ users }: UsersPageProps) {
+export default function CategoriesIndex({ categories }: CategoriesPageProps) {
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const [nameFilter, setNameFilter] = useState("");
 
     return (
-        <AuthenticatedLayout header={'Manajemen Pegawai'}>
-            <Head title="Users" />
+        <AuthenticatedLayout header={'Manajemen Kategori'}>
+            <Head title="categories" />
 
             <div className="container mx-auto py-10 bg-muted/50 rounded-xl">
-                <Head title="Manajemen Pegawai" />
+                <Head title="Manajemen Kategori" />
 
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold">Manajemen Pegawai</h1>
+                <div className="flex justify-between categories-center mb-4">
+                    <h1 className="text-2xl font-bold">Manajemen Kategori</h1>
                     <Dialog open={isRegisterModalOpen} onOpenChange={setIsRegisterModalOpen}>
                         <DialogTrigger asChild>
                             <Button className="bg-zinc-600">
-                                <PlusIcon className="mr-2 h-4 w-4" /> Tambah Pegawai Baru
+                                <PlusIcon className="mr-2 h-4 w-4" /> Tambah Kategori Baru
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle>Tambah Pegawai Baru</DialogTitle>
+                                <DialogTitle>Tambah Kategori Baru</DialogTitle>
                             </DialogHeader>
-                            <Register
-                                mode="add-employee"
-                                onSuccessfulRegistration={() => setIsRegisterModalOpen(false)}
-                            />
+
                         </DialogContent>
                     </Dialog>
                 </div>
-                <div className="flex items-center py-4">
+                <div className="flex categories-center py-4">
                     <Input
                         placeholder="Filter berdasarkan nama..."
                         value={nameFilter}
@@ -60,8 +56,8 @@ export default function UsersIndex({ users }: UsersPageProps) {
 
                 <DataTable
                     columns={columns}
-                    data={users.filter(user =>
-                        user.name.toLowerCase().includes(nameFilter.toLowerCase())
+                    data={categories.filter(Category =>
+                        Category.nama_kategori.toLowerCase().includes(nameFilter.toLowerCase())
                     )}
                     />
             </div>

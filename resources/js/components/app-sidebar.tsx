@@ -40,11 +40,11 @@ const data = {
             items: [
                 {
                     title: "List Barang",
-                    url: "#",
+                    url: "/dashboard/items",
                 },
                 {
                     title: "List Kategori",
-                    url: "#",
+                    url: "/dashboard/categories",
                 },
             ],
         },

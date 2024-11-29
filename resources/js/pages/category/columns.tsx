@@ -43,20 +43,16 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
-// Updated type definition to match the expected Item structure
-export type Item = {
+// Updated type definition to match the expected Category structure
+export type Category = {
     id: string;
-    nama_barang: string;
-    status: string;
-    deskripsi: string;
-    id_kategori: string;
-    jumlah: number;
+    nama_kategori: string;
     created_at: Date;
 };
 
-export const columns: ColumnDef<Item>[] = [
+export const columns: ColumnDef<Category>[] = [
     {
-        accessorKey: "nama_barang",
+        accessorKey: "nama_kategori",
         header: ({ column }) => {
             return (
                 <Button
@@ -65,35 +61,11 @@ export const columns: ColumnDef<Item>[] = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Nama Barang
+                    Nama Kategori
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
-    },
-    {
-        accessorKey: "status",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Status
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-    },
-    {
-        accessorKey: "deskripsi",
-        header: "Deskripsi",
-    },
-    {
-        accessorKey: "jumlah",
-        header: "Stok",
     },
     {
         accessorKey: "created_at",
@@ -129,17 +101,16 @@ export const columns: ColumnDef<Item>[] = [
         header: "Atur",
         id: "actions",
         cell: ({ row }) => {
-            const item = row.original;
-            const [formData, setFormData] = useState<Item | null>(null);
+            const category = row.original;
+            const [formData, setFormData] = useState<Category | null>(null);
             const { toast } = useToast();
-            const status = ["Tersedia", "Tidak Tersedia", "Segera Datang"];
 
-            const openDialog = () => setFormData({ ...item });
+            const openDialog = () => setFormData({ ...category });
             const closeDialog = () => setFormData(null);
 
             const handleUpdate = () => {
                 if (formData) {
-                    router.put(`/items/${formData.id}`, formData, {
+                    router.put(`/categories/${formData.id}`, formData, {
                         onSuccess: () => {
                             closeDialog();
                             toast({
@@ -196,7 +167,7 @@ export const columns: ColumnDef<Item>[] = [
                                 </AlertDialogTitle>
                                 <AlertDialogDescription>
                                     Tindakan ini tidak dapat dibatalkan. Ini
-                                    akan menghapus barang ini secara permanen
+                                    akan menghapus kategori ini secara permanen
                                     dari server kami.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -205,7 +176,7 @@ export const columns: ColumnDef<Item>[] = [
                                 <AlertDialogAction
                                     className="bg-red-600"
                                     onClick={() => {
-                                        router.delete(`/items/${item.id}`, {
+                                        router.delete(`/categories/${category.id}`, {
                                             onSuccess: () => {
                                                 toast({
                                                     description:
@@ -227,86 +198,28 @@ export const columns: ColumnDef<Item>[] = [
                             </AlertDialogFooter>
                         </AlertDialogContent>
 
-                        {/* Update Item Dialog */}
+                        {/* Update Category Dialog */}
                         {formData && (
                             <Dialog open={!!formData} onOpenChange={closeDialog}>
                                 <DialogContent className="sm:max-w-[425px]">
                                     <DialogHeader>
-                                        <DialogTitle>Ubah Data Barang</DialogTitle>
+                                        <DialogTitle>Ubah Data Kategori</DialogTitle>
                                         <DialogDescription>
                                             Setelah selesai silahkan klik tombol ubah.
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="nama_barang" className="text-right">
-                                                Nama Barang
+                                        <div className="grid grid-cols-4 categories-center gap-4">
+                                            <Label htmlFor="nama_kategori" className="text-right">
+                                                Nama Kategori
                                             </Label>
                                             <Input
-                                                id="nama_barang"
-                                                value={formData.nama_barang}
+                                                id="nama_kategori"
+                                                value={formData.nama_kategori}
                                                 onChange={(e) =>
                                                     setFormData({
                                                         ...formData,
-                                                        nama_barang: e.target.value,
-                                                    })
-                                                }
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="jumlah" className="text-right">
-                                                Stok
-                                            </Label>
-                                            <Input
-                                                id="jumlah"
-                                                type="number"
-                                                value={formData.jumlah}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        jumlah: parseInt(e.target.value),
-                                                    })
-                                                }
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="status" className="text-right">
-                                                Status
-                                            </Label>
-                                            <Select
-                                                onValueChange={(value) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        status: value,
-                                                    })
-                                                }
-                                                defaultValue={formData.status}
-                                            >
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder="Pilih Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {status.map((stat) => (
-                                                        <SelectItem key={stat} value={stat}>
-                                                            {stat}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="deskripsi" className="text-right">
-                                                Deskripsi
-                                            </Label>
-                                            <Input
-                                                id="deskripsi"
-                                                value={formData.deskripsi}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        deskripsi: e.target.value,
+                                                        nama_kategori: e.target.value,
                                                     })
                                                 }
                                                 className="col-span-3"

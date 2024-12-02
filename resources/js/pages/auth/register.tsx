@@ -16,7 +16,7 @@ import { InputError } from "@/components/ui/input-error";
 export default function Register({
     mode = 'register',
     onSuccessfulRegistration,
-    isModal = false // New prop to control width
+    isModal = false
 }: {
     mode?: 'register' | 'add-employee',
     onSuccessfulRegistration?: () => void,

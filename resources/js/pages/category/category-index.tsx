@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { CreateCategory } from "./create-form";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogDescription,
 } from "@/components/ui/dialog";
 
 interface CategoriesPageProps {
@@ -19,7 +21,7 @@ interface CategoriesPageProps {
 }
 
 export default function CategoriesIndex({ categories }: CategoriesPageProps) {
-    const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [nameFilter, setNameFilter] = useState("");
 
     return (
@@ -34,8 +36,8 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                             Manajemen Kategori
                         </h1>
                         <Dialog
-                            open={isRegisterModalOpen}
-                            onOpenChange={setIsRegisterModalOpen}
+                            open={isCreateModalOpen}
+                            onOpenChange={setIsCreateModalOpen}
                         >
                             <DialogTrigger asChild>
                                 <Button className="bg-zinc-600">
@@ -48,6 +50,14 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                                     <DialogTitle>
                                         Tambah Kategori Baru
                                     </DialogTitle>
+                                    <DialogDescription>
+                                            Setelah selesai silahkan klik tombol buat.
+                                    </DialogDescription>
+                                    <CreateCategory
+                                        onSuccessfulCreate={() =>
+                                            setIsCreateModalOpen(false)
+                                        }
+                                    />
                                 </DialogHeader>
                             </DialogContent>
                         </Dialog>
@@ -71,6 +81,7 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                                 .includes(nameFilter.toLowerCase())
                         )}
                     />
+
                 </div>
             </div>
         </AuthenticatedLayout>

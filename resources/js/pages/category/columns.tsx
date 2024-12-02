@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
 import { router } from "@inertiajs/react";
+import { Checkbox } from "@/components/ui/checkbox"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,16 +35,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { useState } from "react";
 
-// Updated type definition to match the expected Category structure
+
+
 export type Category = {
     id: string;
     nama_kategori: string;
@@ -51,6 +46,30 @@ export type Category = {
 };
 
 export const columns: ColumnDef<Category>[] = [
+
+    {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+
     {
         accessorKey: "nama_kategori",
         header: ({ column }) => {
@@ -121,7 +140,7 @@ export const columns: ColumnDef<Category>[] = [
                             toast({
                                 title: "Gagal Mengubah Data",
                                 description:
-                                    "Silakan periksa kembali input Anda.",
+                                    "Data ini sudah ada, silakan periksa kembali input Anda.",
                                 variant: "destructive",
                             });
                         },

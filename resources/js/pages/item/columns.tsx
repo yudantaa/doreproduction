@@ -150,7 +150,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
             })} ${date.toLocaleTimeString("id-ID", {
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
+                hour12: true,
             })}`;
         },
         sortFn: (rowA, rowB) => {

@@ -98,23 +98,27 @@ export const columns: ColumnDef<User>[] = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Tanggal Didaftarkan
+                    Waktu Ditambahkan
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
             const date = new Date(row.original.created_at);
-            return date.toLocaleDateString("id-ID", {
+            return `${date.toLocaleDateString("id-ID", {
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
-            });
+            })} ${date.toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            })}`;
         },
         sortFn: (rowA, rowB) => {
             const dateA = new Date(rowA.original.created_at);
             const dateB = new Date(rowB.original.created_at);
-            return dateA - dateB;
+            return dateA.getTime() - dateB.getTime();
         },
     },
     {

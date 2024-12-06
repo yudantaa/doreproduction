@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
 import { router } from "@inertiajs/react";
+import { Category } from "../category/columns";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -43,7 +44,6 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
-// Updated type definition to match the expected Item structure
 export type Item = {
     id: string;
     nama_barang: string;
@@ -54,7 +54,8 @@ export type Item = {
     created_at: Date;
 };
 
-export const columns: ColumnDef<Item>[] = [
+
+export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: "nama_barang",
         header: ({ column }) => {
@@ -84,12 +85,42 @@ export const columns: ColumnDef<Item>[] = [
                     Status
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
+
+            );
+        },
+        cell: ({ getValue }) => {
+            const status = getValue(); // Get the value of the 'status' column
+            const bgColor =
+                status === "Tersedia" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800";
+
+            return (
+                <div
+                    className={` text-center inline-block rounded-full px-3 py-1 text-xs font-semibold ${bgColor}`}
+                >
+                    {status}
+                </div>
             );
         },
     },
     {
         accessorKey: "deskripsi",
         header: "Deskripsi",
+        cell: ({ getValue }) => {
+            const deskripsi = getValue(); // Get the value of the 'deskripsi' column
+            const truncatedDeskripsi =
+                deskripsi.length > 100 ? `${deskripsi.slice(0, 100)}...` : deskripsi;
+
+            return (
+                <span title={deskripsi}>
+                    {truncatedDeskripsi}
+                </span>
+            );
+        },
+    },
+    {
+        accessorKey: "nama_kategori",
+        header: "Kategori"
+
     },
     {
         accessorKey: "jumlah",
@@ -105,18 +136,22 @@ export const columns: ColumnDef<Item>[] = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Tanggal Didaftarkan
+                    Waktu Ditambahkan
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
             const date = new Date(row.original.created_at);
-            return date.toLocaleDateString("id-ID", {
+            return `${date.toLocaleDateString("id-ID", {
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
-            });
+            })} ${date.toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+            })}`;
         },
         sortFn: (rowA, rowB) => {
             const dateA = new Date(rowA.original.created_at);
@@ -132,7 +167,7 @@ export const columns: ColumnDef<Item>[] = [
             const item = row.original;
             const [formData, setFormData] = useState<Item | null>(null);
             const { toast } = useToast();
-            const status = ["Tersedia", "Tidak Tersedia", "Segera Datang"];
+            const status = ["Tersedia", "Tidak Tersedia"];
 
             const openDialog = () => setFormData({ ...item });
             const closeDialog = () => setFormData(null);
@@ -229,17 +264,26 @@ export const columns: ColumnDef<Item>[] = [
 
                         {/* Update Item Dialog */}
                         {formData && (
-                            <Dialog open={!!formData} onOpenChange={closeDialog}>
+                            <Dialog
+                                open={!!formData}
+                                onOpenChange={closeDialog}
+                            >
                                 <DialogContent className="sm:max-w-[425px]">
                                     <DialogHeader>
-                                        <DialogTitle>Ubah Data Barang</DialogTitle>
+                                        <DialogTitle>
+                                            Ubah Data Barang
+                                        </DialogTitle>
                                         <DialogDescription>
-                                            Setelah selesai silahkan klik tombol ubah.
+                                            Setelah selesai silahkan klik tombol
+                                            ubah.
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="grid gap-4 py-4">
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="nama_barang" className="text-right">
+                                            <Label
+                                                htmlFor="nama_barang"
+                                                className="text-right"
+                                            >
                                                 Nama Barang
                                             </Label>
                                             <Input
@@ -248,14 +292,18 @@ export const columns: ColumnDef<Item>[] = [
                                                 onChange={(e) =>
                                                     setFormData({
                                                         ...formData,
-                                                        nama_barang: e.target.value,
+                                                        nama_barang:
+                                                            e.target.value,
                                                     })
                                                 }
                                                 className="col-span-3"
                                             />
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="jumlah" className="text-right">
+                                            <Label
+                                                htmlFor="jumlah"
+                                                className="text-right"
+                                            >
                                                 Stok
                                             </Label>
                                             <Input
@@ -265,14 +313,19 @@ export const columns: ColumnDef<Item>[] = [
                                                 onChange={(e) =>
                                                     setFormData({
                                                         ...formData,
-                                                        jumlah: parseInt(e.target.value),
+                                                        jumlah: parseInt(
+                                                            e.target.value
+                                                        ),
                                                     })
                                                 }
                                                 className="col-span-3"
                                             />
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="status" className="text-right">
+                                            <Label
+                                                htmlFor="status"
+                                                className="text-right"
+                                            >
                                                 Status
                                             </Label>
                                             <Select
@@ -289,7 +342,10 @@ export const columns: ColumnDef<Item>[] = [
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {status.map((stat) => (
-                                                        <SelectItem key={stat} value={stat}>
+                                                        <SelectItem
+                                                            key={stat}
+                                                            value={stat}
+                                                        >
                                                             {stat}
                                                         </SelectItem>
                                                     ))}
@@ -297,7 +353,49 @@ export const columns: ColumnDef<Item>[] = [
                                             </Select>
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="deskripsi" className="text-right">
+                                            <Label
+                                                htmlFor="id_kategori"
+                                                className="text-right"
+                                            >
+                                                Kategori
+                                            </Label>
+                                            <Select
+                                                onValueChange={(value) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        id_kategori: value,
+                                                    })
+                                                }
+                                                value={formData.id_kategori}
+                                            >
+                                                <SelectTrigger className="col-span-3">
+                                                    <SelectValue placeholder="Pilih Kategori" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {categories.map(
+                                                        (category) => (
+                                                            <SelectItem
+                                                                key={
+                                                                    category.id
+                                                                }
+                                                                value={
+                                                                    category.id
+                                                                }
+                                                            >
+                                                                {
+                                                                    category.nama_kategori
+                                                                }
+                                                            </SelectItem>
+                                                        )
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="deskripsi"
+                                                className="text-right"
+                                            >
                                                 Deskripsi
                                             </Label>
                                             <Input
@@ -306,7 +404,8 @@ export const columns: ColumnDef<Item>[] = [
                                                 onChange={(e) =>
                                                     setFormData({
                                                         ...formData,
-                                                        deskripsi: e.target.value,
+                                                        deskripsi:
+                                                            e.target.value,
                                                     })
                                                 }
                                                 className="col-span-3"
@@ -314,7 +413,10 @@ export const columns: ColumnDef<Item>[] = [
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit" onClick={handleUpdate}>
+                                        <Button
+                                            type="submit"
+                                            onClick={handleUpdate}
+                                        >
                                             Ubah
                                         </Button>
                                     </DialogFooter>

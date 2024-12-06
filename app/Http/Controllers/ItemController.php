@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Item;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -14,92 +16,66 @@ class ItemController extends Controller
     public function index()
     {
         return Inertia::render('item/item-index', [
-            'items' => Item::all()->map(fn ($item) => [
+            'items' => Item::with('category')->get()->map(fn ($item) => [
                 'id' => $item->id,
                 'nama_barang' => $item->nama_barang,
                 'jumlah' => $item->jumlah,
                 'status' => $item->status,
                 'deskripsi' => $item->deskripsi,
                 'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-                'id_kategori' => $item->category->id ?? null,
-            ])
+                'id_kategori' => $item->category?->id, // Use null-safe operator in case category is null
+                'nama_kategori' => $item->category?->nama_kategori ?? 'Tidak Ada Kategori', // Fallback if no category exists
+            ]),
+            'categories' => Category::all()->map(fn ($category) => [
+                'id' => $category->id,
+                'nama_kategori' => $category->nama_kategori,
+            ]),
         ]);
     }
 
-    // /**
-    //  * Show the form for creating a new item.
-    //  */
-    // public function create()
-    // {
-    //     return Inertia::render('item/item-create');
-    // }
+    /**
+     * Store a newly created item.
+     */
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'nama_barang' => 'required|string|max:255',
+            'jumlah' => 'required|integer|min:0',
+            'status' => 'required|in:Tersedia,Tidak Tersedia',
+            'deskripsi' => 'nullable|string',
+            'id_kategori' => 'required|exists:categories,id'
+        ]);
 
-    // /**
-    //  * Store a newly created item in storage.
-    //  */
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:items,email',
-    //         'password' => 'required|string|min:8|confirmed',
-    //         'role' => 'nullable|string|max:255',
-    //     ]);
+        $item = Item::create($validatedData);
 
-    //     Item::create([
-    //         'name' => $validated['name'],
-    //         'email' => $validated['email'],
-    //         'password' => Hash::make($validated['password']),
-    //         'role' => $validated['role'] ?? 'ADMIN',
-    //     ]);
-
-    //     return redirect()->route('items.index')->with('success', 'item created successfully.');
-    // }
-
-    // /**
-    //  * Show the form for editing the specified item.
-    //  */
-    // public function edit(item $item)
-    // {
-    //     return Inertia::render('item/item-edit', [
-    //         'item' => [
-    //             'id' => $item->id,
-    //             'name' => $item->name,
-    //             'email' => $item->email,
-    //             'role' => $item->role,
-    //         ]
-    //     ]);
-    // }
-
-    // /**
-    //  * Update the specified item in storage.
-    //  */
-    // public function update(Request $request, item $item)
-    // {
-    //     $validated = $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => "required|email|unique:items,email,{$item->id}",
-    //         // 'password' => 'nullable|string|min:8|confirmed',
-    //         'role' => 'nullable|string|max:255',
-    //     ]);
-
-    //     $item->update([
-    //         'name' => $validated['name'],
-    //         'email' => $validated['email'],
-    //         // 'password' => $validated['password'] ? Hash::make($validated['password']) : $item->password,
-    //         'role' => $validated['role'] ?? $item->role,
-    //     ]);
-
-    //     return redirect()->route('items.index')->with('success', 'item updated successfully.');
-    // }
+        return redirect()->route('items.index')->with('success', 'Item created successfully.');
+    }
 
     /**
-     * Remove the specified item from storage.
+     * Update the specified item.
      */
-    public function destroy(item $item)
+    public function update(Request $request, Item $item)
+    {
+        $validatedData = $request->validate([
+            'nama_barang' => 'required|string|max:255',
+            'jumlah' => 'required|integer|min:0',
+            'status' => 'required|in:Tersedia,Tidak Tersedia',
+            'deskripsi' => 'nullable|string',
+            'id_kategori' => 'required|exists:categories,id'
+        ]);
+
+        $item->update($validatedData);
+
+        return redirect()->route('items.index')->with('success', 'Item updated successfully.');
+    }
+
+    /**
+     * Remove the specified item.
+     */
+    public function destroy(Item $item)
     {
         $item->delete();
 
-        return redirect()->route('items.index')->with('success', 'item deleted successfully.');
+        return redirect()->route('items.index')->with('success', 'Item deleted successfully.');
     }
 }

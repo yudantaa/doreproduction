@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { AddItemForm } from "./create-form";
 import {
     Dialog,
     DialogContent,
@@ -13,13 +14,14 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import Register from "../auth/register";
+import { Category } from "../category/columns";
 
 interface ItemsPageProps {
     items: Item[];
+    categories: Category[];
 }
 
-export default function ItemsIndex({ items }: ItemsPageProps) {
+export default function ItemsIndex({ items, categories }: ItemsPageProps) {
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const [nameFilter, setNameFilter] = useState("");
 
@@ -48,6 +50,12 @@ export default function ItemsIndex({ items }: ItemsPageProps) {
                                         Tambah Barang Baru
                                     </DialogTitle>
                                 </DialogHeader>
+                                <AddItemForm
+                                    onClose={() =>
+                                        setIsRegisterModalOpen(false)
+                                    }
+                                    categories={categories}
+                                />
                             </DialogContent>
                         </Dialog>
                     </div>
@@ -63,9 +71,9 @@ export default function ItemsIndex({ items }: ItemsPageProps) {
                     </div>
 
                     <DataTable
-                        columns={columns}
-                        data={items.filter((Item) =>
-                            Item.nama_barang
+                        columns={columns(categories)} // Call the function here
+                        data={items.filter((item) =>
+                            item.nama_barang
                                 .toLowerCase()
                                 .includes(nameFilter.toLowerCase())
                         )}

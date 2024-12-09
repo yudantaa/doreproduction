@@ -36,7 +36,7 @@ class ItemsSeeder extends Seeder
             [
                 'nama_barang' => 'Sound 2000 Watt',
                 'id_kategori' => 1, // Kategori "Sound System"
-                'status' => 'Tersedia',
+                'status' => 'Tidak Tersedia',
                 'jumlah' => 5, // Contoh jumlah barang
                 'deskripsi' => "
                     Capacity up to 50 Pax Participants.

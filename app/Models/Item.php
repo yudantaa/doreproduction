@@ -12,6 +12,7 @@ class Item extends Model
         'jumlah',
         'deskripsi',
         'id_kategori',
+        'image'
     ];
 
     // Relasi ke kategori

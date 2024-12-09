@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/image-upload";
 import {
     DialogContent,
     DialogDescription,
@@ -32,6 +33,8 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
 }) => {
     const { toast } = useToast();
     const status = ["Tersedia", "Tidak Tersedia"];
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
 
     const [formData, setFormData] = useState({
         nama_barang: "",
@@ -39,7 +42,23 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
         status: "Tersedia",
         deskripsi: "",
         id_kategori: "",
+        image: ""
     });
+
+    const handleDeskripsiChange = (
+        e: React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        setFormData({
+            ...formData,
+            deskripsi: e.target.value,
+        });
+
+        // Adjust textarea height dynamically
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    };
 
     const handleSubmit = () => {
         // Validate form data
@@ -68,6 +87,19 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
             });
             return;
         }
+
+        const submitData = new FormData();
+        submitData.append('nama_barang', formData.nama_barang);
+        submitData.append('jumlah', formData.jumlah.toString());
+        submitData.append('status', formData.status);
+        submitData.append('deskripsi', formData.deskripsi);
+        submitData.append('id_kategori', formData.id_kategori);
+
+        // Append image if exists
+        if (imageFile) {
+            submitData.append('image', imageFile);
+        }
+
 
         router.post("/items", formData, {
             onSuccess: () => {
@@ -185,20 +217,28 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
                     </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="image" className="text-right">
+                        Gambar
+                    </Label>
+                    <div className="col-span-3">
+                        <ImageUpload
+                            onImageChange={setImageFile}
+                            defaultImage={existingImageUrl}
+                        />
+                    </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="deskripsi" className="text-right">
                         Deskripsi
                     </Label>
                     <Textarea
+                        ref={textareaRef}
                         id="deskripsi"
                         value={formData.deskripsi}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                deskripsi: e.target.value,
-                            })
-                        }
+                        onChange={handleDeskripsiChange}
                         placeholder="Masukkan deskripsi barang"
-                        className="col-span-3"
+                        className="col-span-3 min-h-[100px]"
+                        rows={3}
                     />
                 </div>
             </div>

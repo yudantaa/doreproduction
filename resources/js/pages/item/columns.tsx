@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ColumnDef } from "@tanstack/react-table";
@@ -5,8 +6,10 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 import { router } from "@inertiajs/react";
 import { Category } from "../category/columns";
+import { ImageUpload } from "@/components/ui/image-upload";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -42,7 +45,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
 
 export type Item = {
     id: string;
@@ -52,10 +54,24 @@ export type Item = {
     id_kategori: string;
     jumlah: number;
     created_at: Date;
+    image?: string | null;
 };
 
-
 export const columns = (categories: Category[]): ColumnDef<Item>[] => [
+    {
+        accessorKey: "image",
+        header: "Gambar",
+        cell: ({ row }) => {
+            const imageUrl = `/storage/${row.original.image}`; // Generate the full image URL
+            return (
+                <img
+                    src={imageUrl}
+                    alt="Item"
+                    style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
+            );
+        },
+    },
     {
         accessorKey: "nama_barang",
         header: ({ column }) => {
@@ -85,13 +101,14 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     Status
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
-
             );
         },
         cell: ({ getValue }) => {
             const status = getValue(); // Get the value of the 'status' column
             const bgColor =
-                status === "Tersedia" ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800";
+                status === "Tersedia"
+                    ? "bg-green-200 text-green-800"
+                    : "bg-red-200 text-red-800";
 
             return (
                 <div
@@ -106,21 +123,22 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         accessorKey: "deskripsi",
         header: "Deskripsi",
         cell: ({ getValue }) => {
-            const deskripsi = getValue(); // Get the value of the 'deskripsi' column
+            const deskripsi = getValue() || "";
             const truncatedDeskripsi =
-                deskripsi.length > 100 ? `${deskripsi.slice(0, 100)}...` : deskripsi;
+                deskripsi.length > 100
+                    ? `${deskripsi.slice(0, 100)}...`
+                    : deskripsi;
 
-            return (
-                <span title={deskripsi}>
-                    {truncatedDeskripsi}
-                </span>
+            return deskripsi ? (
+                <span title={deskripsi}>{truncatedDeskripsi}</span>
+            ) : (
+                "Tidak ada deskripsi."
             );
         },
     },
     {
         accessorKey: "nama_kategori",
-        header: "Kategori"
-
+        header: "Kategori",
     },
     {
         accessorKey: "jumlah",
@@ -166,15 +184,51 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         cell: ({ row }) => {
             const item = row.original;
             const [formData, setFormData] = useState<Item | null>(null);
+            const textareaRef = useRef<HTMLTextAreaElement>(null);
+            const [imageFile, setImageFile] = useState<File | null>(null);
             const { toast } = useToast();
             const status = ["Tersedia", "Tidak Tersedia"];
 
             const openDialog = () => setFormData({ ...item });
-            const closeDialog = () => setFormData(null);
+            const closeDialog = () => {
+                setFormData(null);
+                setImageFile(null);
+            };
+
+            const createFormData = (data: Item, imageFile: File | null): FormData => {
+                const formData = new FormData();
+                formData.append("nama_barang", data.nama_barang);
+                formData.append("jumlah", data.jumlah.toString());
+                formData.append("status", data.status);
+                formData.append("deskripsi", data.deskripsi || "");
+                formData.append("id_kategori", data.id_kategori);
+
+                // Append image if exists
+                if (imageFile) {
+                    formData.append("image", imageFile);
+                } else {
+                    console.warn("No image file provided.");
+                }
+
+                formData.append("_method", "put"); // Required for PUT simulation if needed
+                return formData;
+            };
+
+            const handleDeskripsiChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                if (formData) {
+                    setFormData({ ...formData, deskripsi: e.target.value });
+                }
+            };
 
             const handleUpdate = () => {
-                if (formData) {
-                    router.put(`/items/${formData.id}`, formData, {
+                if (!formData) return;
+
+                const submitData = createFormData(formData, imageFile);
+                console.log("FormData being sent:", [...submitData.entries()]);
+                router.post(
+                    `/items/${formData.id}`,
+                    submitData,
+                    {
                         onSuccess: () => {
                             closeDialog();
                             toast({
@@ -182,16 +236,17 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                             });
                         },
                         onError: (errors) => {
+                            console.error("Update failed with errors:", errors);
                             toast({
                                 title: "Gagal Mengubah Data",
-                                description:
-                                    "Silakan periksa kembali input Anda.",
+                                description: "Silakan periksa kembali input Anda.",
                                 variant: "destructive",
                             });
                         },
-                    });
-                }
+                    }
+                );
             };
+
 
             return (
                 <AlertDialog>
@@ -337,7 +392,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                 }
                                                 defaultValue={formData.status}
                                             >
-                                                <SelectTrigger className="w-[180px]">
+                                                <SelectTrigger className="col-span-3">
                                                     <SelectValue placeholder="Pilih Status" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -393,22 +448,35 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
                                             <Label
+                                                htmlFor="image"
+                                                className="text-right"
+                                            >
+                                                Gambar
+                                            </Label>
+                                            <div className="col-span-3">
+                                                <ImageUpload
+                                                    defaultImage={item.gambar}
+                                                    onImageChange={setImageFile}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
                                                 htmlFor="deskripsi"
                                                 className="text-right"
                                             >
                                                 Deskripsi
                                             </Label>
-                                            <Input
+                                            <Textarea
+                                                ref={textareaRef}
                                                 id="deskripsi"
-                                                value={formData.deskripsi}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        deskripsi:
-                                                            e.target.value,
-                                                    })
+                                                value={
+                                                    formData?.deskripsi || ""
                                                 }
-                                                className="col-span-3"
+                                                onChange={handleDeskripsiChange}
+                                                className="col-span-3 min-h-[100px]"
+                                                rows={3}
+                                                placeholder="Masukkan deskripsi barang"
                                             />
                                         </div>
                                     </div>

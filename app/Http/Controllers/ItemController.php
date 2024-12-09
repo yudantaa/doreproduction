@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Storage;
 
 class ItemController extends Controller
 {
@@ -23,8 +24,8 @@ class ItemController extends Controller
                 'status' => $item->status,
                 'deskripsi' => $item->deskripsi,
                 'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-                'id_kategori' => $item->category?->id, // Use null-safe operator in case category is null
-                'nama_kategori' => $item->category?->nama_kategori ?? 'Tidak Ada Kategori', // Fallback if no category exists
+                'id_kategori' => $item->category?->id,
+                'nama_kategori' => $item->category?->nama_kategori ?? 'Tidak Ada Kategori',
             ]),
             'categories' => Category::all()->map(fn ($category) => [
                 'id' => $category->id,
@@ -43,8 +44,15 @@ class ItemController extends Controller
             'jumlah' => 'required|integer|min:0',
             'status' => 'required|in:Tersedia,Tidak Tersedia',
             'deskripsi' => 'nullable|string',
-            'id_kategori' => 'required|exists:categories,id'
+            'id_kategori' => 'required|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,webp|max:5120' // 5MB max
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('items', 'public');
+            $validatedData['image'] = $imagePath;
+        }
 
         $item = Item::create($validatedData);
 
@@ -61,8 +69,23 @@ class ItemController extends Controller
             'jumlah' => 'required|integer|min:0',
             'status' => 'required|in:Tersedia,Tidak Tersedia',
             'deskripsi' => 'nullable|string',
-            'id_kategori' => 'required|exists:categories,id'
+            'id_kategori' => 'required|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,webp|max:5120' // 5MB max
         ]);
+
+        // Handle image upload/update
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($item->image) {
+                Storage::disk('public')->delete($item->image);
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('items', 'public');
+            $validatedData['image'] = $imagePath;
+
+
+        }
 
         $item->update($validatedData);
 

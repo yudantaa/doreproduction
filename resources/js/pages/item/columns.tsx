@@ -62,12 +62,12 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         accessorKey: "image",
         header: "Gambar",
         cell: ({ row }) => {
-            const imageUrl = `/storage/${row.original.image}`; // Generate the full image URL
+            const imageUrl = `/storage/${row.original.image}`;
             return (
-                <img
+                <img className="rounded"
                     src={imageUrl}
                     alt="Item"
-                    style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                    style={{ width: "150px", height: "150px", objectFit: "cover" }}
                 />
             );
         },

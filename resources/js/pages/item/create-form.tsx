@@ -38,11 +38,11 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
 
     const [formData, setFormData] = useState({
         nama_barang: "",
-        jumlah: 0,
+        jumlah: 1,
         status: "Tersedia",
         deskripsi: "",
         id_kategori: "",
-        image: ""
+        image: "",
     });
 
     const handleDeskripsiChange = (
@@ -89,19 +89,17 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
         }
 
         const submitData = new FormData();
-        submitData.append('nama_barang', formData.nama_barang);
-        submitData.append('jumlah', formData.jumlah.toString());
-        submitData.append('status', formData.status);
-        submitData.append('deskripsi', formData.deskripsi);
-        submitData.append('id_kategori', formData.id_kategori);
+        submitData.append("nama_barang", formData.nama_barang);
+        submitData.append("jumlah", formData.jumlah.toString());
+        submitData.append("status", formData.status);
+        submitData.append("deskripsi", formData.deskripsi);
+        submitData.append("id_kategori", formData.id_kategori);
 
-        // Append image if exists
         if (imageFile) {
-            submitData.append('image', imageFile);
+            submitData.append("image", imageFile);
         }
 
-
-        router.post("/items", formData, {
+        router.post("/items", submitData, {
             onSuccess: () => {
                 toast({
                     description: "Barang baru berhasil ditambahkan.",
@@ -221,10 +219,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
                         Gambar
                     </Label>
                     <div className="col-span-3">
-                        <ImageUpload
-                            onImageChange={setImageFile}
-                            defaultImage={existingImageUrl}
-                        />
+                        <ImageUpload onImageChange={setImageFile} />
                     </div>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">

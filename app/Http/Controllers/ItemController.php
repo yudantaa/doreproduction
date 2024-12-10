@@ -26,11 +26,13 @@ class ItemController extends Controller
                 'created_at' => $item->created_at->format('Y-m-d H:i:s'),
                 'id_kategori' => $item->category?->id,
                 'nama_kategori' => $item->category?->nama_kategori ?? 'Tidak Ada Kategori',
+                'image'=> $item->image,
             ]),
             'categories' => Category::all()->map(fn ($category) => [
                 'id' => $category->id,
                 'nama_kategori' => $category->nama_kategori,
             ]),
+
         ]);
     }
 

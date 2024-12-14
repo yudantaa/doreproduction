@@ -84,7 +84,7 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                                 <SelectValue placeholder="Pilih Kategori" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="All">Filter Kategori</SelectItem>
+                                <SelectItem value="All">Semua Kategori</SelectItem>
                                 {categories.map((category) => (
                                     <SelectItem
                                         key={category.id}

@@ -12,13 +12,9 @@ class Loan extends Model
         'tanggal_pinjam',
         'tanggal_kembali',
         'status',
+        'id_barang'
     ];
 
-    // Relasi ke tabel users (opsional jika id_user disimpan di tabel loans)
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user');
-    }
 
     // Relasi ke tabel items
     public function item()

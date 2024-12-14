@@ -59,6 +59,12 @@ export type Item = {
 
 export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
+        header: "Nomor",
+        cell: ({ row }) => {
+            return <div className=" font-bold">{row.index + 1}</div>;
+        },
+    },
+    {
         accessorKey: "image",
         header: "Gambar",
         cell: ({ row }) => {
@@ -67,7 +73,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                 <img className="rounded"
                     src={imageUrl}
                     alt="Item"
-                    style={{ width: "150px", height: "150px", objectFit: "cover" }}
+                    style={{ width: "50px", height: "50px", objectFit: "cover" }}
                 />
             );
         },

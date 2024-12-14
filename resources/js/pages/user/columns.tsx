@@ -52,6 +52,13 @@ export type User = {
 };
 
 export const columns: ColumnDef<User>[] = [
+
+    {
+        header: "Nomor",
+        cell: ({ row }) => {
+            return <div className=" font-bold">{row.index + 1}</div>;
+        },
+    },
     {
         accessorKey: "name",
         header: ({ column }) => {

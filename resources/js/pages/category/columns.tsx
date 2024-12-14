@@ -45,7 +45,12 @@ export type Category = {
 };
 
 export const columns: ColumnDef<Category>[] = [
-
+    {
+        header: "Nomor",
+        cell: ({ row }) => {
+            return <div className=" font-bold">{row.index + 1}</div>;
+        },
+    },
     {
         accessorKey: "nama_kategori",
         header: ({ column }) => {

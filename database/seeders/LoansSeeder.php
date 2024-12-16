@@ -14,24 +14,24 @@ class LoansSeeder extends Seeder
     {
         DB::table('loans')->insert([
             [
-                'nama_peminjam' => 'Yudanta Agasta',
-                'no_tlp_peminjam' => '089522734461',
-                'id_barang' => 1, // Sound 1000 Watt
-                'tanggal_pinjam' => now()->subDays(7),
+                'nama_penyewa' => 'Yudanta Agasta',
+                'no_tlp_penyewa' => '089522734461',
+                'id_barang' => 1,
+                'tanggal_sewa' => now()->subDays(7),
                 'tanggal_kembali' => null,
                 'deadline_pengembalian' => now()->addDays(7),
-                'status' => 'dipinjam',
+                'status' => 'Disewa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'nama_peminjam' => 'Turtle Emperor',
-                'no_tlp_peminjam' => '082173035412',
-                'id_barang' => 2, // Sound 3000 Watt
-                'tanggal_pinjam' => now()->subDays(5),
+                'nama_penyewa' => 'Turtle Emperor',
+                'no_tlp_penyewa' => '082173035412',
+                'id_barang' => 2,
+                'tanggal_sewa' => now()->subDays(5),
                 'tanggal_kembali' => now()->addDays(5),
                 'deadline_pengembalian' => now()->addDays(7),
-                'status' => 'dikembalikan',
+                'status' => 'Dikembalikan',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

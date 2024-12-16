@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LoanController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,9 +26,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::get('/dashboard/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/dashboard/items', [ItemController::class, 'index'])->name('items.index');
     Route::get('/dashboard/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/dashboard/loans', [LoanController::class, 'index'])->name('loans.index');
+
 });
 
 Route::resource('users', UserController::class)
@@ -35,6 +39,8 @@ Route::resource('users', UserController::class)
 Route::resource('items', ItemController::class)
     ->middleware(['auth']);
 Route::resource('categories', CategoryController::class)
+    ->middleware(['auth']);
+    Route::resource('loans', LoanController::class)
     ->middleware(['auth']);
 
 

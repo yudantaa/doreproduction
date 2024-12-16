@@ -12,10 +12,11 @@ return new class extends Migration {
     {
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_peminjam');
-            $table->string('no_tlp_peminjam');
-            $table->date('tanggal_pinjam');
+            $table->string('nama_penyewa');
+            $table->string('no_tlp_penyewa');
+            $table->date('tanggal_sewa');
             $table->date('tanggal_kembali')->nullable();
+            $table->date('deadline_pengembalian');
             $table->string('status');
             $table->timestamps();
         });

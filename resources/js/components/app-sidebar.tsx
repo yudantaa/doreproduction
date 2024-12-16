@@ -50,7 +50,7 @@ const data = {
         },
         {
             title: "Manajemen Pinjaman",
-            url: "#",
+            url: "/dashboard/loans",
             icon: CalendarCheck2Icon,
         },
         {
@@ -60,16 +60,16 @@ const data = {
         },
     ],
     navSecondary: [
-        {
-            title: "Support",
-            url: "#",
-            icon: LifeBuoy,
-        },
-        {
-            title: "Feedback",
-            url: "#",
-            icon: Send,
-        },
+        // {
+        //     title: "Support",
+        //     url: "#",
+        //     icon: LifeBuoy,
+        // },
+        // {
+        //     title: "Feedback",
+        //     url: "#",
+        //     icon: Send,
+        // },
     ],
 };
 

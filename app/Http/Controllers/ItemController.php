@@ -26,7 +26,7 @@ class ItemController extends Controller
                 'created_at' => $item->created_at->format('Y-m-d H:i:s'),
                 'id_kategori' => $item->category?->id,
                 'nama_kategori' => $item->category?->nama_kategori ?? 'Tidak Ada Kategori',
-                'image'=> $item->image,
+                'image' => $item->image
             ]),
             'categories' => Category::all()->map(fn ($category) => [
                 'id' => $category->id,
@@ -78,10 +78,9 @@ class ItemController extends Controller
         // Handle image upload/update
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            if ($item->image) {
+            if ($item->image && Storage::disk('public')->exists($item->image)) {
                 Storage::disk('public')->delete($item->image);
             }
-
             // Store new image
             $imagePath = $request->file('image')->store('items', 'public');
             $validatedData['image'] = $imagePath;

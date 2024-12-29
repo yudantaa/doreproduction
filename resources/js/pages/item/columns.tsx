@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { router } from "@inertiajs/react";
 import { Category } from "../category/columns";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { useFormState } from "@/utilities/form-utilities";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -61,7 +61,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         header: "Nomor",
         cell: ({ row }) => {
-            return <div className=" font-bold">{row.index + 1}</div>;
+            return <div className="font-bold">{row.index + 1}</div>;
         },
     },
     {
@@ -70,10 +70,15 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         cell: ({ row }) => {
             const imageUrl = `/storage/${row.original.image}`;
             return (
-                <img className="rounded"
+                <img
+                    className="rounded"
                     src={imageUrl}
                     alt="Item"
-                    style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                    style={{
+                        width: "50px",
+                        height: "50px",
+                        objectFit: "cover",
+                    }}
                 />
             );
         },
@@ -110,7 +115,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
             );
         },
         cell: ({ getValue }) => {
-            const status = getValue(); // Get the value of the 'status' column
+            const status = getValue();
             const bgColor =
                 status === "Tersedia"
                     ? "bg-green-200 text-green-800"
@@ -118,7 +123,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
 
             return (
                 <div
-                    className={` text-center inline-block rounded-full px-3 py-1 text-xs font-semibold ${bgColor}`}
+                    className={`text-center inline-block rounded-full px-3 py-1 text-xs font-semibold ${bgColor}`}
                 >
                     {status}
                 </div>
@@ -189,70 +194,32 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         id: "actions",
         cell: ({ row }) => {
             const item = row.original;
-            const [formData, setFormData] = useState<Item | null>(null);
-            const textareaRef = useRef<HTMLTextAreaElement>(null);
             const [imageFile, setImageFile] = useState<File | null>(null);
             const { toast } = useToast();
             const status = ["Tersedia", "Tidak Tersedia"];
 
-            const openDialog = () => setFormData({ ...item });
-            const closeDialog = () => {
-                setFormData(null);
-                setImageFile(null);
-            };
+            const {
+                isModalOpen,
+                formData,
+                handleInputChange,
+                handleSelectChange,
+                openModal,
+                closeModal,
+                handleUpdate,
+            } = useFormState<Item>(null);
 
-            const createFormData = (data: Item, imageFile: File | null): FormData => {
-                const formData = new FormData();
-                formData.append("nama_barang", data.nama_barang);
-                formData.append("jumlah", data.jumlah.toString());
-                formData.append("status", data.status);
-                formData.append("deskripsi", data.deskripsi || "");
-                formData.append("id_kategori", data.id_kategori);
-
-                // Append image if exists
-                if (imageFile) {
-                    formData.append("image", imageFile);
-                } else {
-                    console.warn("No image file provided.");
-                }
-
-                formData.append("_method", "put"); // Required for PUT simulation if needed
-                return formData;
-            };
-
-            const handleDeskripsiChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                if (formData) {
-                    setFormData({ ...formData, deskripsi: e.target.value });
-                }
-            };
-
-            const handleUpdate = () => {
+            const handleFormSubmit = (e: React.FormEvent) => {
+                e.preventDefault();
                 if (!formData) return;
 
-                const submitData = createFormData(formData, imageFile);
-                console.log("FormData being sent:", [...submitData.entries()]);
-                router.post(
-                    `/items/${formData.id}`,
-                    submitData,
-                    {
-                        onSuccess: () => {
-                            closeDialog();
-                            toast({
-                                description: "Data berhasil diubah.",
-                            });
-                        },
-                        onError: (errors) => {
-                            console.error("Update failed with errors:", errors);
-                            toast({
-                                title: "Gagal Mengubah Data",
-                                description: "Silakan periksa kembali input Anda.",
-                                variant: "destructive",
-                            });
-                        },
-                    }
-                );
-            };
+                const submitData = { ...formData };
 
+                imageFile
+                    ? (submitData.image = imageFile)
+                    : delete submitData.image;
+
+                handleUpdate("items", item.id, submitData, !!imageFile);
+            };
 
             return (
                 <AlertDialog>
@@ -269,12 +236,14 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                 <DropdownMenuSeparator />
 
                                 <DialogTrigger>
-                                    <DropdownMenuItem onClick={openDialog}>
+                                    <DropdownMenuItem
+                                        onClick={() => openModal(item)}
+                                    >
                                         Ubah Data
                                     </DropdownMenuItem>
                                 </DialogTrigger>
 
-                                <DropdownMenuSeparator></DropdownMenuSeparator>
+                                <DropdownMenuSeparator />
 
                                 <AlertDialogTrigger>
                                     <DropdownMenuItem className="text-red-600">
@@ -284,7 +253,6 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                             </DropdownMenuContent>
                         </DropdownMenu>
 
-                        {/* Delete Confirmation Dialog */}
                         <AlertDialogContent>
                             <AlertDialogHeader>
                                 <AlertDialogTitle>
@@ -323,179 +291,148 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                             </AlertDialogFooter>
                         </AlertDialogContent>
 
-                        {/* Update Item Dialog */}
                         {formData && (
-                            <Dialog
-                                open={!!formData}
-                                onOpenChange={closeDialog}
-                            >
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>
-                                            Ubah Data Barang
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                            Setelah selesai silahkan klik tombol
-                                            ubah.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="nama_barang"
-                                                className="text-right"
-                                            >
-                                                Nama Barang
-                                            </Label>
-                                            <Input
-                                                id="nama_barang"
-                                                value={formData.nama_barang}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        nama_barang:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="jumlah"
-                                                className="text-right"
-                                            >
-                                                Stok
-                                            </Label>
-                                            <Input
-                                                id="jumlah"
-                                                type="number"
-                                                value={formData.jumlah}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        jumlah: parseInt(
-                                                            e.target.value
-                                                        ),
-                                                    })
-                                                }
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="status"
-                                                className="text-right"
-                                            >
-                                                Status
-                                            </Label>
-                                            <Select
-                                                onValueChange={(value) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        status: value,
-                                                    })
-                                                }
-                                                defaultValue={formData.status}
-                                            >
-                                                <SelectTrigger className="col-span-3">
-                                                    <SelectValue placeholder="Pilih Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {status.map((stat) => (
-                                                        <SelectItem
-                                                            key={stat}
-                                                            value={stat}
-                                                        >
-                                                            {stat}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="id_kategori"
-                                                className="text-right"
-                                            >
-                                                Kategori
-                                            </Label>
-                                            <Select
-                                                onValueChange={(value) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        id_kategori: value,
-                                                    })
-                                                }
-                                                value={formData.id_kategori}
-                                            >
-                                                <SelectTrigger className="col-span-3">
-                                                    <SelectValue placeholder="Pilih Kategori" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {categories.map(
-                                                        (category) => (
-                                                            <SelectItem
-                                                                key={
-                                                                    category.id
-                                                                }
-                                                                value={
-                                                                    category.id
-                                                                }
-                                                            >
-                                                                {
-                                                                    category.nama_kategori
-                                                                }
-                                                            </SelectItem>
-                                                        )
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="image"
-                                                className="text-right"
-                                            >
-                                                Gambar
-                                            </Label>
-                                            <div className="col-span-3">
-                                                <ImageUpload
-                                                    defaultImage={item.gambar}
-                                                    onImageChange={setImageFile}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="deskripsi"
-                                                className="text-right"
-                                            >
-                                                Deskripsi
-                                            </Label>
-                                            <Textarea
-                                                ref={textareaRef}
-                                                id="deskripsi"
-                                                value={
-                                                    formData?.deskripsi || ""
-                                                }
-                                                onChange={handleDeskripsiChange}
-                                                className="col-span-3 min-h-[100px]"
-                                                rows={3}
-                                                placeholder="Masukkan deskripsi barang"
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>Ubah Data Barang</DialogTitle>
+                                    <DialogDescription>
+                                        Setelah selesai silahkan klik tombol
+                                        ubah.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <form
+                                    onSubmit={handleFormSubmit}
+                                    className="space-y-4"
+                                >
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="nama_barang"
+                                            className="text-right"
+                                        >
+                                            Nama Barang
+                                        </Label>
+                                        <Input
+                                            id="nama_barang"
+                                            name="nama_barang"
+                                            value={formData.nama_barang}
+                                            onChange={handleInputChange}
+                                            className="col-span-3"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="jumlah"
+                                            className="text-right"
+                                        >
+                                            Stok
+                                        </Label>
+                                        <Input
+                                            id="jumlah"
+                                            name="jumlah"
+                                            type="number"
+                                            value={formData.jumlah}
+                                            onChange={handleInputChange}
+                                            className="col-span-3"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="status"
+                                            className="text-right"
+                                        >
+                                            Status
+                                        </Label>
+                                        <Select
+                                            value={formData.status}
+                                            onValueChange={(value) =>
+                                                handleSelectChange(
+                                                    "status",
+                                                    value
+                                                )
+                                            }
+                                        >
+                                            <SelectTrigger className="col-span-3">
+                                                <SelectValue placeholder="Pilih Status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {status.map((stat) => (
+                                                    <SelectItem
+                                                        key={stat}
+                                                        value={stat}
+                                                    >
+                                                        {stat}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="id_kategori"
+                                            className="text-right"
+                                        >
+                                            Kategori
+                                        </Label>
+                                        <Select
+                                            value={formData.id_kategori}
+                                            onValueChange={(value) =>
+                                                handleSelectChange(
+                                                    "id_kategori",
+                                                    value
+                                                )
+                                            }
+                                        >
+                                            <SelectTrigger className="col-span-3">
+                                                <SelectValue placeholder="Pilih Kategori" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map((category) => (
+                                                    <SelectItem
+                                                        key={category.id}
+                                                        value={category.id}
+                                                    >
+                                                        {category.nama_kategori}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="image"
+                                            className="text-right"
+                                        >
+                                            Gambar
+                                        </Label>
+                                        <div className="col-span-3">
+                                            <ImageUpload
+                                                defaultImage={item.image}
+                                                onImageChange={setImageFile}
                                             />
                                         </div>
                                     </div>
-                                    <DialogFooter>
-                                        <Button
-                                            type="submit"
-                                            onClick={handleUpdate}
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="deskripsi"
+                                            className="text-right"
                                         >
-                                            Ubah
-                                        </Button>
+                                            Deskripsi
+                                        </Label>
+                                        <Textarea
+                                            id="deskripsi"
+                                            name="deskripsi"
+                                            value={formData.deskripsi || ""}
+                                            onChange={handleInputChange}
+                                            className="col-span-3 min-h-[100px]"
+                                            rows={3}
+                                            placeholder="Masukkan deskripsi barang"
+                                        />
+                                    </div>
+                                    <DialogFooter>
+                                        <Button type="submit">Ubah</Button>
                                     </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                                </form>
+                            </DialogContent>
                         )}
                     </Dialog>
                 </AlertDialog>

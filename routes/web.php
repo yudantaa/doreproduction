@@ -42,6 +42,8 @@ Route::resource('categories', CategoryController::class)
     ->middleware(['auth']);
     Route::resource('loans', LoanController::class)
     ->middleware(['auth']);
+    Route::post('/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
+    Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
 
 
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');

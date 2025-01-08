@@ -7,6 +7,8 @@ use App\Models\Loan;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 class LoanController extends Controller
 {
     /**
@@ -82,5 +84,125 @@ class LoanController extends Controller
         ]);
 
         return redirect()->route('loans.index')->with('success', 'Penyewaan berhasil ditambahkan.');
+    }
+    public function update(Request $request, Loan $loan)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Validate request data
+            $validatedData = $request->validate([
+                'nama_penyewa' => 'required|string|max:255',
+                'no_tlp_penyewa' => 'required|string|max:20',
+                'id_barang' => 'required|exists:items,id',
+                'tanggal_sewa' => 'required|date',
+                'deadline_pengembalian' => 'required|date|after:tanggal_sewa',
+            ]);
+
+            // If item is being changed
+            if ($loan->id_barang !== $validatedData['id_barang']) {
+                // Check new item availability
+                $newItem = Item::findOrFail($validatedData['id_barang']);
+                if ($newItem->status !== 'Tersedia' && $newItem->jumlah <= 0) {
+                    throw ValidationException::withMessages([
+                        'id_barang' => 'Barang baru tidak tersedia untuk disewa'
+                    ]);
+                }
+
+                // Return the old item's quantity
+                $oldItem = Item::findOrFail($loan->id_barang);
+                $oldItem->increment('jumlah');
+                if ($oldItem->status === 'Tidak Tersedia' && $oldItem->jumlah > 0) {
+                    $oldItem->update(['status' => 'Tersedia']);
+                }
+
+                // Decrease new item's quantity
+                $newItem->decrement('jumlah');
+                if ($newItem->jumlah <= 0) {
+                    $newItem->update(['status' => 'Tidak Tersedia']);
+                }
+            }
+
+            // Update loan
+            $loan->update($validatedData);
+
+            DB::commit();
+            return redirect()->route('loans.index')->with('success', 'Peminjaman berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui peminjaman.']);
+        }
+    }
+
+    /**
+     * Mark a loan as returned.
+     */
+    public function return(Loan $loan)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Ensure loan is still active
+            if ($loan->status !== 'Disewa') {
+                throw ValidationException::withMessages([
+                    'status' => 'Peminjaman ini tidak dalam status disewa'
+                ]);
+            }
+
+            // Update item quantity and status
+            $item = Item::findOrFail($loan->id_barang);
+            $item->increment('jumlah');
+            if ($item->status === 'Tidak Tersedia') {
+                $item->update(['status' => 'Tersedia']);
+            }
+
+            // Update loan status
+            $loan->update([
+                'status' => 'Dikembalikan',
+                'tanggal_kembali' => now(),
+            ]);
+
+            DB::commit();
+            return redirect()->route('loans.index')->with('success', 'Barang berhasil dikembalikan.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat mengembalikan barang.']);
+        }
+    }
+
+    /**
+     * Cancel a loan.
+     */
+    public function cancel(Loan $loan)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Ensure loan is still active
+            if ($loan->status !== 'Disewa') {
+                throw ValidationException::withMessages([
+                    'status' => 'Peminjaman ini tidak dalam status disewa'
+                ]);
+            }
+
+            // Update item quantity and status
+            $item = Item::findOrFail($loan->id_barang);
+            $item->increment('jumlah');
+            if ($item->status === 'Tidak Tersedia') {
+                $item->update(['status' => 'Tersedia']);
+            }
+
+            // Update loan status
+            $loan->update([
+                'status' => 'Dibatalkan',
+                'tanggal_kembali' => now(),
+            ]);
+
+            DB::commit();
+            return redirect()->route('loans.index')->with('success', 'Peminjaman berhasil dibatalkan.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat membatalkan peminjaman.']);
+        }
     }
 }

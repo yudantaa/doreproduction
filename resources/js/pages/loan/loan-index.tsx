@@ -53,7 +53,7 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
 
     const statusOptions = [
         { value: "All", label: "Semua Status" },
-        { value: "Dipinjam", label: "Dipinjam" },
+        { value: "Disewa", label: "Disewa" },
         { value: "Dikembalikan", label: "Dikembalikan" },
         { value: "Dibatalkan", label: "Dibatalkan" }
     ];

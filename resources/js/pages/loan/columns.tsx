@@ -9,12 +9,13 @@ import {
     EyeIcon,
     CheckCheckIcon,
     UserIcon,
-    Package2Icon,
     PackageIcon,
     ContactIcon,
     CalendarIcon,
     ClockIcon,
     CircleHelpIcon,
+    CrossIcon,
+    XIcon,
 } from "lucide-react";
 import { useFormState } from "@/utilities/form-utilities";
 import { useToast } from "@/components/hooks/use-toast";
@@ -31,6 +32,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,6 +43,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { router } from "@inertiajs/react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
 export type Loan = {
     id: string;
@@ -49,18 +53,26 @@ export type Loan = {
     tanggal_sewa: Date;
     tanggal_kembali: Date | null;
     deadline_pengembalian: Date;
-    status: string;
+    status: "Disewa" | "Dikembalikan" | "Dibatalkan";
     nama_barang: string;
     id_barang: string;
 };
 
-export const columns = (
-    items: Array<{ id: string; nama_barang: string; jumlah: number }>
-): ColumnDef<Loan>[] => [
+type Item = {
+    id: string;
+    nama_barang: string;
+    jumlah: number;
+};
+
+const formatDate = (date: Date) => {
+    return format(new Date(date), "d MMMM yyyy", { locale: id });
+};
+
+export const columns = (items: Item[]): ColumnDef<Loan>[] => [
     {
         header: "Nomor",
         cell: ({ row }) => {
-            return <div className="font-bold">{row.index + 1}</div>;
+            return <div className="font-medium">{row.index + 1}</div>;
         },
     },
     {
@@ -83,78 +95,109 @@ export const columns = (
         accessorKey: "nama_barang",
         header: ({ column }) => {
             return (
-                <Button variant="ghost">
-                    <PackageIcon className="mr-2 h-4 w-4" />
-                    Barang
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    <PackageIcon className="mr-2 h-4 w-4" /> Barang
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
     },
     {
         accessorKey: "no_tlp_penyewa",
-        header: ({ column }) => {
+        header: () => {
             return (
-                <Button variant="ghost">
+                <div className="flex items-center">
                     <ContactIcon className="mr-2 h-4 w-4" />
                     Kontak
-                </Button>
+                </div>
             );
         },
+        cell: ({ row }) => (
+            <a
+                href={`tel:${row.original.no_tlp_penyewa}`}
+                className="text-blue-600 hover:underline"
+            >
+                {row.original.no_tlp_penyewa}
+            </a>
+        ),
     },
     {
         accessorKey: "tanggal_sewa",
         header: ({ column }) => {
             return (
-                <Button variant="ghost">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    Tanggal Sewa
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4" /> Tanggal Sewa
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
-        cell: ({ row }) => {
-            return new Date(row.original.tanggal_sewa).toLocaleDateString(
-                "id-ID"
-            );
-        },
+        cell: ({ row }) => formatDate(row.original.tanggal_sewa),
     },
     {
         accessorKey: "deadline_pengembalian",
         header: ({ column }) => {
             return (
-                <Button variant="ghost">
-                    <ClockIcon className="mr-2 h-4 w-4" />
-                    Deadline
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    <ClockIcon className="mr-2 h-4 w-4" /> Deadline
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ row }) => {
-            return new Date(
-                row.original.deadline_pengembalian
-            ).toLocaleDateString("id-ID");
+            const deadline = new Date(row.original.deadline_pengembalian);
+            const today = new Date();
+            const isOverdue =
+                row.original.status === "Disewa" &&
+                deadline < today;
+
+            return (
+                <span className={isOverdue ? "text-red-600 font-medium" : ""}>
+                    {formatDate(deadline)}
+                </span>
+            );
         },
     },
     {
         accessorKey: "status",
         header: ({ column }) => {
             return (
-                <Button variant="ghost">
-                    <CircleHelpIcon className="mr-2 h-4 w-4" />
-                    Status
+                <Button
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }
+                >
+                    <CircleHelpIcon className="mr-2 h-4 w-4" /> Status
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
         cell: ({ getValue }) => {
-            const status = getValue() as string;
-            const bgColor =
-                status === "Disewa"
-                    ? "bg-yellow-200 text-yellow-800"
-                    : status === "Dikembalikan"
-                    ? "bg-green-200 text-green-800"
-                    : "bg-red-200 text-red-800";
+            const status = getValue() as Loan["status"];
+            const styles = {
+                Disewa: "bg-yellow-100 text-yellow-800 border-yellow-300",
+                Dikembalikan: "bg-green-100 text-green-800 border-green-300",
+                Dibatalkan: "bg-red-100 text-red-800 border-red-300",
+            };
 
             return (
                 <div
-                    className={`text-center inline-block rounded-full px-3 py-1 text-xs font-semibold ${bgColor}`}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status]}`}
                 >
                     {status}
                 </div>
@@ -162,11 +205,13 @@ export const columns = (
         },
     },
     {
-        accessorKey: "actions",
-        header: "Atur",
+        id: "actions",
         cell: ({ row }) => {
             const loan = row.original;
             const { toast } = useToast();
+            const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
+            const [confirmAction, setConfirmAction] = React.useState<"return" | "cancel" | null>(null);
+
             const {
                 isModalOpen,
                 formData,
@@ -179,56 +224,49 @@ export const columns = (
                 nama_penyewa: loan.nama_penyewa,
                 no_tlp_penyewa: loan.no_tlp_penyewa,
                 id_barang: loan.id_barang,
-                tanggal_sewa: new Date(loan.tanggal_sewa)
-                    .toISOString()
-                    .split("T")[0],
-                deadline_pengembalian: new Date(loan.deadline_pengembalian)
-                    .toISOString()
-                    .split("T")[0],
+                tanggal_sewa: format(new Date(loan.tanggal_sewa), "yyyy-MM-dd"),
+                deadline_pengembalian: format(
+                    new Date(loan.deadline_pengembalian),
+                    "yyyy-MM-dd"
+                ),
             });
 
-            const handleReturn = () => {
-                router.post(
-                    `/loans/${loan.id}/return`,
-                    {},
-                    {
-                        onSuccess: () => {
-                            toast({
-                                description: "Barang berhasil dikembalikan",
-                            });
-                        },
-                        onError: () => {
-                            toast({
-                                description: "Gagal mengembalikan barang",
-                                variant: "destructive",
-                            });
-                        },
-                    }
-                );
-            };
+            const handleConfirmAction = () => {
+                if (!confirmAction) return;
 
-            const handleCancel = () => {
+                const url = confirmAction === "return"
+                    ? `/loans/${loan.id}/return`
+                    : `/loans/${loan.id}/cancel`;
+
+                const successMessage = confirmAction === "return"
+                    ? "Barang berhasil dikembalikan"
+                    : "Peminjaman berhasil dibatalkan";
+
+                const errorMessage = confirmAction === "return"
+                    ? "Gagal mengembalikan barang"
+                    : "Gagal membatalkan peminjaman";
+
                 router.post(
-                    `/loans/${loan.id}/cancel`,
+                    url,
                     {},
                     {
                         onSuccess: () => {
-                            toast({
-                                description: "Peminjaman berhasil dibatalkan",
-                            });
+                            toast({ description: successMessage });
+                            setIsConfirmDialogOpen(false);
                         },
                         onError: () => {
                             toast({
-                                description: "Gagal membatalkan peminjaman",
+                                description: errorMessage,
                                 variant: "destructive",
                             });
+                            setIsConfirmDialogOpen(false);
                         },
                     }
                 );
             };
 
             return (
-                <div className="flex items-center space-x-2">
+                <>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -237,27 +275,31 @@ export const columns = (
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Atur</DropdownMenuLabel>
+                            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {loan.status === "Disewa" && (
                                 <>
-                                    <DropdownMenuItem>
-                                        <EyeIcon className="mr-2 h-4 w-4" />
-                                        Lihat Detail
-                                    </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        onSelect={() => openModal(loan)}
-                                        className="cursor-pointer"
+                                        onClick={() => openModal(loan)}
                                     >
                                         <EditIcon className="mr-2 h-4 w-4" />
                                         Edit Peminjaman
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onSelect={handleReturn}>
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            setConfirmAction("return");
+                                            setIsConfirmDialogOpen(true);
+                                        }}
+                                        className="text-green-900"
+                                    >
                                         <CheckCheckIcon className="mr-2 h-4 w-4" />
-                                        Barang Dikembalikan
+                                         Barang Dikembalikan
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        onSelect={handleCancel}
+                                        onClick={() => {
+                                            setConfirmAction("cancel");
+                                            setIsConfirmDialogOpen(true);
+                                        }}
                                         className="text-red-600"
                                     >
                                         <TrashIcon className="mr-2 h-4 w-4" />
@@ -265,20 +307,27 @@ export const columns = (
                                     </DropdownMenuItem>
                                 </>
                             )}
-                            {(loan.status === "Dikembalikan" ||
-                                loan.status === "Dibatalkan") && (
-                                <DropdownMenuItem>
-                                    <EyeIcon className="mr-2 h-4 w-4" />
-                                    Lihat Detail
-                                </DropdownMenuItem>
+                             {loan.status != "Disewa" && (
+                                <>
+                                    <DropdownMenuItem
+                                        className="text-gray-600 "
+                                    >
+                                        <CheckCheckIcon className="mr-2 h-4 w-4" />
+                                       Peminjaman Berakhir
+                                    </DropdownMenuItem>
+                                </>
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
 
+                    {/* Edit Dialog */}
                     <Dialog open={isModalOpen} onOpenChange={closeModal}>
-                        <DialogContent className="sm:max-w-[425px]">
+                        <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Edit Peminjaman</DialogTitle>
+                                <DialogDescription>
+                                    Ubah informasi peminjaman. Pastikan semua data terisi dengan benar.
+                                </DialogDescription>
                             </DialogHeader>
                             <form
                                 onSubmit={(e) => {
@@ -292,49 +341,36 @@ export const columns = (
                                         );
                                     }
                                 }}
-                                className="space-y-4 p-4"
+                                className="space-y-4"
                             >
-                                <div>
-                                    <label
-                                        htmlFor="nama_penyewa"
-                                        className="block mb-2"
-                                    >
+                                <div className="space-y-2">
+                                    <label htmlFor="nama_penyewa">
                                         Nama Penyewa
                                     </label>
                                     <Input
-                                        type="text"
                                         id="nama_penyewa"
                                         name="nama_penyewa"
                                         value={formData?.nama_penyewa}
                                         onChange={handleInputChange}
-                                        placeholder="Masukkan nama penyewa"
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label
-                                        htmlFor="no_tlp_penyewa"
-                                        className="block mb-2"
-                                    >
+
+                                <div className="space-y-2">
+                                    <label htmlFor="no_tlp_penyewa">
                                         Nomor Telepon
                                     </label>
                                     <Input
-                                        type="tel"
                                         id="no_tlp_penyewa"
                                         name="no_tlp_penyewa"
                                         value={formData?.no_tlp_penyewa}
                                         onChange={handleInputChange}
-                                        placeholder="Masukkan nomor telepon"
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label
-                                        htmlFor="id_barang"
-                                        className="block mb-2"
-                                    >
-                                        Barang
-                                    </label>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="id_barang">Barang</label>
                                     <Select
                                         name="id_barang"
                                         value={formData?.id_barang}
@@ -349,42 +385,25 @@ export const columns = (
                                             <SelectValue placeholder="Pilih Barang" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {items?.length > 0 ? (
-                                                items.map((item) => {
-                                                    const isDisabled =
+                                            {items?.map((item) => (
+                                                <SelectItem
+                                                    key={item.id}
+                                                    value={item.id}
+                                                    disabled={
                                                         item.jumlah <= 0 &&
-                                                        item.id !==
-                                                            loan.id_barang;
-                                                    return (
-                                                        <SelectItem
-                                                            key={item.id}
-                                                            value={item.id}
-                                                            disabled={
-                                                                isDisabled
-                                                            }
-                                                            aria-disabled={
-                                                                isDisabled
-                                                            }
-                                                        >
-                                                            {item.nama_barang}{" "}
-                                                            (Tersedia:{" "}
-                                                            {item.jumlah})
-                                                        </SelectItem>
-                                                    );
-                                                })
-                                            ) : (
-                                                <div className="p-2 text-gray-500">
-                                                    Tidak ada barang tersedia
-                                                </div>
-                                            )}
+                                                        item.id !== loan.id_barang
+                                                    }
+                                                >
+                                                    {item.nama_barang} (Tersedia:{" "}
+                                                    {item.jumlah})
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div>
-                                    <label
-                                        htmlFor="tanggal_sewa"
-                                        className="block mb-2"
-                                    >
+
+                                <div className="space-y-2">
+                                    <label htmlFor="tanggal_sewa">
                                         Tanggal Sewa
                                     </label>
                                     <Input
@@ -396,11 +415,9 @@ export const columns = (
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label
-                                        htmlFor="deadline_pengembalian"
-                                        className="block mb-2"
-                                    >
+
+                                <div className="space-y-2">
+                                    <label htmlFor="deadline_pengembalian">
                                         Deadline Pengembalian
                                     </label>
                                     <Input
@@ -413,14 +430,50 @@ export const columns = (
                                         required
                                     />
                                 </div>
+
                                 <Button type="submit" className="w-full">
-                                    Perbarui Peminjaman
+                                    Simpan Perubahan
                                 </Button>
                             </form>
                         </DialogContent>
                     </Dialog>
-                </div>
-            );
+
+                    {/* Confirmation Dialog */}
+                    <Dialog
+                        open={isConfirmDialogOpen}
+                        onOpenChange={setIsConfirmDialogOpen}
+                    >
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    {confirmAction === "return"
+                                        ? "Konfirmasi Pengembalian"
+                                        : "Konfirmasi Pembatalan"}
+                                </DialogTitle>
+                                <DialogDescription>
+                                    {confirmAction === "return"
+                                            ? "Apakah Anda yakin ingin menandai barang ini sebagai dikembalikan? Tindakan ini akan memperbarui stok barang."
+                                            : "Apakah Anda yakin ingin membatalkan peminjaman ini? Tindakan ini akan memperbarui stok barang."}
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex justify-end space-x-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsConfirmDialogOpen(false)}
+                                    >
+                                        Batal
+                                    </Button>
+                                    <Button
+                                        variant={confirmAction === "return" ? "default" : "destructive"}
+                                        onClick={handleConfirmAction}
+                                    >
+                                        {confirmAction === "return" ? "Kembalikan" : "Batalkan"}
+                                    </Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </>
+                );
+            },
         },
-    },
-];
+    ];

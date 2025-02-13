@@ -9,5 +9,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Optional: Add any API routes you need
 Route::apiResource('users', UserController::class);

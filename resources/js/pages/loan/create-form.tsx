@@ -78,9 +78,9 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="no_tlp_penyewa" className="block mb-2">Nomor Telepon</label>
+                        <label htmlFor="no_tlp_penyewa" className="block mb-2">Nomor Telepon <span className='font-bold text-sm'>(Gunakan awalan kode negara, Contoh: 62)</span> </label>
                         <Input
-                            type="tel"
+                            type="string"
                             id="no_tlp_penyewa"
                             name="no_tlp_penyewa"
                             value={formData.no_tlp_penyewa}

@@ -119,7 +119,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
         },
         cell: ({ row }) => (
             <a
-                href={`tel:${row.original.no_tlp_penyewa}`}
+                href={`https://wa.me/${row.original.no_tlp_penyewa}`}
                 className="text-blue-600 hover:underline"
             >
                 {row.original.no_tlp_penyewa}

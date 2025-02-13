@@ -4,6 +4,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LoanController;
+use App\Models\Item;
+use App\Models\Loan;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -19,7 +21,22 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('dashboard');
+    $user =  Auth::user();
+    $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
+    $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
+    $totalActiveLoans = Loan::where('status', 'Disewa')->count();
+    $totalOverdue = Loan::where('status', 'Disewa')
+    ->where('deadline_pengembalian', '<', now())
+    ->count();
+
+
+    return Inertia::render('dashboard', [
+        'userName' => $user->name,
+        'totalAvailable' => $totalAvailable,
+        'totalUnavailable' => $totalUnavailable,
+        'totalActiveLoans' => $totalActiveLoans,
+        'totalOverdue' => $totalOverdue,
+    ]);
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {

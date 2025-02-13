@@ -43,25 +43,26 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             return;
         }
 
-        // Create preview and notify parent
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setPreviewImage(reader.result as string);
-            onImageChange(file);
-        };
-        reader.readAsDataURL(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result as string);
+                onImageChange(file);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleRemoveImage = () => {
         setPreviewImage(null);
-        onImageChange(null);
+        onImageChange(null); // Notify parent that the image is removed
         if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+            fileInputRef.current.value = ''; // Clear the file input
         }
     };
 
     const triggerFileInput = () => {
-        fileInputRef.current?.click();
+        fileInputRef.current?.click(); // Trigger the file input dialog
     };
 
     return (

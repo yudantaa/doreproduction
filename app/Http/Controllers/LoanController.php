@@ -16,6 +16,11 @@ class LoanController extends Controller
      */
     public function index()
     {
+        $totalActiveLoans = Loan::where('status', 'Disewa')->count();
+        $totalOverdue = Loan::where('status', 'Disewa')
+        ->where('deadline_pengembalian', '<', now())
+        ->count();
+
         $loans = Loan::with('item')->get()->map(function ($loan) {
             return [
                 'id' => $loan->id,
@@ -41,6 +46,8 @@ class LoanController extends Controller
         return Inertia::render('loan/loan-index', [
             'loans' => $loans,
             'items' => $items,
+            'totalActiveLoans' => $totalActiveLoans,
+            'totalOverdue' => $totalOverdue,
         ]);
     }
 

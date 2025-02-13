@@ -195,30 +195,72 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         cell: ({ row }) => {
             const item = row.original;
             const [imageFile, setImageFile] = useState<File | null>(null);
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [isImageUploadOpen, setIsImageUploadOpen] = useState(false);
             const { toast } = useToast();
             const status = ["Tersedia", "Tidak Tersedia"];
 
             const {
-                isModalOpen,
                 formData,
                 handleInputChange,
                 handleSelectChange,
                 openModal,
                 closeModal,
-                handleUpdate,
             } = useFormState<Item>(null);
 
-            const handleFormSubmit = (e: React.FormEvent) => {
+            const handleImageChange = (file: File | null) => {
+                setImageFile(file);
+                setIsImageUploadOpen(false);
+            };
+
+            const handleUpdate = async (e: React.FormEvent) => {
                 e.preventDefault();
-                if (!formData) return;
 
-                const submitData = { ...formData };
+                // Prevent submission if already submitting or if image upload is open
+                if (isSubmitting || isImageUploadOpen || !formData) return;
 
-                imageFile
-                    ? (submitData.image = imageFile)
-                    : delete submitData.image;
+                try {
+                    setIsSubmitting(true);
 
-                handleUpdate("items", item.id, submitData, !!imageFile);
+                    const submitData = new FormData();
+                    submitData.append("nama_barang", formData.nama_barang);
+                    submitData.append("jumlah", formData.jumlah.toString());
+                    submitData.append("status", formData.status);
+                    submitData.append("deskripsi", formData.deskripsi || "");
+                    submitData.append("id_kategori", formData.id_kategori);
+
+                    if (imageFile) {
+                        submitData.append("image", imageFile);
+                    }
+
+                    router.post(`/items/${item.id}`, {
+                        _method: 'PUT',
+                        ...Object.fromEntries(submitData),
+                    }, {
+                        onSuccess: () => {
+                            toast({
+                                description: "Data berhasil diubah.",
+                            });
+                            closeModal();
+                            setImageFile(null);
+                        },
+                        onError: () => {
+                            toast({
+                                description: "Gagal mengubah data.",
+                                variant: "destructive",
+                            });
+                        },
+                        onFinish: () => {
+                            setIsSubmitting(false);
+                        }
+                    });
+                } catch (error) {
+                    setIsSubmitting(false);
+                    toast({
+                        description: "Terjadi kesalahan saat mengubah data.",
+                        variant: "destructive",
+                    });
+                }
             };
 
             return (
@@ -301,8 +343,13 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                     </DialogDescription>
                                 </DialogHeader>
                                 <form
-                                    onSubmit={handleFormSubmit}
+                                    onSubmit={handleUpdate}
                                     className="space-y-4"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                        }
+                                    }}
                                 >
                                     <div className="grid grid-cols-4 items-center gap-4">
                                         <Label
@@ -406,8 +453,10 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         </Label>
                                         <div className="col-span-3">
                                             <ImageUpload
-                                                defaultImage={item.image}
-                                                onImageChange={setImageFile}
+                                                onImageChange={(file) => {
+                                                    setIsImageUploadOpen(true);
+                                                    handleImageChange(file);
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -429,7 +478,12 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         />
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit">Ubah</Button>
+                                        <Button 
+                                            type="submit" 
+                                            disabled={isSubmitting || isImageUploadOpen}
+                                        >
+                                            {isSubmitting ? 'Sedang Mengubah...' : 'Ubah'}
+                                        </Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>

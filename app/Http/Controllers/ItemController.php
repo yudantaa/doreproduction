@@ -16,6 +16,9 @@ class ItemController extends Controller
      */
     public function index()
     {
+        $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
+        $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
+
         return Inertia::render('item/item-index', [
             'items' => Item::with('category')->get()->map(fn ($item) => [
                 'id' => $item->id,
@@ -32,7 +35,8 @@ class ItemController extends Controller
                 'id' => $category->id,
                 'nama_kategori' => $category->nama_kategori,
             ]),
-
+            'totalAvailable' => $totalAvailable,
+            'totalUnavailable' => $totalUnavailable
         ]);
     }
 

@@ -13,9 +13,11 @@ interface ImageUploadProps {
 export const ImageUpload: React.FC<ImageUploadProps> = ({
     initialImage = null,
     onImageChange,
-    maxSizeInMB = 5 // Default 5MB max file size
+    maxSizeInMB = 5, // Default 5MB max file size
 }) => {
-    const [previewImage, setPreviewImage] = useState<string | null>(initialImage);
+    const [previewImage, setPreviewImage] = useState<string | null>(
+        initialImage
+    );
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,18 +29,18 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             toast({
                 title: "Ukuran Gambar Terlalu Besar",
                 description: `Maksimal ukuran gambar adalah ${maxSizeInMB}MB`,
-                variant: "destructive"
+                variant: "destructive",
             });
             return;
         }
 
         // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
         if (!allowedTypes.includes(file.type)) {
             toast({
                 title: "Tipe Gambar Tidak Didukung",
                 description: "Hanya JPEG, PNG, dan WebP yang diizinkan",
-                variant: "destructive"
+                variant: "destructive",
             });
             return;
         }
@@ -57,7 +59,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         setPreviewImage(null);
         onImageChange(null); // Notify parent that the image is removed
         if (fileInputRef.current) {
-            fileInputRef.current.value = ''; // Clear the file input
+            fileInputRef.current.value = ""; // Clear the file input
         }
     };
 
@@ -86,6 +88,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                         size="icon"
                         className="absolute top-0 right-0 w-6 h-6 rounded-full"
                         onClick={handleRemoveImage}
+                        type="button"
                     >
                         <X className="w-4 h-4" />
                     </Button>
@@ -94,6 +97,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 <Button
                     variant="outline"
                     onClick={triggerFileInput}
+                    type="button"
                 >
                     <Upload className="mr-2 h-4 w-4" /> Upload Gambar
                 </Button>

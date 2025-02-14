@@ -233,27 +233,31 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                         submitData.append("image", imageFile);
                     }
 
-                    router.post(`/items/${item.id}`, {
-                        _method: 'PUT',
-                        ...Object.fromEntries(submitData),
-                    }, {
-                        onSuccess: () => {
-                            toast({
-                                description: "Data berhasil diubah.",
-                            });
-                            closeModal();
-                            setImageFile(null);
+                    router.post(
+                        `/items/${item.id}`,
+                        {
+                            _method: "PUT",
+                            ...Object.fromEntries(submitData),
                         },
-                        onError: () => {
-                            toast({
-                                description: "Gagal mengubah data.",
-                                variant: "destructive",
-                            });
-                        },
-                        onFinish: () => {
-                            setIsSubmitting(false);
+                        {
+                            onSuccess: () => {
+                                toast({
+                                    description: "Data berhasil diubah.",
+                                });
+                                closeModal();
+                                setImageFile(null);
+                            },
+                            onError: () => {
+                                toast({
+                                    description: "Gagal mengubah data.",
+                                    variant: "destructive",
+                                });
+                            },
+                            onFinish: () => {
+                                setIsSubmitting(false);
+                            },
                         }
-                    });
+                    );
                 } catch (error) {
                     setIsSubmitting(false);
                     toast({
@@ -342,11 +346,12 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         ubah.
                                     </DialogDescription>
                                 </DialogHeader>
+
                                 <form
                                     onSubmit={handleUpdate}
                                     className="space-y-4"
                                     onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
+                                        if (e.key === "Enter") {
                                             e.preventDefault();
                                         }
                                     }}
@@ -430,7 +435,17 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                             }
                                         >
                                             <SelectTrigger className="col-span-3">
-                                                <SelectValue placeholder="Pilih Kategori" />
+                                                <SelectValue placeholder="Pilih Kategori">
+                                                    {
+                                                        categories.filter(
+                                                            (i: any) =>
+                                                                i.id ===
+                                                                Number(
+                                                                    formData.id_kategori
+                                                                )
+                                                        )[0]?.nama_kategori
+                                                    }
+                                                </SelectValue>
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {categories.map((category) => (
@@ -478,11 +493,16 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         />
                                     </div>
                                     <DialogFooter>
-                                        <Button 
-                                            type="submit" 
-                                            disabled={isSubmitting || isImageUploadOpen}
+                                        <Button
+                                            type="submit"
+                                            disabled={
+                                                isSubmitting ||
+                                                isImageUploadOpen
+                                            }
                                         >
-                                            {isSubmitting ? 'Sedang Mengubah...' : 'Ubah'}
+                                            {isSubmitting
+                                                ? "Sedang Mengubah..."
+                                                : "Ubah"}
                                         </Button>
                                     </DialogFooter>
                                 </form>

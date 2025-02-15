@@ -77,9 +77,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { auth } = usePage<PageProps>().props;
     const userRole = auth.user?.role;
 
-    const filteredNavMain = userRole === "SUPER ADMIN"
-    ? data.navMain
-    : data.navMain.filter(item => item.title !== "Manajemen Pegawai");
+    const filteredNavMain =
+        userRole === "SUPER ADMIN"
+            ? data.navMain
+            : data.navMain.filter((item) => item.title !== "Manajemen Pegawai");
 
     return (
         <Sidebar variant="inset" {...props}>

@@ -21,14 +21,16 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $user =  Auth::user();
+    $user = Auth::user();
     $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
     $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
     $totalActiveLoans = Loan::where('status', 'Disewa')->count();
     $totalOverdue = Loan::where('status', 'Disewa')
-    ->where('deadline_pengembalian', '<', now())
-    ->count();
+        ->where('deadline_pengembalian', '<', now())
+        ->count();
 
+    $loanController = new LoanController();
+    $monthlyLoanData = $loanController->getMonthlyStatistics();
 
     return Inertia::render('dashboard', [
         'userName' => $user->name,
@@ -36,6 +38,7 @@ Route::get('/dashboard', function () {
         'totalUnavailable' => $totalUnavailable,
         'totalActiveLoans' => $totalActiveLoans,
         'totalOverdue' => $totalOverdue,
+        'monthlyLoanData' => $monthlyLoanData,
     ]);
 })->middleware(['auth'])->name('dashboard');
 
@@ -57,10 +60,10 @@ Route::resource('items', ItemController::class)
     ->middleware(['auth']);
 Route::resource('categories', CategoryController::class)
     ->middleware(['auth']);
-    Route::resource('loans', LoanController::class)
+Route::resource('loans', LoanController::class)
     ->middleware(['auth']);
-    Route::post('/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
-    Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
+Route::post('/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
+Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
 
 
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');

@@ -3,8 +3,21 @@ import { Head } from "@inertiajs/react";
 import { PageProps } from "@/types";
 import { PackageIcon, ClipboardListIcon, User2 } from "lucide-react";
 import { MonthlyChart } from "./charts/monthly-chart";
+
 interface DashboardProps extends PageProps {
     totalAvailable: number;
+    totalUnavailable: number;
+    totalActiveLoans: number;
+    totalOverdue: number;
+    userName: string;
+    monthlyLoanData: Array<{
+        month: string;
+        total: number;
+        active: number;
+        returned: number;
+        cancelled: number;
+        overdue: number;
+    }>;
 }
 
 export default function Dashboard({
@@ -13,6 +26,7 @@ export default function Dashboard({
     totalActiveLoans,
     totalOverdue,
     userName,
+    monthlyLoanData,
 }: DashboardProps) {
     return (
         <AuthenticatedLayout header="Dashboard">
@@ -69,8 +83,8 @@ export default function Dashboard({
                 </div>
 
                 {/* Chart Section */}
-                <div className="flex-1 rounded-xl bg-muted/50 mt-4">
-                    <MonthlyChart></MonthlyChart>
+                <div className="flex-1 rounded-xl w-fit  mt-4">
+                    <MonthlyChart data={monthlyLoanData} />
                 </div>
             </div>
         </AuthenticatedLayout>

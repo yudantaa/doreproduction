@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 class LoanController extends Controller
 {
     /**
@@ -18,8 +19,8 @@ class LoanController extends Controller
     {
         $totalActiveLoans = Loan::where('status', 'Disewa')->count();
         $totalOverdue = Loan::where('status', 'Disewa')
-        ->where('deadline_pengembalian', '<', now())
-        ->count();
+            ->where('deadline_pengembalian', '<', now())
+            ->count();
 
         $loans = Loan::with('item')->get()->map(function ($loan) {
             return [
@@ -49,6 +50,55 @@ class LoanController extends Controller
             'totalActiveLoans' => $totalActiveLoans,
             'totalOverdue' => $totalOverdue,
         ]);
+    }
+
+    public function getMonthlyStatistics()
+    {
+        $currentYear = Carbon::now()->year;
+
+        // Get loans created per month
+        $monthlyLoans = Loan::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('COUNT(*) as total_loans'),
+            DB::raw('SUM(CASE WHEN status = "Disewa" THEN 1 ELSE 0 END) as active_loans'),
+            DB::raw('SUM(CASE WHEN status = "Dikembalikan" THEN 1 ELSE 0 END) as returned_loans'),
+            DB::raw('SUM(CASE WHEN status = "Dibatalkan" THEN 1 ELSE 0 END) as cancelled_loans'),
+            DB::raw('SUM(CASE WHEN deadline_pengembalian < NOW() AND status = "Disewa" THEN 1 ELSE 0 END) as overdue_loans')
+        )
+            ->whereYear('created_at', $currentYear)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->orderBy('month')
+            ->get();
+
+        // Format data for the chart
+        $formattedData = [];
+        $monthNames = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember'
+        ];
+
+        foreach ($monthlyLoans as $data) {
+            $formattedData[] = [
+                'month' => $monthNames[$data->month],
+                'total' => $data->total_loans,
+                'active' => $data->active_loans,
+                'returned' => $data->returned_loans,
+                'cancelled' => $data->cancelled_loans,
+                'overdue' => $data->overdue_loans
+            ];
+        }
+
+        return $formattedData;
     }
 
     /**

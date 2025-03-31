@@ -1,8 +1,15 @@
-"use client";
-
-import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-
+import React from "react";
+import {
+    BarChart,
+    Bar,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    Legend,
+    Tooltip,
+    ResponsiveContainer,
+    LabelList,
+} from "recharts";
 import {
     Card,
     CardContent,
@@ -17,33 +24,66 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-    { month: "January", desktop: 186 },
-    { month: "February", desktop: 305 },
-    { month: "March", desktop: 237 },
-    { month: "April", desktop: 73 },
-    { month: "May", desktop: 209 },
-    { month: "June", desktop: 214 },
-];
 
 const chartConfig = {
-    desktop: {
-        label: "Desktop",
+    total: {
+        label: "Total Pinjaman",
         color: "hsl(var(--chart-1))",
+    },
+    active: {
+        label: "Aktif",
+        color: "#3b82f6", // blue-500
+    },
+    returned: {
+        label: "Dikembalikan",
+        color: "#22c55e", // green-500
+    },
+    cancelled: {
+        label: "Dibatalkan",
+        color: "#f97316", // orange-500
+    },
+    overdue: {
+        label: "Telat",
+        color: "#ef4444", // red-500
     },
 } satisfies ChartConfig;
 
-export function MonthlyChart() {
+export function MonthlyChart({ data = [] }) {
+    const currentYear = new Date().getFullYear();
+
+    // If no data is provided, show a message
+    if (!data || data.length === 0) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Data Pinjaman Bulanan</CardTitle>
+                    <CardDescription>{currentYear}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex items-center justify-center h-64">
+                    <p className="text-muted-foreground">Tidak ada pinjaman.</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Bar Chart</CardTitle>
-                <CardDescription>January - June 2024</CardDescription>
+                <CardTitle>Data Pinjaman Bulanan</CardTitle>
+                <CardDescription>{currentYear}</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={chartConfig}>
-                    <BarChart accessibilityLayer data={chartData}>
-                        <CartesianGrid vertical={false} />
+                <ChartContainer config={chartConfig} className="h-80">
+                    <BarChart
+                        data={data}
+                        margin={{
+                            top: 20,
+                            right: 30,
+                            left: 20,
+                            bottom: 5,
+                        }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis
                             dataKey="month"
                             tickLine={false}
@@ -51,27 +91,53 @@ export function MonthlyChart() {
                             axisLine={false}
                             tickFormatter={(value) => value.slice(0, 3)}
                         />
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
+                        <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tickMargin={10}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Legend />
+                        <Bar
+                            dataKey="total"
+                            fill="var(--color-total)"
+                            radius={[4, 4, 0, 0]}
+                            barSize={36}
                         />
                         <Bar
-                            dataKey="desktop"
-                            fill="var(--color-desktop)"
-                            radius={8}
+                            dataKey="active"
+                            fill="var(--color-active)"
+                            radius={[4, 4, 0, 0]}
+                            barSize={36}
+                        />
+                        <Bar
+                            dataKey="returned"
+                            fill="var(--color-returned)"
+                            radius={[4, 4, 0, 0]}
+                            barSize={36}
+                        />
+                        <Bar
+                            dataKey="cancelled"
+                            fill="var(--color-cancelled)"
+                            radius={[4, 4, 0, 0]}
+                            barSize={36}
+                        />
+                        <Bar
+                            dataKey="overdue"
+                            fill="var(--color-overdue)"
+                            radius={[4, 4, 0, 0]}
+                            barSize={36}
                         />
                     </BarChart>
                 </ChartContainer>
             </CardContent>
             <CardFooter className="flex-col items-start gap-2 text-sm">
-                <div className="flex gap-2 font-medium leading-none">
-                    Trending up by 5.2% this month{" "}
-                    <TrendingUp className="h-4 w-4" />
-                </div>
                 <div className="leading-none text-muted-foreground">
-                    Showing total visitors for the last 6 months
+                    Menampilkan data pinjaman pada tahun {currentYear}
                 </div>
             </CardFooter>
         </Card>
     );
 }
+
+export default MonthlyChart;

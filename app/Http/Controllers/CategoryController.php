@@ -16,7 +16,7 @@ class CategoryController extends Controller
     public function index()
     {
         return Inertia::render('category/category-index', [
-            'categories' => Category::all()->map(fn ($Category) => [
+            'categories' => Category::all()->map(fn($Category) => [
                 'id' => $Category->id,
                 'nama_kategori' => $Category->nama_kategori,
                 'created_at' => $Category->created_at->format('Y-m-d H:i:s')

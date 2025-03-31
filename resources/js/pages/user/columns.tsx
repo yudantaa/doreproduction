@@ -52,7 +52,6 @@ export type User = {
 };
 
 export const columns: ColumnDef<User>[] = [
-
     {
         header: "Nomor",
         cell: ({ row }) => {
@@ -122,7 +121,7 @@ export const columns: ColumnDef<User>[] = [
                 hour12: true,
             })}`;
         },
-        sortFn: (rowA, rowB) => {
+        sortingFn: (rowA, rowB) => {
             const dateA = new Date(rowA.original.created_at);
             const dateB = new Date(rowB.original.created_at);
             return dateA.getTime() - dateB.getTime();
@@ -233,81 +232,102 @@ export const columns: ColumnDef<User>[] = [
 
                         {/* Update User Dialog */}
                         {formData && (
-                <Dialog open={!!formData} onOpenChange={closeDialog}>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Ubah data pegawai Ini</DialogTitle>
-                            <DialogDescription>
-                               Setelah selesai silahkan klik tombol ubah.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="name" className="text-right">
-                                    Name
-                                </Label>
-                                <Input
-                                    id="name"
-                                    value={formData.name}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            name: e.target.value,
-                                        })
-                                    }
-                                    className="col-span-3"
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="email" className="text-right">
-                                    Email
-                                </Label>
-                                <Input
-                                    id="email"
-                                    value={formData.email}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            email: e.target.value,
-                                        })
-                                    }
-                                    className="col-span-3"
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="role" className="text-right">
-                                    Role
-                                </Label>
-                                <Select
-                                    onValueChange={(value) =>
-                                        setFormData({
-                                            ...formData,
-                                            role: value,
-                                        })
-                                    }
-                                    defaultValue={formData.role}
-                                >
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Select Role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {roles.map((role) => (
-                                            <SelectItem key={role} value={role}>
-                                                {role}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button type="submit" onClick={handleUpdate}>
-                                Ubah
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            )}
+                            <Dialog
+                                open={!!formData}
+                                onOpenChange={closeDialog}
+                            >
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            Ubah data pegawai Ini
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Setelah selesai silahkan klik tombol
+                                            ubah.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="name"
+                                                className="text-right"
+                                            >
+                                                Name
+                                            </Label>
+                                            <Input
+                                                id="name"
+                                                value={formData.name}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        name: e.target.value,
+                                                    })
+                                                }
+                                                className="col-span-3"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="email"
+                                                className="text-right"
+                                            >
+                                                Email
+                                            </Label>
+                                            <Input
+                                                id="email"
+                                                value={formData.email}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        email: e.target.value,
+                                                    })
+                                                }
+                                                className="col-span-3"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="role"
+                                                className="text-right"
+                                            >
+                                                Role
+                                            </Label>
+                                            <Select
+                                                onValueChange={(value) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        role: value,
+                                                    })
+                                                }
+                                                defaultValue={formData.role}
+                                            >
+                                                <SelectTrigger className="w-[180px]">
+                                                    <SelectValue placeholder="Select Role" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {roles.map((role) => (
+                                                        <SelectItem
+                                                            key={role}
+                                                            value={role}
+                                                        >
+                                                            {role}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button
+                                            type="submit"
+                                            onClick={handleUpdate}
+                                        >
+                                            Ubah
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        )}
                     </Dialog>
                 </AlertDialog>
             );

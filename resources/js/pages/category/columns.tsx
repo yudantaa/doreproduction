@@ -36,8 +36,6 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 
-
-
 export type Category = {
     id: string;
     nama_kategori: string;
@@ -94,7 +92,7 @@ export const columns: ColumnDef<Category>[] = [
                 hour12: true,
             })}`;
         },
-        sortFn: (rowA, rowB) => {
+        sortingFn: (rowA, rowB) => {
             const dateA = new Date(rowA.original.created_at);
             const dateB = new Date(rowB.original.created_at);
             return dateA.getTime() - dateB.getTime();
@@ -180,21 +178,24 @@ export const columns: ColumnDef<Category>[] = [
                                 <AlertDialogAction
                                     className="bg-red-600"
                                     onClick={() => {
-                                        router.delete(`/categories/${category.id}`, {
-                                            onSuccess: () => {
-                                                toast({
-                                                    description:
-                                                        "Data berhasil dihapus.",
-                                                });
-                                            },
-                                            onError: () => {
-                                                toast({
-                                                    description:
-                                                        "Gagal menghapus data.",
-                                                    variant: "destructive",
-                                                });
-                                            },
-                                        });
+                                        router.delete(
+                                            `/categories/${category.id}`,
+                                            {
+                                                onSuccess: () => {
+                                                    toast({
+                                                        description:
+                                                            "Data berhasil dihapus.",
+                                                    });
+                                                },
+                                                onError: () => {
+                                                    toast({
+                                                        description:
+                                                            "Gagal menghapus data.",
+                                                        variant: "destructive",
+                                                    });
+                                                },
+                                            }
+                                        );
                                     }}
                                 >
                                     Lanjut Hapus
@@ -204,17 +205,26 @@ export const columns: ColumnDef<Category>[] = [
 
                         {/* Update Category Dialog */}
                         {formData && (
-                            <Dialog open={!!formData} onOpenChange={closeDialog}>
+                            <Dialog
+                                open={!!formData}
+                                onOpenChange={closeDialog}
+                            >
                                 <DialogContent className="sm:max-w-[425px]">
                                     <DialogHeader>
-                                        <DialogTitle>Ubah Data Kategori</DialogTitle>
+                                        <DialogTitle>
+                                            Ubah Data Kategori
+                                        </DialogTitle>
                                         <DialogDescription>
-                                            Setelah selesai silahkan klik tombol ubah.
+                                            Setelah selesai silahkan klik tombol
+                                            ubah.
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="grid gap-4 py-4">
                                         <div className="grid grid-cols-4 categories-center gap-4">
-                                            <Label htmlFor="nama_kategori" className="text-right">
+                                            <Label
+                                                htmlFor="nama_kategori"
+                                                className="text-right"
+                                            >
                                                 Nama Kategori
                                             </Label>
                                             <Input
@@ -223,7 +233,8 @@ export const columns: ColumnDef<Category>[] = [
                                                 onChange={(e) =>
                                                     setFormData({
                                                         ...formData,
-                                                        nama_kategori: e.target.value,
+                                                        nama_kategori:
+                                                            e.target.value,
                                                     })
                                                 }
                                                 className="col-span-3"
@@ -231,7 +242,10 @@ export const columns: ColumnDef<Category>[] = [
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit" onClick={handleUpdate}>
+                                        <Button
+                                            type="submit"
+                                            onClick={handleUpdate}
+                                        >
                                             Ubah
                                         </Button>
                                     </DialogFooter>

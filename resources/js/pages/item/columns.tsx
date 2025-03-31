@@ -182,7 +182,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                 hour12: true,
             })}`;
         },
-        sortFn: (rowA, rowB) => {
+        sortingFn: (rowA, rowB) => {
             const dateA = new Date(rowA.original.created_at);
             const dateB = new Date(rowB.original.created_at);
             return dateA.getTime() - dateB.getTime();

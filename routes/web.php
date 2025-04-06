@@ -76,5 +76,10 @@ Route::get('/cache-fix', function () {
     return '✅ Config cache cleared and rebuilt.';
 });
 
+Route::get('/check-url', function () {
+    return config('app.url');
+});
+
+
 
 require __DIR__ . '/auth.php';

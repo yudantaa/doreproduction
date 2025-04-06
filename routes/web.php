@@ -81,9 +81,13 @@ Route::get('/cache-fix', function () {
 
 Route::get('/check-url', fn() => config('app.url'));
 
-Route::get('/run-seeder', function () {
-    Artisan::call('db:seed');
-    return Artisan::output(); //
+Route::middleware(['auth'])->get('/run-seeder', function () {
+    if (auth()->user()->role !== 'SUPER ADMIN') {
+        abort(403);
+    }
+
+    Artisan::call('db:seed', ['--force' => true]);
+    return Artisan::output();
 });
 
 

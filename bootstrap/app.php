@@ -16,11 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
-            // \Fruitcake\Cors\HandleCors::class,
-            'has.role' => EnsureUserHasRole::class,
         ]);
 
-        //
+        $middleware->alias([
+            'has.role' => EnsureUserHasRole::class,
+        ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions) {

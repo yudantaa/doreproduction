@@ -12,9 +12,10 @@ class EnsureUserHasRole
     {
         $user = Auth::user();
 
-        if ($request->user() && empty($request->user()->role)) {
+        if ($user && empty($user->role)) {
             abort(403, 'Anda tidak punya akses.');
         }
+
         return $next($request);
     }
 }

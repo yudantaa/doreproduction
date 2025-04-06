@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $status = $e->getStatusCode();
 
             if (in_array($status, [403, 404, 500])) {
-                return \Inertia\Inertia::render("/errors/{$status}", [
+                return \Inertia\Inertia::render("errors/{$status}", [
                     'status' => $status,
                     'message' => $e->getMessage(),
                 ])->toResponse($request)->setStatusCode($status);

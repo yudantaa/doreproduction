@@ -22,6 +22,13 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
+
+    if (empty($user->role)) {
+        return redirect()->route('login')->withErrors([
+            'role' => 'Anda tidak punya akses.',
+        ]);
+    }
+
     $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
     $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
     $totalActiveLoans = Loan::where('status', 'Disewa')->count();

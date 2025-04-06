@@ -79,4 +79,10 @@ Route::get('/cache-fix', function () {
 
 Route::get('/check-url', fn() => config('app.url'));
 
+Route::get('/run-seeder', function () {
+    Artisan::call('db:seed');
+    return '✅ Seeder executed!';
+});
+
+
 require __DIR__ . '/auth.php';

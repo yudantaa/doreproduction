@@ -74,6 +74,8 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 Route::get('/cache-fix', function () {
     Artisan::call('config:clear');
     Artisan::call('config:cache');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
     return '✅ Config cache cleared and rebuilt.';
 });
 
@@ -81,7 +83,7 @@ Route::get('/check-url', fn() => config('app.url'));
 
 Route::get('/run-seeder', function () {
     Artisan::call('db:seed');
-    return '✅ Seeder executed!';
+    return Artisan::output(); //
 });
 
 

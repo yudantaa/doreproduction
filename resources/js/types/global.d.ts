@@ -8,3 +8,5 @@ declare global {
 
     var route: typeof ziggyRoute;
 }
+
+declare module 'ziggy-js';

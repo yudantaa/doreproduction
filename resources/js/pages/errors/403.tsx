@@ -1,7 +1,7 @@
 import { Link } from "@inertiajs/react";
 import { LogOut } from "lucide-react";
 
-export default function Error403() {
+export default function Error403({ status }: { status: number }) {
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <h1 className="text-3xl font-bold mb-4">

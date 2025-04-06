@@ -20,36 +20,30 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    $user = Auth::user();
+Route::middleware(['auth', 'has.role'])->group(function () {
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
 
-    if (empty($user->role)) {
-        return redirect()->route('login')->withErrors([
-            'role' => 'Anda tidak punya akses.',
+        $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
+        $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
+        $totalActiveLoans = Loan::where('status', 'Disewa')->count();
+        $totalOverdue = Loan::where('status', 'Disewa')
+            ->where('deadline_pengembalian', '<', now())
+            ->count();
+
+        $loanController = new LoanController();
+        $monthlyLoanData = $loanController->getMonthlyStatistics();
+
+        return Inertia::render('dashboard', [
+            'userName' => $user->name,
+            'totalAvailable' => $totalAvailable,
+            'totalUnavailable' => $totalUnavailable,
+            'totalActiveLoans' => $totalActiveLoans,
+            'totalOverdue' => $totalOverdue,
+            'monthlyLoanData' => $monthlyLoanData,
         ]);
-    }
+    })->name('dashboard');
 
-    $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
-    $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
-    $totalActiveLoans = Loan::where('status', 'Disewa')->count();
-    $totalOverdue = Loan::where('status', 'Disewa')
-        ->where('deadline_pengembalian', '<', now())
-        ->count();
-
-    $loanController = new LoanController();
-    $monthlyLoanData = $loanController->getMonthlyStatistics();
-
-    return Inertia::render('dashboard', [
-        'userName' => $user->name,
-        'totalAvailable' => $totalAvailable,
-        'totalUnavailable' => $totalUnavailable,
-        'totalActiveLoans' => $totalActiveLoans,
-        'totalOverdue' => $totalOverdue,
-        'monthlyLoanData' => $monthlyLoanData,
-    ]);
-})->middleware(['auth'])->name('dashboard');
-
-Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -59,22 +53,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/dashboard/loans', [LoanController::class, 'index'])->name('loans.index');
 
+    Route::resource('users', UserController::class);
+    Route::resource('items', ItemController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('loans', LoanController::class);
+    Route::post('/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
+    Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
 });
 
-Route::resource('users', UserController::class)
-    ->middleware(['auth']);
-Route::resource('items', ItemController::class)
-    ->middleware(['auth']);
-Route::resource('categories', CategoryController::class)
-    ->middleware(['auth']);
-Route::resource('loans', LoanController::class)
-    ->middleware(['auth']);
-Route::post('/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
-Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
-
-
+// Registration is open for everyone
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
+// Debug/Utility routes
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/cache-fix', function () {
@@ -86,7 +76,5 @@ Route::get('/cache-fix', function () {
 Route::get('/check-url', function () {
     return config('app.url');
 });
-
-
 
 require __DIR__ . '/auth.php';

@@ -1,15 +1,19 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\LoanController;
-use App\Models\Item;
-use App\Models\Loan;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
 use Inertia\Inertia;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\{
+    CategoryController,
+    ItemController,
+    ProfileController,
+    LoanController,
+    UserController,
+    RegisteredUserController
+};
+use App\Models\{Item, Loan};
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function () {
     return Inertia::render('welcome', [
@@ -20,6 +24,7 @@ Route::get('/', function () {
     ]);
 });
 
+// Only authenticated users with a role can access dashboard and its children
 Route::middleware(['auth', 'has.role'])->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::user();
@@ -44,10 +49,7 @@ Route::middleware(['auth', 'has.role'])->group(function () {
         ]);
     })->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    // Other dashboard routes
     Route::get('/dashboard/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/dashboard/items', [ItemController::class, 'index'])->name('items.index');
     Route::get('/dashboard/categories', [CategoryController::class, 'index'])->name('categories.index');
@@ -59,22 +61,22 @@ Route::middleware(['auth', 'has.role'])->group(function () {
     Route::resource('loans', LoanController::class);
     Route::post('/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
     Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Registration is open for everyone
+// Open to everyone (including guests)
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
-// Debug/Utility routes
-use Illuminate\Support\Facades\Artisan;
-
+// Utility
 Route::get('/cache-fix', function () {
     Artisan::call('config:clear');
     Artisan::call('config:cache');
     return '✅ Config cache cleared and rebuilt.';
 });
 
-Route::get('/check-url', function () {
-    return config('app.url');
-});
+Route::get('/check-url', fn() => config('app.url'));
 
 require __DIR__ . '/auth.php';

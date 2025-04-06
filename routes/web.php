@@ -68,4 +68,13 @@ Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('lo
 
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/cache-fix', function () {
+    Artisan::call('config:clear');
+    Artisan::call('config:cache');
+    return '✅ Config cache cleared and rebuilt.';
+});
+
+
 require __DIR__ . '/auth.php';

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
-import { DataTable } from '@/components/ui/data-table';
-import { columns } from './columns';
-import LoanCreateForm from './create-form';
+import React, { useState } from "react";
+import { Head } from "@inertiajs/react";
+import { DataTable } from "@/components/ui/data-table";
+import { columns } from "./columns";
+import LoanCreateForm from "./create-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
@@ -18,7 +18,7 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from "@/components/ui/select";
 import AuthenticatedLayout from "@/layouts/authenticated-layout";
 
@@ -46,16 +46,19 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
     const [nameFilter, setNameFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
 
-    const filteredLoans = loans.filter((loan) =>
-        loan.nama_penyewa.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        (statusFilter === "All" || loan.status === statusFilter)
+    const filteredLoans = loans.filter(
+        (loan) =>
+            loan.nama_penyewa
+                .toLowerCase()
+                .includes(nameFilter.toLowerCase()) &&
+            (statusFilter === "All" || loan.status === statusFilter)
     );
 
     const statusOptions = [
         { value: "All", label: "Semua Status" },
         { value: "Disewa", label: "Disewa" },
         { value: "Dikembalikan", label: "Dikembalikan" },
-        { value: "Dibatalkan", label: "Dibatalkan" }
+        { value: "Dibatalkan", label: "Dibatalkan" },
     ];
 
     return (
@@ -65,23 +68,30 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
             <div className="flex-1 rounded-xl h-full">
                 <div className="mx-auto py-10 rounded-xl w-11/12">
                     <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-2xl font-bold">Manajemen Peminjaman</h1>
+                        <h1 className="text-2xl font-bold">
+                            Manajemen Peminjaman
+                        </h1>
                         <Dialog
                             open={isRegisterModalOpen}
                             onOpenChange={setIsRegisterModalOpen}
                         >
                             <DialogTrigger asChild>
                                 <Button className="bg-zinc-600">
-                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah Peminjaman Baru
+                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah
+                                    Peminjaman Baru
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
-                                    <DialogTitle>Tambah Peminjaman Baru</DialogTitle>
+                                    <DialogTitle>
+                                        Tambah Peminjaman Baru
+                                    </DialogTitle>
                                 </DialogHeader>
                                 <LoanCreateForm
                                     items={items}
-                                    onClose={() => setIsRegisterModalOpen(false)}
+                                    onClose={() =>
+                                        setIsRegisterModalOpen(false)
+                                    }
                                 />
                             </DialogContent>
                         </Dialog>
@@ -91,7 +101,9 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
                         <Input
                             placeholder="Filter berdasarkan nama penyewa..."
                             value={nameFilter}
-                            onChange={(event) => setNameFilter(event.target.value)}
+                            onChange={(event) =>
+                                setNameFilter(event.target.value)
+                            }
                             className="max-w-sm"
                         />
 
@@ -115,10 +127,7 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
                         </Select>
                     </div>
 
-                    <DataTable
-                        columns={columns()}
-                        data={filteredLoans}
-                    />
+                    <DataTable columns={columns(items)} data={filteredLoans} />
                 </div>
             </div>
         </AuthenticatedLayout>

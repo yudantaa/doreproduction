@@ -48,7 +48,18 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export function MonthlyChart({ data = [] }) {
+interface MonthlyChartProps {
+    data: Array<{
+        month: string;
+        total: number;
+        active: number;
+        returned: number;
+        cancelled: number;
+        overdue: number;
+    }>;
+}
+
+export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data }) => {
     const currentYear = new Date().getFullYear();
 
     // If no data is provided, show a message
@@ -138,6 +149,6 @@ export function MonthlyChart({ data = [] }) {
             </CardFooter>
         </Card>
     );
-}
+};
 
 export default MonthlyChart;

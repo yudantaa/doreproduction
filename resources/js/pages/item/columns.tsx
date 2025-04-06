@@ -115,7 +115,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
             );
         },
         cell: ({ getValue }) => {
-            const status = getValue();
+            const status = getValue() as string;
             const bgColor =
                 status === "Tersedia"
                     ? "bg-green-200 text-green-800"
@@ -134,7 +134,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         accessorKey: "deskripsi",
         header: "Deskripsi",
         cell: ({ getValue }) => {
-            const deskripsi = getValue() || "";
+            const deskripsi = (getValue() as string) || "";
             const truncatedDeskripsi =
                 deskripsi.length > 100
                     ? `${deskripsi.slice(0, 100)}...`

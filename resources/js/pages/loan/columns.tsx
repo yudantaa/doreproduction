@@ -53,11 +53,10 @@ export type Loan = {
     tanggal_sewa: Date;
     tanggal_kembali: Date | null;
     deadline_pengembalian: Date;
-    status: "Disewa" | "Dikembalikan" | "Dibatalkan";
+    status: string;
     nama_barang: string;
     id_barang: string;
 };
-
 type Item = {
     id: string;
     nama_barang: string;
@@ -162,8 +161,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
             const deadline = new Date(row.original.deadline_pengembalian);
             const today = new Date();
             const isOverdue =
-                row.original.status === "Disewa" &&
-                deadline < today;
+                row.original.status === "Disewa" && deadline < today;
 
             return (
                 <span className={isOverdue ? "text-red-600 font-medium" : ""}>
@@ -189,7 +187,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
         },
         cell: ({ getValue }) => {
             const status = getValue() as Loan["status"];
-            const styles = {
+            const styles: Record<Loan["status"], string> = {
                 Disewa: "bg-yellow-100 text-yellow-800 border-yellow-300",
                 Dikembalikan: "bg-green-100 text-green-800 border-green-300",
                 Dibatalkan: "bg-red-100 text-red-800 border-red-300",
@@ -209,8 +207,11 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
         cell: ({ row }) => {
             const loan = row.original;
             const { toast } = useToast();
-            const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
-            const [confirmAction, setConfirmAction] = React.useState<"return" | "cancel" | null>(null);
+            const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
+                React.useState(false);
+            const [confirmAction, setConfirmAction] = React.useState<
+                "return" | "cancel" | null
+            >(null);
 
             const {
                 isModalOpen,
@@ -234,17 +235,20 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
             const handleConfirmAction = () => {
                 if (!confirmAction) return;
 
-                const url = confirmAction === "return"
-                    ? `/loans/${loan.id}/return`
-                    : `/loans/${loan.id}/cancel`;
+                const url =
+                    confirmAction === "return"
+                        ? `/loans/${loan.id}/return`
+                        : `/loans/${loan.id}/cancel`;
 
-                const successMessage = confirmAction === "return"
-                    ? "Barang berhasil dikembalikan"
-                    : "Peminjaman berhasil dibatalkan";
+                const successMessage =
+                    confirmAction === "return"
+                        ? "Barang berhasil dikembalikan"
+                        : "Peminjaman berhasil dibatalkan";
 
-                const errorMessage = confirmAction === "return"
-                    ? "Gagal mengembalikan barang"
-                    : "Gagal membatalkan peminjaman";
+                const errorMessage =
+                    confirmAction === "return"
+                        ? "Gagal mengembalikan barang"
+                        : "Gagal membatalkan peminjaman";
 
                 router.post(
                     url,
@@ -280,7 +284,24 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                             {loan.status === "Disewa" && (
                                 <>
                                     <DropdownMenuItem
-                                        onClick={() => openModal(loan)}
+                                        onClick={() =>
+                                            openModal({
+                                                nama_penyewa: loan.nama_penyewa,
+                                                no_tlp_penyewa:
+                                                    loan.no_tlp_penyewa,
+                                                id_barang: loan.id_barang,
+                                                tanggal_sewa: format(
+                                                    new Date(loan.tanggal_sewa),
+                                                    "yyyy-MM-dd"
+                                                ),
+                                                deadline_pengembalian: format(
+                                                    new Date(
+                                                        loan.deadline_pengembalian
+                                                    ),
+                                                    "yyyy-MM-dd"
+                                                ),
+                                            })
+                                        }
                                     >
                                         <EditIcon className="mr-2 h-4 w-4" />
                                         Edit Peminjaman
@@ -293,7 +314,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                         className="text-green-900"
                                     >
                                         <CheckCheckIcon className="mr-2 h-4 w-4" />
-                                         Barang Dikembalikan
+                                        Barang Dikembalikan
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => {
@@ -307,13 +328,11 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                     </DropdownMenuItem>
                                 </>
                             )}
-                             {loan.status != "Disewa" && (
+                            {loan.status != "Disewa" && (
                                 <>
-                                    <DropdownMenuItem
-                                        className="text-gray-600 "
-                                    >
+                                    <DropdownMenuItem className="text-gray-600 ">
                                         <CheckCheckIcon className="mr-2 h-4 w-4" />
-                                       Peminjaman Berakhir
+                                        Peminjaman Berakhir
                                     </DropdownMenuItem>
                                 </>
                             )}
@@ -326,7 +345,8 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                             <DialogHeader>
                                 <DialogTitle>Edit Peminjaman</DialogTitle>
                                 <DialogDescription>
-                                    Ubah informasi peminjaman. Pastikan semua data terisi dengan benar.
+                                    Ubah informasi peminjaman. Pastikan semua
+                                    data terisi dengan benar.
                                 </DialogDescription>
                             </DialogHeader>
                             <form
@@ -391,11 +411,12 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                                     value={item.id}
                                                     disabled={
                                                         item.jumlah <= 0 &&
-                                                        item.id !== loan.id_barang
+                                                        item.id !==
+                                                            loan.id_barang
                                                     }
                                                 >
-                                                    {item.nama_barang} (Tersedia:{" "}
-                                                    {item.jumlah})
+                                                    {item.nama_barang}{" "}
+                                                    (Tersedia: {item.jumlah})
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -452,28 +473,36 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                 </DialogTitle>
                                 <DialogDescription>
                                     {confirmAction === "return"
-                                            ? "Apakah Anda yakin ingin menandai barang ini sebagai dikembalikan? Tindakan ini akan memperbarui stok barang."
-                                            : "Apakah Anda yakin ingin membatalkan peminjaman ini? Tindakan ini akan memperbarui stok barang."}
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="flex justify-end space-x-2">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsConfirmDialogOpen(false)}
-                                    >
-                                        Batal
-                                    </Button>
-                                    <Button
-                                        variant={confirmAction === "return" ? "default" : "destructive"}
-                                        onClick={handleConfirmAction}
-                                    >
-                                        {confirmAction === "return" ? "Kembalikan" : "Batalkan"}
-                                    </Button>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    </>
-                );
-            },
+                                        ? "Apakah Anda yakin ingin menandai barang ini sebagai dikembalikan? Tindakan ini akan memperbarui stok barang."
+                                        : "Apakah Anda yakin ingin membatalkan peminjaman ini? Tindakan ini akan memperbarui stok barang."}
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="flex justify-end space-x-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() =>
+                                        setIsConfirmDialogOpen(false)
+                                    }
+                                >
+                                    Batal
+                                </Button>
+                                <Button
+                                    variant={
+                                        confirmAction === "return"
+                                            ? "default"
+                                            : "destructive"
+                                    }
+                                    onClick={handleConfirmAction}
+                                >
+                                    {confirmAction === "return"
+                                        ? "Kembalikan"
+                                        : "Batalkan"}
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                </>
+            );
         },
-    ];
+    },
+];

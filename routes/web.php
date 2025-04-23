@@ -11,16 +11,18 @@ use App\Http\Controllers\{
     UserController,
     RegisteredUserController
 };
-use App\Models\{Item, Loan};
+use App\Models\{Item, Loan, Category};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function () {
-    return Inertia::render('welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+    $items = Item::all();
+    $categories = Category::all();
+
+    return Inertia::render('homepage', [
+        'items' => $items,
+        'categories' => $categories,
+        'isAuthenticated' => Auth::check() && Auth::user()->role,
     ]);
 });
 

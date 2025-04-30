@@ -32,10 +32,10 @@ export default function Dashboard({
         <AuthenticatedLayout header="Dashboard">
             <Head title="Dashboard" />
 
-            <div className="flex flex-1 flex-col gap-4 h-full">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div className="flex flex-1 flex-col gap-4 h-full px-4 pb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-min">
                     {/* Total Equipment */}
-                    <div className="rounded-xl border-2 p-4 flex flex-col items-center justify-center text-center h-32">
+                    <div className="min-h-[8rem] rounded-xl border-2 p-4 flex flex-col items-center justify-center text-center">
                         <h3 className="text-md font-semibold">
                             Total Equipment Tersedia
                         </h3>
@@ -51,7 +51,8 @@ export default function Dashboard({
                         </h4>
                     </div>
 
-                    <div className="rounded-xl border-2 p-4 flex flex-col items-center justify-center text-center h-32">
+                    {/* Active Rentals */}
+                    <div className="min-h-[8rem] rounded-xl border-2 p-4 flex flex-col items-center justify-center text-center">
                         <h3 className="text-md font-semibold">
                             Penyewaan Aktif
                         </h3>
@@ -65,17 +66,16 @@ export default function Dashboard({
                             Telat Deadline
                         </h4>
                     </div>
-                    <div className="rounded-xl border-2 p-4 flex flex-col items-center justify-center text-center h-32">
+
+                    {/* Welcome Box */}
+                    <div className="min-h-[8rem] rounded-xl border-2 p-4 flex flex-col items-center justify-center text-center">
                         <h3 className="text-md font-semibold">
                             Selamat Datang
                         </h3>
-                        <p className="text-3xl font-bold flex items-center gap-2">
+                        <p className="text-3xl font-bold flex items-center gap-2 text-center">
                             <User2 className="h-8 w-8 text-red-600" />
-                            <span className="text-transform: capitalize">
-                                {userName}
-                            </span>
+                            <span className="capitalize">{userName}</span>
                         </p>
-
                         <h4 className="text-sm font-semibold pt-2">
                             Selamat Bekerja!
                         </h4>
@@ -83,7 +83,7 @@ export default function Dashboard({
                 </div>
 
                 {/* Chart Section */}
-                <div className="flex-1 rounded-xl w-fit  mt-4">
+                <div className="w-full mt-4 rounded-xl overflow-x-auto">
                     <MonthlyChart data={monthlyLoanData} />
                 </div>
             </div>

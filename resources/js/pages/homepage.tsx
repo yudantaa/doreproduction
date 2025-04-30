@@ -53,7 +53,7 @@ export default function HomePage({
             name: "Rina Wijaya",
             role: "Event Organizer",
             content:
-                "DoRe Production memberikan solusi pencahayaan yang sempurna untuk acara korporat kami. Tim yang sangat membantu!",
+                "Dore Production memberikan solusi pencahayaan yang sempurna untuk acara korporat kami. Tim yang sangat membantu!",
             avatar: "/api/placeholder/64/64",
         },
         {
@@ -113,31 +113,38 @@ export default function HomePage({
         return () => clearInterval(interval);
     }, [items]);
 
+    const getWhatsAppLink = (item: Item) => {
+        const message = `Halo Dore Production, saya tertarik untuk menyewa ${item.nama_barang}. Mohon informasi lebih lanjut.`;
+        return `https://wa.me/089522734461?text=${encodeURIComponent(message)}`;
+    };
+
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col">
-            <Head title="DoRe Production - Sewa Peralatan Pencahayaan Profesional" />
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
+            <Head title="Dore Production - Sewa Peralatan Pencahayaan Profesional" />
 
             {/* Header */}
             <header
-                className={`bg-background border-b border-border ${
+                className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${
                     isHeaderSticky
-                        ? "sticky top-0 z-50 shadow-md transition-all duration-300"
+                        ? "sticky top-0 z-50 shadow-sm transition-all duration-300"
                         : ""
                 }`}
             >
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                     <Link href="/">
                         <div className="flex items-center">
-                            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center mr-2">
-                                <span className="text-white font-bold">DR</span>
+                            <div className="w-8 h-8 bg-gray-900 dark:bg-gray-100 rounded-full flex items-center justify-center mr-2">
+                                <span className="text-white dark:text-gray-900 font-bold text-sm">
+                                    DR
+                                </span>
                             </div>
-                            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                                DoRe Production
+                            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                Dore Production
                             </h1>
                         </div>
                     </Link>
 
-                    <nav className="hidden md:flex space-x-8">
+                    <nav className="hidden md:flex space-x-6">
                         {[
                             "peralatan",
                             "tentang",
@@ -148,47 +155,66 @@ export default function HomePage({
                             <a
                                 key={section}
                                 href={`#${section}`}
-                                className="hover:text-primary transition-colors font-medium relative group"
+                                className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-sm font-medium"
                             >
                                 {section.charAt(0).toUpperCase() +
                                     section.slice(1)}
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                             </a>
                         ))}
                     </nav>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <AppearanceDropdown />
                         {isAuthenticated ? (
                             <Link href="/dashboard">
-                                <Button variant="default">
-                                    Admin Dashboard
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                                >
+                                    Dashboard
                                 </Button>
                             </Link>
                         ) : (
-                            <Link href="https://wa.me/089522734461">
+                            <Link href="/login">
                                 <Button
-                                    variant="default"
-                                    className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity"
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-gray-300 dark:border-gray-600"
                                 >
-                                    <Phone className="w-4 h-4 mr-2" /> Hubungi
-                                    Kami
+                                    Login
                                 </Button>
                             </Link>
                         )}
+                        <a
+                            href="https://wa.me/089522734461"
+                            className="md:flex items-center hidden"
+                        >
+                            <Button
+                                variant="default"
+                                size="sm"
+                                className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                            >
+                                <Phone className="w-4 h-4 mr-1" /> Hubungi Kami
+                            </Button>
+                        </a>
                         <button
                             className="md:hidden"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
-                            {mobileMenuOpen ? <X /> : <Menu />}
+                            {mobileMenuOpen ? (
+                                <X className="w-5 h-5" />
+                            ) : (
+                                <Menu className="w-5 h-5" />
+                            )}
                         </button>
                     </div>
                 </div>
 
                 {/* Mobile menu */}
                 {mobileMenuOpen && (
-                    <div className="md:hidden py-4 px-4 bg-background border-t border-border">
-                        <nav className="flex flex-col space-y-4">
+                    <div className="md:hidden py-3 px-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                        <nav className="flex flex-col space-y-3">
                             {[
                                 "peralatan",
                                 "tentang",
@@ -199,100 +225,93 @@ export default function HomePage({
                                 <a
                                     key={section}
                                     href={`#${section}`}
-                                    className="hover:text-primary transition-colors py-2"
+                                    className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors py-1 text-sm"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     {section.charAt(0).toUpperCase() +
                                         section.slice(1)}
                                 </a>
                             ))}
+                            <a
+                                href="https://wa.me/089522734461"
+                                className="flex items-center py-1 text-sm font-medium text-gray-900 dark:text-gray-100"
+                            >
+                                <Phone className="w-4 h-4 mr-2" /> Hubungi Kami
+                            </a>
                         </nav>
                     </div>
                 )}
             </header>
 
             {/* Hero Section */}
-            <section className="relative h-[32rem] bg-gradient-to-r from-blue-900 to-purple-900 flex items-center overflow-hidden">
-                {/* Background animation dots */}
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMCAxIDEgMiAyIDJzMi0xIDItMi0xLTItMi0yLTIgMS0yIDJ6bTAtOGMwIDEgMSAyIDIgMnMyLTEgMi0yLTEtMi0yLTItMiAxLTIgMnptLTE4IDBjMCAxIDEgMiAyIDJzMi0xIDItMi0xLTItMi0yLTIgMS0yIDJ6bTkgOGMwIDEgMSAyIDIgMnMyLTEgMi0yLTEtMi0yLTItMiAxLTIgMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
-
+            <section className="relative py-12 bg-gray-100 dark:bg-gray-800 flex items-center overflow-hidden">
                 <div className="container mx-auto px-4 relative z-10">
-                    <div className="max-w-2xl">
-                        <div className="mb-4 inline-block">
-                            <span className="bg-white/20 text-white px-4 py-1 rounded-full text-sm font-medium">
-                                Profesional & Terpercaya
-                            </span>
-                        </div>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white leading-tight">
-                            Solusi Pencahayaan{" "}
-                            <span className="text-primary">Profesional</span>{" "}
-                            untuk Produksi Anda
+                    <div className="max-w-xl">
+                        <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100 leading-tight">
+                            Solusi Pencahayaan Profesional untuk Produksi Anda
                         </h1>
-                        <p className="text-xl mb-8 text-white/80">
+                        <p className="text-base mb-6 text-gray-600 dark:text-gray-300">
                             Peralatan pencahayaan berkualitas tinggi untuk film,
                             fotografi, dan event dengan dukungan teknis dari tim
                             ahli.
                         </p>
-                        <div className="flex gap-4 flex-wrap">
+                        <div className="flex gap-3">
                             <Link href="#peralatan">
                                 <Button
                                     variant="default"
-                                    className="bg-primary hover:bg-primary/90 text-white font-medium py-6 px-8 rounded-xl"
+                                    className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
                                 >
                                     Lihat Peralatan{" "}
-                                    <ChevronRightIcon className="ml-2 w-5 h-5" />
+                                    <ChevronRightIcon className="ml-1 w-4 h-4" />
                                 </Button>
                             </Link>
-                            <Link href="#kontak">
+                            <a href="https://wa.me/089522734461">
                                 <Button
                                     variant="outline"
-                                    className="border-white text-white hover:bg-white/10 py-6 px-8 rounded-xl"
+                                    className="border-gray-300 dark:border-gray-600"
                                 >
-                                    Konsultasi Gratis
+                                    <Phone className="w-4 h-4 mr-1" />{" "}
+                                    Konsultasi
                                 </Button>
-                            </Link>
+                            </a>
                         </div>
                     </div>
                 </div>
-
-                {/* Decorative elements */}
-                <div className="absolute right-0 -bottom-32 w-64 h-64 bg-primary/30 rounded-full blur-3xl"></div>
-                <div className="absolute -right-20 top-20 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl"></div>
             </section>
 
             {/* Stats Section */}
-            <section className="py-8 bg-background relative z-10">
+            <section className="py-8 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 -mt-16">
-                        <div className="bg-card shadow-lg rounded-xl p-6 text-center transform hover:scale-105 transition-transform">
-                            <div className="text-3xl font-bold text-primary mb-1">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                                 500+
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
                                 Peralatan Premium
                             </div>
                         </div>
-                        <div className="bg-card shadow-lg rounded-xl p-6 text-center transform hover:scale-105 transition-transform">
-                            <div className="text-3xl font-bold text-primary mb-1">
+                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                                 1200+
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
                                 Proyek Selesai
                             </div>
                         </div>
-                        <div className="bg-card shadow-lg rounded-xl p-6 text-center transform hover:scale-105 transition-transform">
-                            <div className="text-3xl font-bold text-primary mb-1">
+                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                                 98%
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
                                 Klien Puas
                             </div>
                         </div>
-                        <div className="bg-card shadow-lg rounded-xl p-6 text-center transform hover:scale-105 transition-transform">
-                            <div className="text-3xl font-bold text-primary mb-1">
+                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                                 10
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
                                 Tahun Pengalaman
                             </div>
                         </div>
@@ -300,138 +319,80 @@ export default function HomePage({
                 </div>
             </section>
 
-            {/* Category Section */}
-            <section className="py-16 bg-muted/30">
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">
-                            Kategori Peralatan
-                        </h2>
-                        <p className="text-muted-foreground max-w-2xl mx-auto">
-                            Kami menyediakan berbagai peralatan pencahayaan
-                            untuk memenuhi kebutuhan produksi Anda
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {categories.slice(0, 4).map((category, index) => (
-                            <div
-                                key={category.id || index}
-                                className="bg-card shadow-md rounded-xl p-6 text-center hover:shadow-lg transition-all border border-transparent hover:border-primary/20"
-                            >
-                                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Image className="w-8 h-8 text-primary" />
-                                </div>
-                                <h3 className="text-lg font-semibold mb-2">
-                                    {category.nama_kategori ||
-                                        `Kategori ${index + 1}`}
-                                </h3>
-                                <Link href={`/kategori/${category.id}`}>
-                                    <Button
-                                        variant="outline"
-                                        className="rounded-lg w-full"
-                                    >
-                                        Lihat Semua
-                                    </Button>
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             {/* Featured Equipment */}
-            <section id="peralatan" className="py-16">
+            <section
+                id="peralatan"
+                className="py-10 bg-gray-50 dark:bg-gray-900"
+            >
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-6">
                         <div>
-                            <h2 className="text-3xl font-bold mb-2">
+                            <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-gray-100">
                                 Peralatan Unggulan
                             </h2>
-                            <p className="text-muted-foreground">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                 Peralatan premium yang siap untuk disewa
                             </p>
                         </div>
                         <Link href="/peralatan">
                             <Button
                                 variant="link"
-                                className="flex items-center"
+                                className="text-gray-900 dark:text-gray-100 p-0 flex items-center"
                             >
-                                Lihat Semua Peralatan{" "}
-                                <ArrowRight className="ml-2 w-4 h-4" />
+                                Lihat Semua{" "}
+                                <ArrowRight className="ml-1 w-4 h-4" />
                             </Button>
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {featuredItems.map((item) => (
                             <div
                                 key={item.id}
-                                className="bg-card text-card-foreground rounded-xl shadow-md hover:shadow-xl transition-all border border-border group overflow-hidden"
+                                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow transition-shadow border border-gray-200 dark:border-gray-700 overflow-hidden"
                             >
-                                <div className="h-48 bg-muted flex items-center justify-center overflow-hidden relative">
+                                <div className="h-40 bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden relative">
                                     {item.image ? (
                                         <img
                                             src={`/storage/${item.image}`}
                                             alt={item.nama_barang}
-                                            className="object-cover h-full w-full transition-transform duration-500 group-hover:scale-110"
+                                            className="object-cover h-full w-full"
                                         />
                                     ) : (
-                                        <div className="bg-gradient-to-br from-muted to-muted-foreground/10 h-full w-full flex items-center justify-center">
-                                            <Image className="w-12 h-12 text-muted-foreground/30" />
+                                        <div className="bg-gray-300 dark:bg-gray-600 h-full w-full flex items-center justify-center">
+                                            <Image className="w-10 h-10 text-gray-400 dark:text-gray-500" />
                                         </div>
                                     )}
-                                    <div className="absolute top-3 right-3">
-                                        <span className="text-xs bg-green-500 text-white px-3 py-1 rounded-full font-medium">
+                                    <div className="absolute top-2 right-2">
+                                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
                                             Tersedia
                                         </span>
                                     </div>
                                 </div>
-                                <div className="p-6">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <h3 className="text-lg font-semibold">
+                                <div className="p-4">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                                             {item.nama_barang}
                                         </h3>
-                                        <span className="flex items-center text-amber-500">
-                                            <Star className="w-4 h-4 fill-current" />
-                                            <span className="ml-1 text-sm">
-                                                4.9
-                                            </span>
-                                        </span>
                                     </div>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-sm text-muted-foreground">
-                                            Stok tersedia:{" "}
-                                            <span className="font-medium">
-                                                {item.jumlah}
-                                            </span>
-                                        </span>
-                                        <span className="text-sm text-muted-foreground">
-                                            <Calendar className="w-4 h-4 inline mr-1" />{" "}
+                                    <div className="flex justify-between items-center mb-3 text-xs text-gray-500 dark:text-gray-400">
+                                        <span>Stok: {item.jumlah}</span>
+                                        <span>
+                                            <Calendar className="w-3 h-3 inline mr-1" />{" "}
                                             Harian
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-primary font-bold">
-                                            "Hubungi kami"
-                                        </span>
-                                        <Link href={`/peralatan/${item.id}`}>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="rounded-full"
-                                            >
-                                                Detail
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                </div>
-                                <div className="px-6 pb-6">
-                                    <Link href="https://wa.me/089522734461">
-                                        <Button className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 rounded-lg">
-                                            Sewa Sekarang
+                                    <a
+                                        href={getWhatsAppLink(item)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block"
+                                    >
+                                        <Button className="w-full bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-sm h-8">
+                                            <Phone className="w-3 h-3 mr-1" />{" "}
+                                            Pesan Sekarang
                                         </Button>
-                                    </Link>
+                                    </a>
                                 </div>
                             </div>
                         ))}
@@ -440,114 +401,86 @@ export default function HomePage({
             </section>
 
             {/* Services Section */}
-            <section className="py-16 bg-gradient-to-b from-background to-muted/30">
+            <section className="py-10 bg-white dark:bg-gray-800">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-gray-100">
                             Layanan Kami
                         </h2>
-                        <p className="text-muted-foreground max-w-2xl mx-auto">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                             Solusi lengkap untuk kebutuhan pencahayaan produksi
                             Anda
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-card p-8 rounded-xl shadow-md hover:shadow-lg transition-all border border-border">
-                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                                <Calendar className="w-6 h-6 text-primary" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                            <div className="mb-3">
+                                <Calendar className="w-6 h-6 text-gray-900 dark:text-gray-100" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-3">
+                            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
                                 Sewa Fleksibel
                             </h3>
-                            <p className="text-muted-foreground mb-4">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                                 Pilihan sewa harian, mingguan, atau bulanan
-                                sesuai dengan kebutuhan produksi Anda.
+                                sesuai kebutuhan.
                             </p>
-                            <ul className="space-y-2">
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Periode sewa yang fleksibel
-                                    </span>
+                            <ul className="space-y-1">
+                                <li className="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 shrink-0 mt-0.5" />
+                                    <span>Periode sewa yang fleksibel</span>
                                 </li>
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
+                                <li className="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 shrink-0 mt-0.5" />
+                                    <span>
                                         Diskon untuk sewa jangka panjang
                                     </span>
                                 </li>
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Perpanjangan mudah
-                                    </span>
-                                </li>
                             </ul>
                         </div>
 
-                        <div className="bg-card p-8 rounded-xl shadow-md hover:shadow-lg transition-all border border-border">
-                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                                <ShieldCheck className="w-6 h-6 text-primary" />
+                        <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                            <div className="mb-3">
+                                <ShieldCheck className="w-6 h-6 text-gray-900 dark:text-gray-100" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-3">
+                            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
                                 Peralatan Premium
                             </h3>
-                            <p className="text-muted-foreground mb-4">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                                 Peralatan pencahayaan berkualitas tinggi dari
-                                brand terkemuka di industri.
+                                brand terkemuka.
                             </p>
-                            <ul className="space-y-2">
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Peralatan selalu terawat
-                                    </span>
+                            <ul className="space-y-1">
+                                <li className="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 shrink-0 mt-0.5" />
+                                    <span>Peralatan selalu terawat</span>
                                 </li>
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Standar kualitas industri
-                                    </span>
-                                </li>
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Update peralatan terbaru
-                                    </span>
+                                <li className="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 shrink-0 mt-0.5" />
+                                    <span>Standar kualitas industri</span>
                                 </li>
                             </ul>
                         </div>
 
-                        <div className="bg-card p-8 rounded-xl shadow-md hover:shadow-lg transition-all border border-border">
-                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                                <Phone className="w-6 h-6 text-primary" />
+                        <div className="bg-gray-50 dark:bg-gray-900 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                            <div className="mb-3">
+                                <Phone className="w-6 h-6 text-gray-900 dark:text-gray-100" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-3">
+                            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
                                 Dukungan Teknis
                             </h3>
-                            <p className="text-muted-foreground mb-4">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                                 Tim ahli kami siap membantu dengan konsultasi
                                 atau bantuan teknis.
                             </p>
-                            <ul className="space-y-2">
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Konsultasi pra-produksi
-                                    </span>
+                            <ul className="space-y-1">
+                                <li className="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 shrink-0 mt-0.5" />
+                                    <span>Konsultasi pra-produksi</span>
                                 </li>
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Bantuan teknis selama proyek
-                                    </span>
-                                </li>
-                                <li className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                                    <span className="text-sm">
-                                        Dukungan 24/7 untuk klien
-                                    </span>
+                                <li className="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 shrink-0 mt-0.5" />
+                                    <span>Bantuan teknis selama proyek</span>
                                 </li>
                             </ul>
                         </div>
@@ -556,42 +489,32 @@ export default function HomePage({
             </section>
 
             {/* Recent Projects */}
-            <section id="proyek" className="py-16">
+            <section id="proyek" className="py-10 bg-gray-50 dark:bg-gray-900">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-gray-100">
                             Proyek Terbaru
                         </h2>
-                        <p className="text-muted-foreground max-w-2xl mx-auto">
-                            Beberapa proyek terbaru yang telah kami dukung
-                            dengan solusi pencahayaan
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Beberapa proyek yang telah kami dukung dengan solusi
+                            pencahayaan
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {recentProjects.map((project, index) => (
-                            <div key={index} className="group">
-                                <div className="overflow-hidden rounded-xl mb-4 aspect-video relative">
+                            <div key={index}>
+                                <div className="overflow-hidden rounded-lg mb-2 aspect-video">
                                     <img
                                         src={project.image}
                                         alt={project.title}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        className="w-full h-full object-cover"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                                        <div className="text-white">
-                                            <h3 className="font-bold text-lg">
-                                                {project.title}
-                                            </h3>
-                                            <p className="text-sm text-white/80">
-                                                {project.description}
-                                            </p>
-                                        </div>
-                                    </div>
                                 </div>
-                                <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+                                <h3 className="font-medium text-base text-gray-900 dark:text-gray-100">
                                     {project.title}
                                 </h3>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                     {project.description}
                                 </p>
                             </div>
@@ -601,94 +524,65 @@ export default function HomePage({
             </section>
 
             {/* About */}
-            <section id="tentang" className="py-16 bg-muted">
+            <section id="tentang" className="py-10 bg-white dark:bg-gray-800">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col lg:flex-row items-center gap-12">
+                    <div className="flex flex-col lg:flex-row items-start gap-8">
                         <div className="w-full lg:w-1/2">
-                            <span className="inline-block px-4 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-                                Tentang Kami
-                            </span>
-                            <h2 className="text-3xl font-bold mb-6">
-                                DoRe Production - Ahli Solusi Pencahayaan
+                            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+                                Tentang Dore Production
                             </h2>
-                            <p className="mb-4 text-muted-foreground">
-                                DoRe Production adalah penyedia layanan sewa
+                            <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
+                                Dore Production adalah penyedia layanan sewa
                                 peralatan pencahayaan profesional terkemuka
                                 untuk film, televisi, fotografi, dan produksi
                                 acara di Indonesia.
                             </p>
-                            <p className="mb-6 text-muted-foreground">
+                            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
                                 Dengan pengalaman lebih dari 10 tahun, kami
                                 memahami kebutuhan pencahayaan yang unik dari
                                 berbagai jenis produksi dan berkomitmen untuk
-                                memberikan solusi terbaik sesuai kebutuhan Anda.
+                                memberikan solusi terbaik.
                             </p>
-                            <div className="space-y-4 mb-8">
+                            <div className="space-y-3 mb-4">
                                 <div className="flex items-start">
-                                    <div className="bg-primary/10 p-2 rounded-lg mr-4">
-                                        <CheckCircle className="w-5 h-5 text-primary" />
-                                    </div>
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 mt-0.5" />
                                     <div>
-                                        <h4 className="font-semibold mb-1">
+                                        <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
                                             Peralatan Standar Industri
                                         </h4>
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
                                             Menyediakan peralatan pencahayaan
                                             terkini dari brand terpercaya
                                         </p>
                                     </div>
                                 </div>
                                 <div className="flex items-start">
-                                    <div className="bg-primary/10 p-2 rounded-lg mr-4">
-                                        <CheckCircle className="w-5 h-5 text-primary" />
-                                    </div>
+                                    <CheckCircle className="w-4 h-4 text-gray-900 dark:text-gray-100 mr-2 mt-0.5" />
                                     <div>
-                                        <h4 className="font-semibold mb-1">
-                                            Sewa Fleksibel
-                                        </h4>
-                                        <p className="text-sm text-muted-foreground">
-                                            Pilihan periode sewa yang dapat
-                                            disesuaikan dengan jadwal produksi
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start">
-                                    <div className="bg-primary/10 p-2 rounded-lg mr-4">
-                                        <CheckCircle className="w-5 h-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold mb-1">
+                                        <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
                                             Dukungan Teknis Tersedia
                                         </h4>
-                                        <p className="text-sm text-muted-foreground">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
                                             Tim teknisi berpengalaman siap
                                             membantu selama proses produksi
                                         </p>
                                     </div>
                                 </div>
                             </div>
-                            <Link href="#kontak">
-                                <Button className="bg-primary hover:bg-primary/90">
-                                    Hubungi Tim Kami{" "}
-                                    <ArrowRight className="ml-2 w-4 h-4" />
+                            <a href="https://wa.me/089522734461">
+                                <Button className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200">
+                                    <Phone className="w-4 h-4 mr-1" /> Hubungi
+                                    Tim Kami
                                 </Button>
-                            </Link>
+                            </a>
                         </div>
-                        <div className="w-full lg:w-1/2 bg-white p-2 rounded-xl shadow-xl">
-                            <div className="aspect-video bg-muted rounded-lg overflow-hidden relative">
+                        <div className="w-full lg:w-1/2">
+                            <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                                 <img
                                     src="/api/placeholder/800/450"
-                                    alt="DoRe Production Team"
+                                    alt="Dore Production Team"
                                     className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="bg-primary/80 rounded-full p-4 cursor-pointer hover:bg-primary transition-colors">
-                                        {/* <Play
-                                            className="w-8 h-8 text-white"
-                                            fill="white"
-                                        /> */}
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -696,19 +590,22 @@ export default function HomePage({
             </section>
 
             {/* Testimonials */}
-            <section id="testimonial" className="py-16 bg-background">
+            <section
+                id="testimonial"
+                className="py-10 bg-gray-50 dark:bg-gray-900"
+            >
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-gray-100">
                             Apa Kata Klien Kami
                         </h2>
-                        <p className="text-muted-foreground max-w-2xl mx-auto">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                             Pendapat dari berbagai klien yang telah menggunakan
                             jasa kami
                         </p>
                     </div>
 
-                    <div className="max-w-4xl mx-auto">
+                    <div className="max-w-3xl mx-auto">
                         <div className="relative">
                             {testimonials.map((testimonial, idx) => (
                                 <div
@@ -719,27 +616,21 @@ export default function HomePage({
                                             : "opacity-0 scale-95 absolute top-0 left-0 right-0"
                                     }`}
                                 >
-                                    <div className="bg-card rounded-xl shadow-lg p-8 md:p-10 relative">
-                                        <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-primary text-white rounded-full p-3">
-                                            <Star
-                                                className="w-6 h-6"
-                                                fill="white"
-                                            />
-                                        </div>
-                                        <p className="text-lg md:text-xl italic mb-8 text-center">
+                                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+                                        <p className="text-base italic mb-4 text-gray-600 dark:text-gray-300 text-center">
                                             "{testimonial.content}"
                                         </p>
                                         <div className="flex items-center justify-center">
                                             <img
                                                 src={testimonial.avatar}
                                                 alt={testimonial.name}
-                                                className="w-12 h-12 rounded-full border-2 border-primary"
+                                                className="w-10 h-10 rounded-full"
                                             />
-                                            <div className="ml-4">
-                                                <h4 className="font-bold">
+                                            <div className="ml-3">
+                                                <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
                                                     {testimonial.name}
                                                 </h4>
-                                                <p className="text-sm text-muted-foreground">
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                                     {testimonial.role}
                                                 </p>
                                             </div>
@@ -749,15 +640,15 @@ export default function HomePage({
                             ))}
                         </div>
 
-                        <div className="flex justify-center mt-8">
+                        <div className="flex justify-center mt-4">
                             {testimonials.map((_, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setActiveTestimonial(idx)}
-                                    className={`w-3 h-3 rounded-full mx-1 transition-all ${
+                                    className={`w-2 h-2 rounded-full mx-1 transition-colors ${
                                         idx === activeTestimonial
-                                            ? "bg-primary scale-125"
-                                            : "bg-muted-foreground/30"
+                                            ? "bg-gray-900 dark:bg-gray-100"
+                                            : "bg-gray-300 dark:bg-gray-700"
                                     }`}
                                     aria-label={`View testimonial ${idx + 1}`}
                                 />
@@ -767,224 +658,166 @@ export default function HomePage({
                 </div>
             </section>
 
-            {/* Call to Action */}
-            <section className="py-16 bg-gradient-to-r from-primary to-purple-600 text-white">
+            {/* Contact Section */}
+            <section id="kontak" className="py-10 bg-white dark:bg-gray-800">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between">
-                        <div className="mb-8 md:mb-0">
-                            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                                Siap untuk meningkatkan kualitas produksi Anda?
+                    <div className="flex flex-col lg:flex-row gap-8">
+                        <div className="w-full lg:w-1/2">
+                            <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                                Hubungi Kami
                             </h2>
-                            <p className="text-white/80">
-                                Konsultasikan kebutuhan pencahayaan untuk proyek
-                                Anda dengan tim ahli kami
+                            <p className="mb-6 text-sm text-gray-600 dark:text-gray-300">
+                                Punya pertanyaan atau ingin memesan? Jangan ragu
+                                untuk menghubungi kami.
                             </p>
-                        </div>
-                        <div className="flex gap-4">
-                            <Link href="#kontak">
-                                <Button className="bg-white text-primary hover:bg-white/90 px-6 py-6 rounded-xl">
-                                    Hubungi Kami
-                                </Button>
-                            </Link>
-                            <Link href="/peralatan">
-                                <Button
-                                    variant="outline"
-                                    className="border-white text-white hover:bg-white/10 px-6 py-6 rounded-xl"
-                                >
-                                    Lihat Peralatan
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            {/* Contact */}
-            <section id="kontak" className="py-16 bg-muted/50">
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-4">
-                            Hubungi Kami
-                        </h2>
-                        <p className="text-muted-foreground max-w-2xl mx-auto">
-                            Tim kami siap membantu menjawab semua pertanyaan
-                            Anda
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-card p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all">
-                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <MapPin className="w-8 h-8 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-semibold mb-3">
-                                Alamat
-                            </h3>
-                            <p className="text-muted-foreground">
-                                Jl. Raya Production No. 123
-                                <br />
-                                Jakarta Selatan, 12345
-                            </p>
-                        </div>
-
-                        <div className="bg-card p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all">
-                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Phone className="w-8 h-8 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-semibold mb-3">
-                                Telepon
-                            </h3>
-                            <p className="text-muted-foreground mb-2">
-                                +62 123 4567 890
-                            </p>
-                            <p className="text-muted-foreground">
-                                +62 895 2273 4461
-                            </p>
-                        </div>
-
-                        <div className="bg-card p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all">
-                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Mail className="w-8 h-8 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-semibold mb-3">
-                                Email
-                            </h3>
-                            <p className="text-muted-foreground">
-                                info@doreproduction.com
-                            </p>
-                            <p className="text-muted-foreground">
-                                rental@doreproduction.com
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="bg-card p-8 rounded-xl shadow-md">
-                            <h3 className="text-xl font-semibold mb-6">
-                                Kirim Pesan
-                            </h3>
                             <form className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label
                                             htmlFor="name"
-                                            className="block text-sm font-medium mb-1"
+                                            className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
                                         >
                                             Nama
                                         </label>
                                         <input
                                             type="text"
                                             id="name"
-                                            className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                                            placeholder="Nama Anda"
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                            placeholder="Nama Lengkap"
                                         />
                                     </div>
                                     <div>
                                         <label
                                             htmlFor="email"
-                                            className="block text-sm font-medium mb-1"
+                                            className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
                                         >
                                             Email
                                         </label>
                                         <input
                                             type="email"
                                             id="email"
-                                            className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                                            placeholder="email@anda.com"
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                            placeholder="email@example.com"
                                         />
                                     </div>
                                 </div>
                                 <div>
                                     <label
                                         htmlFor="subject"
-                                        className="block text-sm font-medium mb-1"
+                                        className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
                                     >
                                         Subjek
                                     </label>
                                     <input
                                         type="text"
                                         id="subject"
-                                        className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                                         placeholder="Subjek pesan"
                                     />
                                 </div>
                                 <div>
                                     <label
                                         htmlFor="message"
-                                        className="block text-sm font-medium mb-1"
+                                        className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
                                     >
                                         Pesan
                                     </label>
                                     <textarea
                                         id="message"
                                         rows={4}
-                                        className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                                         placeholder="Tulis pesan Anda di sini..."
                                     ></textarea>
                                 </div>
                                 <Button
                                     type="submit"
-                                    className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                                    className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
                                 >
-                                    <Send className="w-4 h-4 mr-2" /> Kirim
+                                    <Send className="w-4 h-4 mr-1" /> Kirim
                                     Pesan
                                 </Button>
                             </form>
                         </div>
 
-                        <div>
-                            <div className="bg-card p-8 rounded-xl shadow-md mb-8">
-                                <h3 className="text-xl font-semibold mb-4">
-                                    Jam Operasional
+                        <div className="w-full lg:w-1/2">
+                            <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full">
+                                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+                                    Informasi Kontak
                                 </h3>
-                                <ul className="space-y-3">
-                                    <li className="flex justify-between pb-2 border-b border-border">
-                                        <span>Senin - Jumat</span>
-                                        <span className="font-medium">
-                                            08.00 - 18.00
-                                        </span>
-                                    </li>
-                                    <li className="flex justify-between pb-2 border-b border-border">
-                                        <span>Sabtu</span>
-                                        <span className="font-medium">
-                                            09.00 - 16.00
-                                        </span>
-                                    </li>
-                                    <li className="flex justify-between">
-                                        <span>Minggu</span>
-                                        <span className="font-medium">
-                                            Tutup
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-start">
+                                        <MapPin className="w-5 h-5 text-gray-900 dark:text-gray-100 mr-3 mt-0.5" />
+                                        <div>
+                                            <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                                                Alamat
+                                            </h4>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Jl. Tebet Raya No. 123, Jakarta
+                                                Selatan
+                                                <br />
+                                                DKI Jakarta, 12840
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start">
+                                        <Mail className="w-5 h-5 text-gray-900 dark:text-gray-100 mr-3 mt-0.5" />
+                                        <div>
+                                            <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                                                Email
+                                            </h4>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                info@doreproduction.id
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start">
+                                        <Phone className="w-5 h-5 text-gray-900 dark:text-gray-100 mr-3 mt-0.5" />
+                                        <div>
+                                            <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                                                Telepon / Phone
+                                            </h4>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                +62 895-2273-4461
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start">
+                                        <Clock className="w-5 h-5 text-gray-900 dark:text-gray-100 mr-3 mt-0.5" />
+                                        <div>
+                                            <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                                                Jam Operasional
+                                            </h4>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Senin - Jumat: 09:00 - 17:00
+                                                <br />
+                                                Sabtu: 09:00 - 14:00
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div className="bg-card p-8 rounded-xl shadow-md">
-                                <h3 className="text-xl font-semibold mb-4">
+                                <h3 className="text-lg font-semibold mb-3 mt-6 text-gray-900 dark:text-gray-100">
                                     Ikuti Kami
                                 </h3>
-                                <p className="text-muted-foreground mb-4">
-                                    Dapatkan update terbaru dari kami melalui
-                                    media sosial
-                                </p>
-                                <div className="flex space-x-4">
+                                <div className="flex space-x-3">
                                     <a
                                         href="#"
-                                        className="bg-muted w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
+                                        className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                                     >
-                                        <Instagram className="w-5 h-5" />
+                                        <Instagram className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                                     </a>
                                     <a
                                         href="#"
-                                        className="bg-muted w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
+                                        className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                                     >
-                                        <Facebook className="w-5 h-5" />
+                                        <Facebook className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                                     </a>
                                     <a
                                         href="#"
-                                        className="bg-muted w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
+                                        className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                                     >
-                                        <Twitter className="w-5 h-5" />
+                                        <Twitter className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                                     </a>
                                 </div>
                             </div>
@@ -994,143 +827,136 @@ export default function HomePage({
             </section>
 
             {/* Footer */}
-            <footer className="bg-card border-t border-border py-12">
+            <footer className="bg-gray-900 dark:bg-gray-950 py-8 text-gray-300 dark:text-gray-400 border-t border-gray-800 dark:border-gray-900">
                 <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                         <div>
                             <div className="flex items-center mb-4">
-                                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center mr-2">
-                                    <span className="text-white font-bold">
+                                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mr-2">
+                                    <span className="text-gray-900 font-bold text-sm">
                                         DR
                                     </span>
                                 </div>
-                                <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                                    DoRe Production
-                                </h2>
+                                <h3 className="text-lg font-bold text-white">
+                                    Dore Production
+                                </h3>
                             </div>
-                            <p className="text-muted-foreground mb-4">
-                                Solusi pencahayaan profesional untuk kebutuhan
-                                produksi film, fotografi, dan event di
-                                Indonesia.
+                            <p className="text-sm mb-4">
+                                Solusi pencahayaan profesional untuk produksi
+                                film, fotografi, dan acara.
                             </p>
-                            <div className="flex space-x-4">
+                            <div className="flex space-x-3">
                                 <a
                                     href="#"
-                                    className="text-muted-foreground hover:text-primary transition-colors"
-                                    aria-label="Instagram"
+                                    className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     <Instagram className="w-5 h-5" />
                                 </a>
                                 <a
                                     href="#"
-                                    className="text-muted-foreground hover:text-primary transition-colors"
-                                    aria-label="Facebook"
+                                    className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     <Facebook className="w-5 h-5" />
                                 </a>
                                 <a
                                     href="#"
-                                    className="text-muted-foreground hover:text-primary transition-colors"
-                                    aria-label="Twitter"
+                                    className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     <Twitter className="w-5 h-5" />
                                 </a>
                             </div>
                         </div>
-
                         <div>
-                            <h3 className="font-semibold text-lg mb-4">
-                                Kategori
-                            </h3>
-                            <ul className="space-y-2">
-                                {[
-                                    "Lighting",
-                                    "Audio",
-                                    "Kamera",
-                                    "Aksesoris",
-                                ].map((category) => (
-                                    <li key={category}>
-                                        <a
-                                            href="#"
-                                            className="text-muted-foreground hover:text-primary transition-colors"
+                            <h4 className="font-medium text-white mb-3">
+                                Peralatan
+                            </h4>
+                            <ul className="space-y-2 text-sm">
+                                {categories.slice(0, 5).map((category) => (
+                                    <li key={category.id}>
+                                        <Link
+                                            href={`/kategori/${category.nama_kategori}`}
+                                            className="hover:text-white transition-colors"
                                         >
-                                            {category}
-                                        </a>
+                                            {category.nama_kategori}
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>
                         </div>
-
                         <div>
-                            <h3 className="font-semibold text-lg mb-4">
-                                Tautan
-                            </h3>
-                            <ul className="space-y-2">
-                                {[
-                                    "Tentang Kami",
-                                    "Layanan",
-                                    "Proyek",
-                                    "FAQ",
-                                    "Kebijakan Privasi",
-                                ].map((link) => (
-                                    <li key={link}>
-                                        <a
-                                            href="#"
-                                            className="text-muted-foreground hover:text-primary transition-colors"
-                                        >
-                                            {link}
-                                        </a>
-                                    </li>
-                                ))}
+                            <h4 className="font-medium text-white mb-3">
+                                Links
+                            </h4>
+                            <ul className="space-y-2 text-sm">
+                                <li>
+                                    <a
+                                        href="#tentang"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Tentang Kami
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="#proyek"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Proyek
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="#testimonial"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Testimonial
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="#kontak"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Kontak
+                                    </a>
+                                </li>
+                                <li>
+                                    <Link
+                                        href="/syarat-ketentuan"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Syarat & Ketentuan
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
-
                         <div>
-                            <h3 className="font-semibold text-lg mb-4">
-                                Newsletter
-                            </h3>
-                            <p className="text-muted-foreground mb-4">
-                                Dapatkan info terbaru dan penawaran khusus dari
-                                kami
-                            </p>
-                            <div className="flex">
-                                <input
-                                    type="email"
-                                    placeholder="Email Anda"
-                                    className="rounded-l-lg border border-border bg-background px-4 py-2 focus:outline-none flex-grow"
-                                />
-                                <Button className="rounded-l-none bg-primary hover:bg-primary/90">
-                                    <Send className="w-4 h-4" />
-                                </Button>
-                            </div>
+                            <h4 className="font-medium text-white mb-3">
+                                Kontak
+                            </h4>
+                            <ul className="space-y-2 text-sm">
+                                <li className="flex items-start">
+                                    <MapPin className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
+                                    <span>
+                                        Jl. Tebet Raya No. 123, Jakarta Selatan
+                                    </span>
+                                </li>
+                                <li className="flex items-start">
+                                    <Mail className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
+                                    <span>info@doreproduction.id</span>
+                                </li>
+                                <li className="flex items-start">
+                                    <Phone className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
+                                    <span>+62 895-2273-4461</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-
-                    <div className="border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center">
-                        <div className="text-muted-foreground text-sm mb-4 md:mb-0">
-                            &copy; {new Date().getFullYear()} DoRe Production.
-                            Semua hak dilindungi.
-                        </div>
-                        <div className="flex space-x-4 text-sm text-muted-foreground">
-                            <a
-                                href="#"
-                                className="hover:text-primary transition-colors"
-                            >
-                                Syarat & Ketentuan
-                            </a>
-                            <a
-                                href="#"
-                                className="hover:text-primary transition-colors"
-                            >
-                                Kebijakan Privasi
-                            </a>
-                            <a
-                                href="#"
-                                className="hover:text-primary transition-colors"
-                            >
-                                Cookies
-                            </a>
-                        </div>
+                    <div className="border-t border-gray-800 pt-6 text-center text-xs">
+                        <p>
+                            &copy; {new Date().getFullYear()} Dore Production.
+                            All rights reserved.
+                        </p>
                     </div>
                 </div>
             </footer>

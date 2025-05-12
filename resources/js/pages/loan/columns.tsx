@@ -402,10 +402,20 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                         }
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Pilih Barang" />
+                                            <SelectValue placeholder="Pilih Barang">
+                                                {
+                                                    items.filter(
+                                                        (i: any) =>
+                                                            i.id ===
+                                                            Number(
+                                                                formData?.id_barang
+                                                            )
+                                                    )[0]?.nama_barang
+                                                }
+                                            </SelectValue>
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {items?.map((item) => (
+                                            {items.map((item) => (
                                                 <SelectItem
                                                     key={item.id}
                                                     value={item.id}

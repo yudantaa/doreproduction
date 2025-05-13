@@ -67,7 +67,7 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
 
             <div className="flex-1 rounded-xl h-full">
                 <div className="mx-auto py-10 rounded-xl w-11/12">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                         <h1 className="text-2xl font-bold">
                             Manajemen Peminjaman
                         </h1>
@@ -76,9 +76,9 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
                             onOpenChange={setIsRegisterModalOpen}
                         >
                             <DialogTrigger asChild>
-                                <Button className="bg-zinc-600">
-                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah
-                                    Peminjaman Baru
+                                <Button className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base flex items-center justify-center gap-2 bg-zinc-600">
+                                    <PlusIcon className="h-4 w-4" />
+                                    Tambah Peminjaman Baru
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">

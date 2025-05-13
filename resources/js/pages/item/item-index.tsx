@@ -19,7 +19,7 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from "@/components/ui/select";
 import { Category } from "../category/columns";
 
@@ -33,10 +33,10 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
     const [nameFilter, setNameFilter] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("All");
 
-
-    const filteredItems = items.filter((item) =>
-        item.nama_barang.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        (categoryFilter === "All" || item.id_kategori === categoryFilter)
+    const filteredItems = items.filter(
+        (item) =>
+            item.nama_barang.toLowerCase().includes(nameFilter.toLowerCase()) &&
+            (categoryFilter === "All" || item.id_kategori === categoryFilter)
     );
 
     return (
@@ -45,7 +45,7 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
 
             <div className="flex-1 rounded-xl h-full">
                 <div className="mx-auto py-10 rounded-xl w-11/12">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                         <h1 className="text-2xl font-bold">Manajemen Barang</h1>
                         <Dialog
                             open={isRegisterModalOpen}
@@ -53,15 +53,20 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                         >
                             <DialogTrigger asChild>
                                 <Button className="bg-zinc-600">
-                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah Barang Baru
+                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah
+                                    Barang Baru
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
-                                    <DialogTitle>Tambah Barang Baru</DialogTitle>
+                                    <DialogTitle>
+                                        Tambah Barang Baru
+                                    </DialogTitle>
                                 </DialogHeader>
                                 <AddItemForm
-                                    onClose={() => setIsRegisterModalOpen(false)}
+                                    onClose={() =>
+                                        setIsRegisterModalOpen(false)
+                                    }
                                     categories={categories}
                                 />
                             </DialogContent>
@@ -72,7 +77,9 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                         <Input
                             placeholder="Filter berdasarkan nama..."
                             value={nameFilter}
-                            onChange={(event) => setNameFilter(event.target.value)}
+                            onChange={(event) =>
+                                setNameFilter(event.target.value)
+                            }
                             className="max-w-sm"
                         />
 
@@ -84,7 +91,9 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                                 <SelectValue placeholder="Pilih Kategori" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="All">Semua Kategori</SelectItem>
+                                <SelectItem value="All">
+                                    Semua Kategori
+                                </SelectItem>
                                 {categories.map((category) => (
                                     <SelectItem
                                         key={category.id}

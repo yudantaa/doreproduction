@@ -68,7 +68,7 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data }) => {
             <Card>
                 <CardHeader>
                     <CardTitle>Data Pinjaman Bulanan</CardTitle>
-                    <CardDescription>{currentYear}</CardDescription>
+                    <CardDescription>Tahun {currentYear}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex items-center justify-center h-64">
                     <p className="text-muted-foreground">Tidak ada pinjaman.</p>
@@ -81,10 +81,13 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data }) => {
         <Card>
             <CardHeader>
                 <CardTitle>Data Pinjaman Bulanan</CardTitle>
-                <CardDescription>{currentYear}</CardDescription>
+                <CardDescription>
+                    Tahun <b>{currentYear}</b>
+                </CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={chartConfig} className="h-80">
+                {/* Smaller fixed height for mobile, more space on desktop */}
+                <ChartContainer config={chartConfig} className="h-64 md:h-80">
                     <BarChart
                         data={data}
                         margin={{

@@ -31,7 +31,7 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                 <div className=" mx-auto py-10 rounded-xl w-11/12  ">
                     <Head title="Manajemen Kategori" />
 
-                    <div className="flex justify-between categories-center mb-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                         <h1 className="text-2xl font-bold">
                             Manajemen Kategori
                         </h1>
@@ -51,7 +51,8 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                                         Tambah Kategori Baru
                                     </DialogTitle>
                                     <DialogDescription>
-                                            Setelah selesai silahkan klik tombol buat.
+                                        Setelah selesai silahkan klik tombol
+                                        buat.
                                     </DialogDescription>
                                     <CreateCategory
                                         onSuccessfulCreate={() =>
@@ -81,7 +82,6 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                                 .includes(nameFilter.toLowerCase())
                         )}
                     />
-
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -30,7 +30,7 @@ export default function UsersIndex({ users }: UsersPageProps) {
             <Head title="Manajemen Pegawai" />
             <div className="flex-1 rounded-xl h-full ">
                 <div className=" mx-auto py-10 rounded-xl w-11/12  ">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                         <h1 className="text-2xl font-bold">
                             Manajemen Pegawai
                         </h1>

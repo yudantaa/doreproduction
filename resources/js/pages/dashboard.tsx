@@ -32,8 +32,8 @@ export default function Dashboard({
         <AuthenticatedLayout header="Dashboard">
             <Head title="Dashboard" />
 
-            <div className="flex flex-1 flex-col gap-4 h-full px-4 pb-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-min">
+            <div className="flex flex-1 flex-col gap-6 h-full w-full pb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
                     {/* Total Equipment */}
                     <div className="min-h-[8rem] rounded-xl border-2 p-4 flex flex-col items-center justify-center text-center">
                         <h3 className="text-md font-semibold">
@@ -82,8 +82,8 @@ export default function Dashboard({
                     </div>
                 </div>
 
-                {/* Chart Section */}
-                <div className="w-full mt-4 rounded-xl overflow-x-auto">
+                {/* Chart Section - Now we use the entire width */}
+                <div className="w-full">
                     <MonthlyChart data={monthlyLoanData} />
                 </div>
             </div>

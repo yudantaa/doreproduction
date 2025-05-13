@@ -5,8 +5,6 @@ import {
     ArrowUpDown,
     MoreHorizontal,
     EditIcon,
-    TrashIcon,
-    EyeIcon,
     CheckCheckIcon,
     UserIcon,
     PackageIcon,
@@ -14,7 +12,6 @@ import {
     CalendarIcon,
     ClockIcon,
     CircleHelpIcon,
-    CrossIcon,
     XIcon,
 } from "lucide-react";
 import { useFormState } from "@/utilities/form-utilities";
@@ -323,7 +320,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                         }}
                                         className="text-red-600"
                                     >
-                                        <TrashIcon className="mr-2 h-4 w-4" />
+                                        <XIcon className="mr-2 h-4 w-4" />
                                         Batalkan Peminjaman
                                     </DropdownMenuItem>
                                 </>

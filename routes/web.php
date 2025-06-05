@@ -49,20 +49,22 @@ Route::middleware(['auth', 'has.role'])->group(function () {
             'totalOverdue' => $totalOverdue,
             'monthlyLoanData' => $monthlyLoanData,
         ]);
+        Route::resource('users', UserController::class);
+        Route::resource('items', ItemController::class);
+        Route::resource('categories', CategoryController::class);
+        Route::resource('loans', LoanController::class);
     })->name('dashboard');
 
-    // Other dashboard routes
-    Route::get('/dashboard/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/dashboard/users', [UserController::class, 'index'])
+        ->middleware('isSuperAdmin')
+        ->name('users.index');
+
     Route::get('/dashboard/items', [ItemController::class, 'index'])->name('items.index');
     Route::get('/dashboard/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/dashboard/loans', [LoanController::class, 'index'])->name('loans.index');
 
-    Route::resource('users', UserController::class);
-    Route::resource('items', ItemController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::resource('loans', LoanController::class);
-    Route::post('/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
-    Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
+    Route::post('dashboard/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
+    Route::post('dashboard/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -83,10 +85,7 @@ Route::get('/cache-fix', function () {
 
 Route::get('/check-url', fn() => config('app.url'));
 
-Route::middleware(['auth'])->get('/run-seeder', function () {
-    if (auth()->user()->role !== 'SUPER ADMIN') {
-        abort(403);
-    }
+Route::middleware(['auth'])->middleware('isSuperAdmin')->get('/run-seeder', function () {
 
     Artisan::call('db:seed', ['--force' => true]);
     return Artisan::output();

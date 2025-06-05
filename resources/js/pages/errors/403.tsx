@@ -10,6 +10,9 @@ export default function Error403({ status }: { status: number }) {
             <p className="mb-4">
                 Silakan logout dan login dengan akun yang memiliki akses.
             </p>
+            <div className="underline">
+                Tolong hubungi admin untuk pembuatan akun.
+            </div>
 
             <Link
                 href={route("logout")}

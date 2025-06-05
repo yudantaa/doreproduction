@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'has.role' => EnsureUserHasRole::class,
+            'isSuperAdmin' => \App\Http\Middleware\SuperAdminOnly::class,
         ]);
     })
 

@@ -89,12 +89,12 @@ class LoanController extends Controller
 
         foreach ($monthlyLoans as $data) {
             $formattedData[] = [
-                'month' => $monthNames[$data->month],
+                'bulan' => $monthNames[$data->month],
                 'total' => $data->total_loans,
-                'active' => $data->active_loans,
-                'returned' => $data->returned_loans,
-                'cancelled' => $data->cancelled_loans,
-                'overdue' => $data->overdue_loans
+                'aktif' => $data->active_loans,
+                'dikembalikan' => $data->returned_loans,
+                'dibatalkan' => $data->cancelled_loans,
+                'terlambat' => $data->overdue_loans
             ];
         }
 

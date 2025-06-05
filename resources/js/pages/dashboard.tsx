@@ -11,12 +11,12 @@ interface DashboardProps extends PageProps {
     totalOverdue: number;
     userName: string;
     monthlyLoanData: Array<{
-        month: string;
+        bulan: string;
         total: number;
-        active: number;
-        returned: number;
-        cancelled: number;
-        overdue: number;
+        aktif: number;
+        dikembalikan: number;
+        dibatalkan: number;
+        terlambat: number;
     }>;
 }
 

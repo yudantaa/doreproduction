@@ -47,7 +47,8 @@ export default function Login({
                     <CardHeader>
                         <CardTitle className="text-2xl">Login</CardTitle>
                         <CardDescription>
-                            Enter your email below to login to your account
+                            Tolong masukan email dan password anda untuk login
+                            ke akun anda.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -63,7 +64,7 @@ export default function Login({
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="m@example.com"
+                                    placeholder="Masukan email anda disini"
                                     value={data.email}
                                     onChange={(e) =>
                                         setData("email", e.target.value)
@@ -79,13 +80,14 @@ export default function Login({
                                         href={route("password.request")}
                                         className="ml-auto inline-block text-sm underline"
                                     >
-                                        Forgot your password?
+                                        Lupa Password?
                                     </Link>
                                 </div>
                                 <Input
                                     id="password"
                                     type="password"
                                     value={data.password}
+                                    placeholder="Masukan password anda disini"
                                     onChange={(e) =>
                                         setData("password", e.target.value)
                                     }
@@ -98,10 +100,10 @@ export default function Login({
                             </Button>
                         </div>
                         <div className="mt-4 text-center text-sm">
-                            Don&apos;t have an account?{" "}
-                            <Link href="/register" className="underline">
-                                Sign up
-                            </Link>
+                            Tidak punya akun? <br />
+                            <div className="underline">
+                                Tolong hubungi admin untuk pembuatan akun.
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

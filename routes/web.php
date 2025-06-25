@@ -49,11 +49,12 @@ Route::middleware(['auth', 'has.role'])->group(function () {
             'totalOverdue' => $totalOverdue,
             'monthlyLoanData' => $monthlyLoanData,
         ]);
-        Route::resource('users', UserController::class);
-        Route::resource('items', ItemController::class);
-        Route::resource('categories', CategoryController::class);
-        Route::resource('loans', LoanController::class);
     })->name('dashboard');
+
+    Route::resource('users', UserController::class);
+    Route::resource('items', ItemController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('loans', LoanController::class);
 
     Route::get('/dashboard/users', [UserController::class, 'index'])
         ->middleware('isSuperAdmin')

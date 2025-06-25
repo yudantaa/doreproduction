@@ -48,6 +48,7 @@ export type User = {
     name: string;
     email: string;
     role: string;
+    password?: string;
     created_at: Date;
 };
 
@@ -136,13 +137,14 @@ export const columns: ColumnDef<User>[] = [
             const [formData, setFormData] = useState<User | null>(null);
             const { toast } = useToast();
             const roles = ["ADMIN", "SUPER ADMIN"];
+            const [showPassword, setShowPassword] = useState(false);
 
             const openDialog = () => setFormData({ ...user });
             const closeDialog = () => setFormData(null);
 
             const handleUpdate = () => {
                 if (formData) {
-                    router.put(`/users/${formData.id}`, formData, {
+                    router.put(`users/${formData.id}`, formData, {
                         onSuccess: () => {
                             closeDialog();
                             toast({
@@ -208,7 +210,7 @@ export const columns: ColumnDef<User>[] = [
                                 <AlertDialogAction
                                     className="bg-red-600"
                                     onClick={() => {
-                                        router.delete(`/users/${user.id}`, {
+                                        router.delete(`users/${user.id}`, {
                                             onSuccess: () => {
                                                 toast({
                                                     description:
@@ -315,6 +317,47 @@ export const columns: ColumnDef<User>[] = [
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="password"
+                                                className="text-right"
+                                            >
+                                                Password
+                                            </Label>
+                                            <div className="relative col-span-3">
+                                                <Input
+                                                    id="password"
+                                                    type={
+                                                        showPassword
+                                                            ? "text"
+                                                            : "password"
+                                                    }
+                                                    value={
+                                                        formData.password || ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            password:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+                                                    onClick={() =>
+                                                        setShowPassword(
+                                                            (prev) => !prev
+                                                        )
+                                                    }
+                                                >
+                                                    {showPassword
+                                                        ? "Hide"
+                                                        : "Show"}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <DialogFooter>

@@ -21,17 +21,18 @@ export default function Edit({
 }) {
     const { auth } = usePage<PageProps>().props;
     const userRole = auth.user?.role;
+
     return (
-        <AuthenticatedLayout header={"Edit Profile"}>
-            <Head title="Profile" />
+        <AuthenticatedLayout header={"Edit Profil"}>
+            <Head title="Profil" />
 
             <div className="space-y-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Profile Information</CardTitle>
+                        <CardTitle>Informasi Profil</CardTitle>
                         <CardDescription>
-                            Update your account's profile information and email
-                            address.
+                            Perbarui informasi profil dan alamat email akun
+                            Anda.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -45,10 +46,10 @@ export default function Edit({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Update Password</CardTitle>
+                        <CardTitle>Perbarui Kata Sandi</CardTitle>
                         <CardDescription>
-                            Ensure your account is using a long, random password
-                            to stay secure.
+                            Pastikan akun Anda menggunakan kata sandi yang
+                            panjang dan acak untuk menjaga keamanan.
                         </CardDescription>
                     </CardHeader>
 
@@ -56,15 +57,16 @@ export default function Edit({
                         <UpdatePasswordForm className="max-w-xl" />
                     </CardContent>
                 </Card>
+
                 {userRole === "SUPER ADMIN" && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>Delete Account</CardTitle>
+                            <CardTitle>Hapus Akun</CardTitle>
                             <CardDescription>
-                                Once your account is deleted, all of its
-                                resources and data will be permanently deleted.
-                                Before deleting your account, please download
-                                any data or information that you wish to retain.
+                                Setelah akun Anda dihapus, semua data dan sumber
+                                daya yang terkait akan terhapus secara permanen.
+                                Sebelum menghapus akun, harap unduh data atau
+                                informasi yang ingin Anda simpan.
                             </CardDescription>
                         </CardHeader>
 

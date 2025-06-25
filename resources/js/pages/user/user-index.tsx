@@ -53,6 +53,23 @@ export default function UsersIndex({ users }: UsersPageProps) {
                                     marginBottom: "auto",
                                 }}
                             >
+                                <div className="flex justify-center mb-6">
+                                    <img
+                                        src="/logo.png"
+                                        alt="Logo"
+                                        className="h-16"
+                                    />
+                                </div>
+
+                                <DialogHeader className="text-center mb-4">
+                                    <DialogTitle className="text-xl font-semibold">
+                                        Tambah Pegawai Baru
+                                    </DialogTitle>
+                                    <p className="text-sm text-muted-foreground">
+                                        Masukkan informasi pegawai baru
+                                    </p>
+                                </DialogHeader>
+
                                 <Register
                                     mode="add-employee"
                                     isModal={true}

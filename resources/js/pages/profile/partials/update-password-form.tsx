@@ -52,7 +52,7 @@ export default function UpdatePasswordForm({
         <section className={className}>
             <form onSubmit={updatePassword} className="mt-6 space-y-6">
                 <div>
-                    <Label htmlFor="current_password">Current Password</Label>
+                    <Label htmlFor="current_password">Kata Sandi Lama</Label>
 
                     <Input
                         id="current_password"
@@ -73,7 +73,7 @@ export default function UpdatePasswordForm({
                 </div>
 
                 <div>
-                    <Label htmlFor="password">New Password</Label>
+                    <Label htmlFor="password">Kata Sandi Baru</Label>
 
                     <Input
                         id="password"
@@ -90,7 +90,7 @@ export default function UpdatePasswordForm({
 
                 <div>
                     <Label htmlFor="password_confirmation">
-                        Confirm Password
+                        Konfirmasi Kata Sandi Baru
                     </Label>
 
                     <Input
@@ -111,7 +111,7 @@ export default function UpdatePasswordForm({
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <Button disabled={processing}>Save</Button>
+                    <Button disabled={processing}>Simpan</Button>
 
                     <Transition
                         show={recentlySuccessful}
@@ -120,7 +120,7 @@ export default function UpdatePasswordForm({
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-gray-600">Saved.</p>
+                        <p className="text-sm text-gray-600">Simpand.</p>
                     </Transition>
                 </div>
             </form>

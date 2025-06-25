@@ -34,7 +34,7 @@ export default function UpdateProfileInformation({
         <section className={className}>
             <form onSubmit={submit} className="mt-6 space-y-6">
                 <div>
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name">Nama</Label>
 
                     <Input
                         id="name"
@@ -88,7 +88,7 @@ export default function UpdateProfileInformation({
                 )}
 
                 <div className="flex items-center gap-4">
-                    <Button disabled={processing}>Save</Button>
+                    <Button disabled={processing}>Simpan</Button>
 
                     <Transition
                         show={recentlySuccessful}
@@ -97,7 +97,7 @@ export default function UpdateProfileInformation({
                         leave="transition ease-in-out"
                         leaveTo="opacity-0"
                     >
-                        <p className="text-sm text-gray-600">Saved.</p>
+                        <p className="text-sm text-gray-600">Tersimpan.</p>
                     </Transition>
                 </div>
             </form>

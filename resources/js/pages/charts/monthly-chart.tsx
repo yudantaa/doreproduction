@@ -43,7 +43,7 @@ const chartConfig = {
         color: "#f97316", // orange-500
     },
     terlambat: {
-        label: "Telat",
+        label: "Terlambat",
         color: "#ef4444", // red-500
     },
 } satisfies ChartConfig;

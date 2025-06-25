@@ -26,9 +26,8 @@ Route::get('/', function () {
     ]);
 });
 
-// Only authenticated users with a role can access dashboard and its children
-Route::middleware(['auth', 'has.role'])->group(function () {
-    Route::get('/dashboard', function () {
+Route::middleware(['auth', 'has.role'])->prefix('dashboard')->group(function () {
+    Route::get('/', function () {
         $user = Auth::user();
 
         $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
@@ -51,29 +50,26 @@ Route::middleware(['auth', 'has.role'])->group(function () {
         ]);
     })->name('dashboard');
 
-    Route::resource('users', UserController::class);
+    // Resource routes
+    Route::resource('users', UserController::class)->middleware('isSuperAdmin');
     Route::resource('items', ItemController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('loans', LoanController::class);
 
-    Route::get('/dashboard/users', [UserController::class, 'index'])
-        ->middleware('isSuperAdmin')
-        ->name('users.index');
+    // Loan actions
+    Route::post('loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
+    Route::post('loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
 
-    Route::get('/dashboard/items', [ItemController::class, 'index'])->name('items.index');
-    Route::get('/dashboard/categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::get('/dashboard/loans', [LoanController::class, 'index'])->name('loans.index');
-
-    Route::post('dashboard/loans/{loan}/return', [LoanController::class, 'return'])->name('loans.return');
-    Route::post('dashboard/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('loans.cancel');
-
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Open to everyone (including guests)
-Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
+
+Route::get('/register', function () {
+    return Inertia::render('errors/registration-disabled');
+})->name('errors.registration-disabled');
 
 // Utility
 Route::get('/cache-fix', function () {

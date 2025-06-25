@@ -39,19 +39,23 @@ export default function UsersIndex({ users }: UsersPageProps) {
                             onOpenChange={setIsRegisterModalOpen}
                         >
                             <DialogTrigger asChild>
-                                <Button className="bg-zinc-600">
-                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah
-                                    Pegawai Baru
+                                <Button className="btn btn-primary">
+                                    <PlusIcon className="mr-2 h-4 w-4" />
+                                    Tambah Pegawai Baru
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        Tambah Pegawai Baru
-                                    </DialogTitle>
-                                </DialogHeader>
+
+                            <DialogContent
+                                className="w-full max-w-md bg-card rounded-xl px-6 py-8 shadow-xl"
+                                style={{
+                                    maxHeight: "90vh",
+                                    marginTop: "auto",
+                                    marginBottom: "auto",
+                                }}
+                            >
                                 <Register
                                     mode="add-employee"
+                                    isModal={true}
                                     onSuccessfulRegistration={() =>
                                         setIsRegisterModalOpen(false)
                                     }

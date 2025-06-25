@@ -175,7 +175,7 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
                             required
                         />
                     </div>
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full btn btn-primary">
                         Tambah Peminjaman
                     </Button>
                 </form>

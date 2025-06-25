@@ -76,7 +76,7 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
                             onOpenChange={setIsRegisterModalOpen}
                         >
                             <DialogTrigger asChild>
-                                <Button className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base flex items-center justify-center gap-2 bg-zinc-600">
+                                <Button className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base flex items-center justify-center gap-2 btn btn-primary">
                                     <PlusIcon className="h-4 w-4" />
                                     Tambah Peminjaman Baru
                                 </Button>

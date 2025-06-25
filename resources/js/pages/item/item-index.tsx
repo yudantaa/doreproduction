@@ -52,7 +52,7 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                             onOpenChange={setIsRegisterModalOpen}
                         >
                             <DialogTrigger asChild>
-                                <Button className="bg-zinc-600">
+                                <Button className="btn btn-primary">
                                     <PlusIcon className="mr-2 h-4 w-4" /> Tambah
                                     Barang Baru
                                 </Button>

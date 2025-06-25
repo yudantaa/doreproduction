@@ -83,7 +83,7 @@ export default function Dashboard({
                 </div>
 
                 {/* Chart Section - Now we use the entire width */}
-                <div className="w-full">
+                <div className="">
                     <MonthlyChart data={monthlyLoanData} />
                 </div>
             </div>

@@ -40,7 +40,7 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                             onOpenChange={setIsCreateModalOpen}
                         >
                             <DialogTrigger asChild>
-                                <Button className="bg-zinc-600">
+                                <Button className="btn btn-primary">
                                     <PlusIcon className="mr-2 h-4 w-4" /> Tambah
                                     Kategori Baru
                                 </Button>

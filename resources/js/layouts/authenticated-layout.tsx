@@ -24,9 +24,9 @@ export default function AuthenticatedLayout({
     return (
         <SidebarProvider>
             <div className="flex min-h-screen w-full overflow-hidden">
-                <AppSidebar />
+                <AppSidebar className="bg-card" />
 
-                <SidebarInset className="flex-1 flex flex-col overflow-hidden w-full">
+                <SidebarInset className="flex-1 flex flex-col overflow-hidden">
                     <header className="sticky top-0 z-10 bg-background flex h-16 shrink-0 items-center gap-2 justify-between p-4 border-b md:border-none md:rounded-xl">
                         <div className="flex items-center gap-2">
                             <SidebarTrigger className="-ml-1" />

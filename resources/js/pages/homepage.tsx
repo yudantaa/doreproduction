@@ -5,6 +5,15 @@ import { Item } from "./item/columns";
 import { Category } from "./category/columns";
 import AppearanceDropdown from "@/components/appearance-dropdown";
 import {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
+
+import {
     ChevronRightIcon,
     CheckCircle,
     ShieldCheck,
@@ -22,6 +31,8 @@ import {
     MapPin,
     Mail,
     Send,
+    Eye,
+    Package,
 } from "lucide-react";
 
 interface HomePageProps {
@@ -39,6 +50,12 @@ export default function HomePage({
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeTestimonial, setActiveTestimonial] = useState(0);
     const [isHeaderSticky, setIsHeaderSticky] = useState(false);
+    const [formName, setFormName] = useState("");
+    const [formEmail, setFormEmail] = useState("");
+    const [formSubject, setFormSubject] = useState("");
+    const [formMessage, setFormMessage] = useState("");
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
 
     // Testimonials data
     const testimonials = [
@@ -114,7 +131,7 @@ export default function HomePage({
     }, [items]);
 
     const getWhatsAppLink = (item: Item) => {
-        const message = `Halo Dore Production, saya tertarik untuk menyewa ${item.nama_barang}. Mohon informasi lebih lanjut.`;
+        const message = `Halo Dore Production, saya tertarik untuk menyewa *${item.nama_barang}*. Mohon informasi lebih lanjut.`;
         return `https://wa.me/089522734461?text=${encodeURIComponent(message)}`;
     };
 
@@ -248,12 +265,12 @@ export default function HomePage({
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-xl">
                         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100 leading-tight">
-                            Solusi Pencahayaan Profesional untuk Produksi Anda
+                            GIVING A SOLUTION FOR YOUR EVENT.
                         </h1>
                         <p className="text-base mb-6 text-gray-600 dark:text-gray-300">
-                            Peralatan pencahayaan berkualitas tinggi untuk film,
-                            fotografi, dan event dengan dukungan teknis dari tim
-                            ahli.
+                            We are ready to provide you a Good Sound System and
+                            Lighting with BEST quality and BEST price. Feel free
+                            to contact us
                         </p>
                         <div className="flex gap-3">
                             <Link href="#peralatan">
@@ -345,58 +362,204 @@ export default function HomePage({
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {featuredItems.map((item) => (
-                            <div
-                                key={item.id}
-                                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow transition-shadow border border-gray-200 dark:border-gray-700 overflow-hidden"
-                            >
-                                <div className="h-40 bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden relative">
-                                    {item.image ? (
-                                        <img
-                                            src={`/storage/${item.image}`}
-                                            alt={item.nama_barang}
-                                            className="object-cover h-full w-full"
-                                        />
-                                    ) : (
-                                        <div className="bg-gray-300 dark:bg-gray-600 h-full w-full flex items-center justify-center">
-                                            <Image className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {featuredItems.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 overflow-hidden group"
+                                >
+                                    {/* Image Section */}
+                                    <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                                        {item.image ? (
+                                            <img
+                                                src={`/storage/${item.image}`}
+                                                alt={item.nama_barang}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <Image className="w-12 h-12 text-gray-400" />
+                                            </div>
+                                        )}
+                                        {/* Status Badge */}
+                                        <div className="absolute top-2 left-2">
+                                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                                                <CheckCircle className="w-3 h-3 mr-1" />
+                                                {item.status}
+                                            </span>
                                         </div>
-                                    )}
-                                    <div className="absolute top-2 right-2">
-                                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
-                                            Tersedia
-                                        </span>
+                                        {/* View Details Button */}
+                                        <DialogTrigger asChild>
+                                            <button
+                                                className="absolute top-2 right-2 bg-white dark:bg-gray-800 p-2 rounded-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                onClick={() => {
+                                                    setSelectedItem(item);
+                                                    setIsOpen(true);
+                                                }}
+                                            >
+                                                {" "}
+                                                {/* <Eye className="w-4 h-4 text-gray-600 dark:text-gray-300" /> */}
+                                                <p className="font-bold">
+                                                    Lihat Detail
+                                                </p>
+                                            </button>
+                                        </DialogTrigger>
+                                    </div>
+
+                                    {/* Content Section */}
+                                    <div className="p-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
+                                                {item.nama_barang}
+                                            </h3>
+                                        </div>
+
+                                        {/* Description */}
+                                        {item.deskripsi && (
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                                                {item.deskripsi}
+                                            </p>
+                                        )}
+
+                                        {/* Info Row */}
+                                        <div className="flex justify-between items-center mb-3 text-xs text-gray-500 dark:text-gray-400">
+                                            <span className="flex items-center">
+                                                <Package className="w-3 h-3 mr-1" />
+                                                Stok: {item.jumlah}
+                                            </span>
+                                            <span className="flex items-center">
+                                                <Calendar className="w-3 h-3 mr-1" />
+                                                Harian
+                                            </span>
+                                        </div>
+
+                                        {/* Action Button */}
+                                        <a
+                                            href={getWhatsAppLink(item)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block"
+                                        >
+                                            <Button className="w-full bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-sm h-9 font-medium">
+                                                <Phone className="w-4 h-4 mr-2" />
+                                                Pesan Sekarang
+                                            </Button>
+                                        </a>
                                     </div>
                                 </div>
-                                <div className="p-4">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                                            {item.nama_barang}
-                                        </h3>
+                            ))}
+                        </div>
+
+                        {/* Enhanced Modal */}
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                            {selectedItem && (
+                                <>
+                                    <DialogHeader className="pb-4">
+                                        <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                            {selectedItem.nama_barang}
+                                        </DialogTitle>
+                                        <DialogDescription className="text-gray-600 dark:text-gray-400">
+                                            Informasi lengkap peralatan
+                                        </DialogDescription>
+                                    </DialogHeader>
+
+                                    {/* Image */}
+                                    <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-4">
+                                        {selectedItem.image ? (
+                                            <img
+                                                src={`/storage/${selectedItem.image}`}
+                                                alt={selectedItem.nama_barang}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <Image className="w-16 h-16 text-gray-400" />
+                                            </div>
+                                        )}
+                                        <div className="absolute top-3 left-3">
+                                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                                                <CheckCircle className="w-3 h-3 mr-1" />
+                                                {selectedItem.status}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between items-center mb-3 text-xs text-gray-500 dark:text-gray-400">
-                                        <span>Stok: {item.jumlah}</span>
-                                        <span>
-                                            <Calendar className="w-3 h-3 inline mr-1" />{" "}
-                                            Harian
-                                        </span>
+
+                                    {/* Equipment Details */}
+                                    <div className="space-y-4">
+                                        {selectedItem.deskripsi && (
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                                    Deskripsi
+                                                </h4>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                                    {selectedItem.deskripsi}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Specs Grid */}
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                <div className="flex items-center mb-1">
+                                                    <Package className="w-4 h-4 text-gray-600 dark:text-gray-400 mr-2" />
+                                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                        Stok Tersedia
+                                                    </span>
+                                                </div>
+                                                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                                    {selectedItem.jumlah} unit
+                                                </p>
+                                            </div>
+
+                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                <div className="flex items-center mb-1">
+                                                    <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400 mr-2" />
+                                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                        Periode Sewa
+                                                    </span>
+                                                </div>
+                                                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                                    Harian
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-3 pt-4">
+                                            <a
+                                                href={getWhatsAppLink(
+                                                    selectedItem
+                                                )}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex-1"
+                                            >
+                                                <Button className="w-full bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-medium">
+                                                    <Phone className="w-4 h-4 mr-2" />
+                                                    Pesan Sekarang
+                                                </Button>
+                                            </a>
+                                            <a
+                                                href="https://wa.me/089522734461?text=Halo%20Dore%20Production%2C%20saya%20ingin%20bertanya%20tentang%20peralatan%20pencahayaan."
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex-1"
+                                            >
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-full border-gray-300 dark:border-gray-600 font-medium"
+                                                >
+                                                    <Send className="w-4 h-4 mr-2" />
+                                                    Tanya Detail
+                                                </Button>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <a
-                                        href={getWhatsAppLink(item)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block"
-                                    >
-                                        <Button className="w-full bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-sm h-8">
-                                            <Phone className="w-3 h-3 mr-1" />{" "}
-                                            Pesan Sekarang
-                                        </Button>
-                                    </a>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                                </>
+                            )}
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </section>
 
@@ -671,33 +834,41 @@ export default function HomePage({
                                 untuk menghubungi kami.
                             </p>
 
-                            <form className="space-y-4">
+                            <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label
                                             htmlFor="name"
-                                            className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
+                                            className="block mb-1 text-sm"
                                         >
                                             Nama
                                         </label>
                                         <input
                                             type="text"
                                             id="name"
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                            value={formName}
+                                            onChange={(e) =>
+                                                setFormName(e.target.value)
+                                            }
+                                            className="w-full px-3 py-2 text-sm border rounded-md"
                                             placeholder="Nama Lengkap"
                                         />
                                     </div>
                                     <div>
                                         <label
                                             htmlFor="email"
-                                            className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
+                                            className="block mb-1 text-sm"
                                         >
                                             Email
                                         </label>
                                         <input
                                             type="email"
                                             id="email"
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                            value={formEmail}
+                                            onChange={(e) =>
+                                                setFormEmail(e.target.value)
+                                            }
+                                            className="w-full px-3 py-2 text-sm border rounded-md"
                                             placeholder="email@example.com"
                                         />
                                     </div>
@@ -705,39 +876,56 @@ export default function HomePage({
                                 <div>
                                     <label
                                         htmlFor="subject"
-                                        className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
+                                        className="block mb-1 text-sm"
                                     >
                                         Subjek
                                     </label>
                                     <input
                                         type="text"
                                         id="subject"
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                        value={formSubject}
+                                        onChange={(e) =>
+                                            setFormSubject(e.target.value)
+                                        }
+                                        className="w-full px-3 py-2 text-sm border rounded-md"
                                         placeholder="Subjek pesan"
                                     />
                                 </div>
                                 <div>
                                     <label
                                         htmlFor="message"
-                                        className="block mb-1 text-sm text-gray-900 dark:text-gray-100"
+                                        className="block mb-1 text-sm"
                                     >
                                         Pesan
                                     </label>
                                     <textarea
                                         id="message"
                                         rows={4}
-                                        className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                                        value={formMessage}
+                                        onChange={(e) =>
+                                            setFormMessage(e.target.value)
+                                        }
+                                        className="w-full px-3 py-2 text-sm border rounded-md"
                                         placeholder="Tulis pesan Anda di sini..."
                                     ></textarea>
                                 </div>
-                                <Button
-                                    type="submit"
-                                    className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+
+                                <a
+                                    href={`https://wa.me/6289522734461?text=${encodeURIComponent(
+                                        `Halo Dore Production!\nNama: ${formName}\nEmail: ${formEmail}\nSubjek: ${formSubject}\nPesan: ${formMessage}`
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
-                                    <Send className="w-4 h-4 mr-1" /> Kirim
-                                    Pesan
-                                </Button>
-                            </form>
+                                    <Button
+                                        type="button"
+                                        className="bg-gray-900 text-white hover:bg-gray-800"
+                                    >
+                                        <Send className="w-4 h-4 mr-1" /> Kirim
+                                        via WhatsApp
+                                    </Button>
+                                </a>
+                            </div>
                         </div>
 
                         <div className="w-full lg:w-1/2">
@@ -753,10 +941,10 @@ export default function HomePage({
                                                 Alamat
                                             </h4>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                Jl. Tebet Raya No. 123, Jakarta
-                                                Selatan
+                                                Jalan Sedap Malam Gg Rampai 1b
+                                                no 22,
                                                 <br />
-                                                DKI Jakarta, 12840
+                                                Denpasar, Indonesia, Bali
                                             </p>
                                         </div>
                                     </div>
@@ -778,7 +966,7 @@ export default function HomePage({
                                                 Telepon / Phone
                                             </h4>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                +62 895-2273-4461
+                                                +62 819-1640-2006
                                             </p>
                                         </div>
                                     </div>
@@ -789,9 +977,7 @@ export default function HomePage({
                                                 Jam Operasional
                                             </h4>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                Senin - Jumat: 09:00 - 17:00
-                                                <br />
-                                                Sabtu: 09:00 - 14:00
+                                                Senin - Sabtu: 08:00 - 21:00
                                             </p>
                                         </div>
                                     </div>
@@ -802,22 +988,16 @@ export default function HomePage({
                                 </h3>
                                 <div className="flex space-x-3">
                                     <a
-                                        href="#"
+                                        href="https://www.instagram.com/doreproduction/"
                                         className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                                     >
                                         <Instagram className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                                     </a>
                                     <a
-                                        href="#"
+                                        href="https://www.facebook.com/Dorepro/"
                                         className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                                     >
                                         <Facebook className="w-5 h-5 text-gray-900 dark:text-gray-100" />
-                                    </a>
-                                    <a
-                                        href="#"
-                                        className="bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                                    >
-                                        <Twitter className="w-5 h-5 text-gray-900 dark:text-gray-100" />
                                     </a>
                                 </div>
                             </div>
@@ -938,7 +1118,8 @@ export default function HomePage({
                                 <li className="flex items-start">
                                     <MapPin className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
                                     <span>
-                                        Jl. Tebet Raya No. 123, Jakarta Selatan
+                                        Jalan Sedap Malam Gg Rampai 1b no 22,
+                                        Denpasar, Indonesia, Bali
                                     </span>
                                 </li>
                                 <li className="flex items-start">
@@ -947,7 +1128,7 @@ export default function HomePage({
                                 </li>
                                 <li className="flex items-start">
                                     <Phone className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
-                                    <span>+62 895-2273-4461</span>
+                                    <span>0819-1640-2006</span>
                                 </li>
                             </ul>
                         </div>

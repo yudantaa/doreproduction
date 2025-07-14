@@ -26,6 +26,17 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/peralatan', function () {
+    $items = Item::all();
+    $categories = Category::all();
+
+    return Inertia::render('all-items', [
+        'items' => $items,
+        'categories' => $categories,
+        'isAuthenticated' => Auth::check() && Auth::user()->role,
+    ]);
+})->name('peralatan');
+
 Route::middleware(['auth', 'has.role'])->prefix('dashboard')->group(function () {
     Route::get('/', function () {
         $user = Auth::user();

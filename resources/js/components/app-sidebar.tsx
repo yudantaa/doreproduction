@@ -4,7 +4,9 @@ import * as React from "react";
 import {
     BoxIcon,
     CalendarCheck2Icon,
+    Globe2,
     Home,
+    HomeIcon,
     LifeBuoy,
     Send,
     User2Icon,
@@ -30,7 +32,7 @@ const data = {
         {
             title: "Dashboard",
             url: "/dashboard",
-            icon: Home,
+            icon: Globe2,
         },
         {
             title: "Manajemen Barang",
@@ -60,11 +62,11 @@ const data = {
         },
     ],
     navSecondary: [
-        // {
-        //     title: "Support",
-        //     url: "#",
-        //     icon: LifeBuoy,
-        // },
+        {
+            title: "Pergi ke Homepage",
+            url: "/",
+            icon: HomeIcon,
+        },
         // {
         //     title: "Feedback",
         //     url: "#",

@@ -23,15 +23,12 @@ import {
     X,
     Calendar,
     Image,
-    Star,
     ArrowRight,
     Instagram,
     Facebook,
-    Twitter,
     MapPin,
     Mail,
     Send,
-    Eye,
     Package,
 } from "lucide-react";
 
@@ -399,7 +396,6 @@ export default function HomePage({
                                                 }}
                                             >
                                                 {" "}
-                                                {/* <Eye className="w-4 h-4 text-gray-600 dark:text-gray-300" /> */}
                                                 <p className="font-bold">
                                                     Lihat Detail
                                                 </p>
@@ -452,109 +448,81 @@ export default function HomePage({
                         </div>
 
                         {/* Enhanced Modal */}
-                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogContent className="w-full max-w-xl overflow-y-auto">
                             {selectedItem && (
                                 <>
                                     <DialogHeader className="pb-4">
-                                        <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                        <DialogTitle className="text-xl font-bold">
                                             {selectedItem.nama_barang}
                                         </DialogTitle>
-                                        <DialogDescription className="text-gray-600 dark:text-gray-400">
+                                        <DialogDescription className="text-gray-500">
                                             Informasi lengkap peralatan
                                         </DialogDescription>
                                     </DialogHeader>
 
                                     {/* Image */}
-                                    <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-4">
-                                        {selectedItem.image ? (
-                                            <img
-                                                src={`/storage/${selectedItem.image}`}
-                                                alt={selectedItem.nama_barang}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <Image className="w-16 h-16 text-gray-400" />
-                                            </div>
-                                        )}
+                                    <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
+                                        <img
+                                            src={`/storage/${selectedItem.image}`}
+                                            alt={selectedItem.nama_barang}
+                                            className="w-full h-full object-cover"
+                                        />
                                         <div className="absolute top-3 left-3">
-                                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                                                <CheckCircle className="w-3 h-3 mr-1" />
+                                            <span className="bg-green-600 text-white px-2 py-0.5 rounded-full text-xs">
                                                 {selectedItem.status}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* Equipment Details */}
-                                    <div className="space-y-4">
-                                        {selectedItem.deskripsi && (
-                                            <div>
-                                                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                                                    Deskripsi
-                                                </h4>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                                                    {selectedItem.deskripsi}
-                                                </p>
-                                            </div>
-                                        )}
+                                    {/* === Scrollable Deskripsi === */}
+                                    <div className="overflow-y-auto max-h-40 mb-4">
+                                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                            Deskripsi
+                                        </h4>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">
+                                            {selectedItem.deskripsi}
+                                        </p>
+                                    </div>
 
-                                        {/* Specs Grid */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                                <div className="flex items-center mb-1">
-                                                    <Package className="w-4 h-4 text-gray-600 dark:text-gray-400 mr-2" />
-                                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                        Stok Tersedia
-                                                    </span>
-                                                </div>
-                                                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                                    {selectedItem.jumlah} unit
-                                                </p>
-                                            </div>
-
-                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                                <div className="flex items-center mb-1">
-                                                    <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400 mr-2" />
-                                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                        Periode Sewa
-                                                    </span>
-                                                </div>
-                                                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                                    Harian
-                                                </p>
-                                            </div>
+                                    {/* Spesifikasi Ringkas */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                            <p className="text-xs text-gray-500 mb-1">
+                                                Stok Tersedia
+                                            </p>
+                                            <p className="text-lg font-bold">
+                                                {selectedItem.jumlah} unit
+                                            </p>
                                         </div>
-
-                                        {/* Action Buttons */}
-                                        <div className="flex gap-3 pt-4">
-                                            <a
-                                                href={getWhatsAppLink(
-                                                    selectedItem
-                                                )}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex-1"
-                                            >
-                                                <Button className="w-full bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-medium">
-                                                    <Phone className="w-4 h-4 mr-2" />
-                                                    Pesan Sekarang
-                                                </Button>
-                                            </a>
-                                            <a
-                                                href="https://wa.me/089522734461?text=Halo%20Dore%20Production%2C%20saya%20ingin%20bertanya%20tentang%20peralatan%20pencahayaan."
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex-1"
-                                            >
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full border-gray-300 dark:border-gray-600 font-medium"
-                                                >
-                                                    <Send className="w-4 h-4 mr-2" />
-                                                    Tanya Detail
-                                                </Button>
-                                            </a>
+                                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                            <p className="text-xs text-gray-500 mb-1">
+                                                Periode Sewa
+                                            </p>
+                                            <p className="text-lg font-bold">
+                                                Harian
+                                            </p>
                                         </div>
+                                    </div>
+
+                                    {/* CTA Buttons */}
+                                    <div className="flex gap-3 pt-4">
+                                        <a
+                                            href={getWhatsAppLink(selectedItem)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1"
+                                        >
+                                            <Button className="w-full">
+                                                <Phone className="w-4 h-4 mr-2" />{" "}
+                                                Pesan Sekarang
+                                            </Button>
+                                        </a>
+                                        <Button
+                                            variant="outline"
+                                            className="flex-1"
+                                        >
+                                            Tanya Detail
+                                        </Button>
                                     </div>
                                 </>
                             )}
@@ -654,34 +622,110 @@ export default function HomePage({
             {/* Recent Projects */}
             <section id="proyek" className="py-10 bg-gray-50 dark:bg-gray-900">
                 <div className="container mx-auto px-4">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-gray-100">
-                            Proyek Terbaru
+                    <div className="mb-8 text-center">
+                        <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+                            Post Terbaru
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                             Beberapa proyek yang telah kami dukung dengan solusi
                             pencahayaan
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {recentProjects.map((project, index) => (
-                            <div key={index}>
-                                <div className="overflow-hidden rounded-lg mb-2 aspect-video">
-                                    <img
-                                        src={project.image}
-                                        alt={project.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                                <h3 className="font-medium text-base text-gray-900 dark:text-gray-100">
-                                    {project.title}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        {/* Facebook Feed */}
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                    Ikuti Update Terbaru
                                 </h3>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {project.description}
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Dapatkan informasi terkini tentang proyek
+                                    dan layanan kami
                                 </p>
                             </div>
-                        ))}
+
+                            <div
+                                className="fb-page"
+                                data-href="https://www.facebook.com/dorepro"
+                                data-tabs="timeline"
+                                data-width=""
+                                data-height="500"
+                                data-small-header="false"
+                                data-adapt-container-width="true"
+                                data-hide-cover="false"
+                                data-show-facepile="true"
+                            >
+                                <blockquote
+                                    cite="https://www.facebook.com/dorepro"
+                                    className="fb-xfbml-parse-ignore"
+                                >
+                                    <a href="https://www.facebook.com/dorepro">
+                                        Dore Production
+                                    </a>
+                                </blockquote>
+                            </div>
+                        </div>
+
+                        {/* Additional Content Area */}
+                        <div className="space-y-6">
+                            {/* Featured Project Card */}
+                            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                                <div className="flex items-center mb-4">
+                                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <svg
+                                            className="w-6 h-6 text-white"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div className="ml-4">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            Proyek Unggulan
+                                        </h3>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            Solusi pencahayaan terdepan
+                                        </p>
+                                    </div>
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                                    Kami telah menyelesaikan berbagai proyek
+                                    pencahayaan untuk berbagai kebutuhan
+                                    industri dan komersial.
+                                </p>
+                                <button className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
+                                    Lihat Semua Proyek →
+                                </button>
+                            </div>
+
+                            {/* Quick Stats */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 text-center">
+                                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                        50+
+                                    </div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        Proyek Selesai
+                                    </div>
+                                </div>
+                                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 text-center">
+                                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                        100%
+                                    </div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        Kepuasan Klien
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1027,22 +1071,16 @@ export default function HomePage({
                             </p>
                             <div className="flex space-x-3">
                                 <a
-                                    href="#"
+                                    href="https://www.instagram.com/doreproduction/"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     <Instagram className="w-5 h-5" />
                                 </a>
                                 <a
-                                    href="#"
+                                    href="https://www.facebook.com/Dorepro/"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     <Facebook className="w-5 h-5" />
-                                </a>
-                                <a
-                                    href="#"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    <Twitter className="w-5 h-5" />
                                 </a>
                             </div>
                         </div>

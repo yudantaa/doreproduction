@@ -30,6 +30,7 @@ import {
     Mail,
     Send,
     Package,
+    UserIcon,
 } from "lucide-react";
 
 interface HomePageProps {
@@ -57,24 +58,23 @@ export default function HomePage({
     // Testimonials data
     const testimonials = [
         {
-            name: "Budi Santoso",
-            role: "Film Director",
+            name: "Raiaji Pribadi",
+            role: "Client",
+            content: "Support quality event equipment at friendly prices",
+            avatar: "/api/placeholder/64/64",
+        },
+
+        {
+            name: "Edi Mambo",
+            role: "Client",
             content:
-                "Kualitas peralatan terbaik dan layanan yang sangat profesional. Selalu menjadi pilihan utama untuk semua proyek saya.",
+                "Dore's crew are friendly, kind, diligent and neat, the sound quality is also great, I hope Dore continues to progress with success",
             avatar: "/api/placeholder/64/64",
         },
         {
-            name: "Rina Wijaya",
-            role: "Event Organizer",
-            content:
-                "Dore Production memberikan solusi pencahayaan yang sempurna untuk acara korporat kami. Tim yang sangat membantu!",
-            avatar: "/api/placeholder/64/64",
-        },
-        {
-            name: "Ahmad Fadli",
-            role: "Photography Studio Owner",
-            content:
-                "Sangat puas dengan layanan dan kualitas peralatan. Hubungan kerja yang lancar dan profesional.",
+            name: "Yunia Dian",
+            role: "Singer",
+            content: "The best solution for rent sounds system in Bali",
             avatar: "/api/placeholder/64/64",
         },
     ];
@@ -148,13 +148,18 @@ export default function HomePage({
                     <Link href="/">
                         <div className="flex items-center">
                             <div className="w-8 h-8 bg-gray-900 dark:bg-gray-100 rounded-full flex items-center justify-center mr-2">
-                                <span className="text-white dark:text-gray-900 font-bold text-sm">
-                                    DR
-                                </span>
+                                <img
+                                    src="/logo.jpg"
+                                    alt="Dore Production Logo"
+                                    className="h-full w-full object-contain rounded-lg"
+                                />
                             </div>
-                            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                Dore Production
-                            </h1>
+                            <h3 className="text-lg font-bold text-black dark:text-white">
+                                Dore{" "}
+                                <span className="text-red-700 dark:text-red-600">
+                                    Production
+                                </span>
+                            </h3>
                         </div>
                     </Link>
 
@@ -258,76 +263,51 @@ export default function HomePage({
             </header>
 
             {/* Hero Section */}
-            <section className="relative py-12 bg-gray-100 dark:bg-gray-800 flex items-center overflow-hidden">
+            <section className="relative py-12 bg-gray-100 dark:bg-gray-800 overflow-hidden">
                 <div className="container mx-auto px-4 relative z-10">
-                    <div className="max-w-xl">
-                        <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100 leading-tight">
-                            GIVING A SOLUTION FOR YOUR EVENT.
-                        </h1>
-                        <p className="text-base mb-6 text-gray-600 dark:text-gray-300">
-                            We are ready to provide you a Good Sound System and
-                            Lighting with BEST quality and BEST price. Feel free
-                            to contact us
-                        </p>
-                        <div className="flex gap-3">
-                            <Link href="#peralatan">
-                                <Button
-                                    variant="default"
-                                    className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
-                                >
-                                    Lihat Peralatan{" "}
-                                    <ChevronRightIcon className="ml-1 w-4 h-4" />
-                                </Button>
-                            </Link>
-                            <a href="https://wa.me/089522734461">
-                                <Button
-                                    variant="outline"
-                                    className="border-gray-300 dark:border-gray-600"
-                                >
-                                    <Phone className="w-4 h-4 mr-1" />{" "}
-                                    Konsultasi
-                                </Button>
-                            </a>
+                    <div className="flex flex-col md:flex-row items-center gap-8">
+                        {/* Left Text Content */}
+                        <div className="max-w-xl flex-1">
+                            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100 leading-tight">
+                                GIVING A SOLUTION FOR YOUR EVENT.
+                            </h1>
+                            <p className="text-base mb-6 text-gray-600 dark:text-gray-300">
+                                We are ready to provide you a Good Sound System
+                                and Lighting with BEST quality and BEST price.
+                                Feel free to contact us
+                            </p>
+                            <div className="flex gap-3">
+                                <Link href="#peralatan">
+                                    <Button
+                                        variant="default"
+                                        className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
+                                    >
+                                        Lihat Peralatan{" "}
+                                        <ChevronRightIcon className="ml-1 w-4 h-4" />
+                                    </Button>
+                                </Link>
+                                <a href="https://wa.me/089522734461">
+                                    <Button
+                                        variant="outline"
+                                        className="border-gray-300 dark:border-gray-600"
+                                    >
+                                        <Phone className="w-4 h-4 mr-1" />{" "}
+                                        Konsultasi
+                                    </Button>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </section>
 
-            {/* Stats Section */}
-            <section className="py-8 bg-white dark:bg-gray-900">
-                <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                                500+
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                                Peralatan Premium
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                                1200+
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                                Proyek Selesai
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                                98%
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                                Klien Puas
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-800 shadow-sm rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                                10
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                                Tahun Pengalaman
-                            </div>
+                        {/* Right Video */}
+                        <div className="aspect-video w-full md:w-1/2 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
+                            <video
+                                src="/banner-video.mp4"
+                                className="w-full h-full object-cover"
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                            />
                         </div>
                     </div>
                 </div>
@@ -632,98 +612,55 @@ export default function HomePage({
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                        {/* Facebook Feed */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                        {/* Instagram */}
                         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                             <div className="mb-4">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                                    Ikuti Update Terbaru
+                                    Instagram
                                 </h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                     Dapatkan informasi terkini tentang proyek
                                     dan layanan kami
                                 </p>
                             </div>
-
-                            <div
-                                className="fb-page"
-                                data-href="https://www.facebook.com/dorepro"
-                                data-tabs="timeline"
-                                data-width=""
-                                data-height="500"
-                                data-small-header="false"
-                                data-adapt-container-width="true"
-                                data-hide-cover="false"
-                                data-show-facepile="true"
-                            >
-                                <blockquote
-                                    cite="https://www.facebook.com/dorepro"
-                                    className="fb-xfbml-parse-ignore"
-                                >
-                                    <a href="https://www.facebook.com/dorepro">
-                                        Dore Production
-                                    </a>
-                                </blockquote>
+                            <div className="aspect-[5/5] w-full max-w-sm mx-auto">
+                                <iframe
+                                    src="https://www.instagram.com/doreproduction/embed"
+                                    className="w-full h-full rounded"
+                                    frameBorder="0"
+                                    scrolling="no"
+                                    allow="encrypted-media"
+                                />
                             </div>
                         </div>
 
-                        {/* Additional Content Area */}
-                        <div className="space-y-6">
-                            {/* Featured Project Card */}
-                            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-                                <div className="flex items-center mb-4">
-                                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                                        <svg
-                                            className="w-6 h-6 text-white"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <div className="ml-4">
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                            Proyek Unggulan
-                                        </h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                            Solusi pencahayaan terdepan
-                                        </p>
-                                    </div>
-                                </div>
-                                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                                    Kami telah menyelesaikan berbagai proyek
-                                    pencahayaan untuk berbagai kebutuhan
-                                    industri dan komersial.
+                        {/* Facebook */}
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                    Facebook
+                                </h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    Ikuti kami di Facebook untuk update acara
+                                    dan dokumentasi terbaru
                                 </p>
-                                <button className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
-                                    Lihat Semua Proyek →
-                                </button>
                             </div>
-
-                            {/* Quick Stats */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 text-center">
-                                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                        50+
-                                    </div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                                        Proyek Selesai
-                                    </div>
-                                </div>
-                                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 text-center">
-                                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                        100%
-                                    </div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                                        Kepuasan Klien
-                                    </div>
-                                </div>
+                            <div className="aspect-[5/5] w-full max-w-sm mx-auto">
+                                <iframe
+                                    src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FDorepro&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
+                                    width="100%"
+                                    height="100%"
+                                    style={{
+                                        border: "none",
+                                        overflow: "hidden",
+                                    }}
+                                    scrolling="no"
+                                    frameBorder="0"
+                                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                                    allowFullScreen
+                                    className="rounded w-full h-full"
+                                />
                             </div>
                         </div>
                     </div>
@@ -739,10 +676,11 @@ export default function HomePage({
                                 Tentang Dore Production
                             </h2>
                             <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-                                Dore Production adalah penyedia layanan sewa
-                                peralatan pencahayaan profesional terkemuka
-                                untuk film, televisi, fotografi, dan produksi
-                                acara di Indonesia.
+                                Dore Production adalah usaha yang bergerak di
+                                bidang penyewaan Sound and Lighting untuk event
+                                atau acara yang memerlukannya, Dore Production
+                                juga menyediakan jasa mengorganisir acara atau
+                                event organizer
                             </p>
                             <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
                                 Dengan pengalaman lebih dari 10 tahun, kami
@@ -785,11 +723,16 @@ export default function HomePage({
                         </div>
                         <div className="w-full lg:w-1/2">
                             <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                                <img
-                                    src="/api/placeholder/800/450"
-                                    alt="Dore Production Team"
+                                <video
+                                    src="/banner-video.mp4"
                                     className="w-full h-full object-cover"
-                                />
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                >
+                                    Your browser does not support the video tag.
+                                </video>
                             </div>
                         </div>
                     </div>
@@ -828,11 +771,7 @@ export default function HomePage({
                                             "{testimonial.content}"
                                         </p>
                                         <div className="flex items-center justify-center">
-                                            <img
-                                                src={testimonial.avatar}
-                                                alt={testimonial.name}
-                                                className="w-10 h-10 rounded-full"
-                                            />
+                                            <UserIcon className="mr-2 h-4 w-4" />
                                             <div className="ml-3">
                                                 <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">
                                                     {testimonial.name}
@@ -992,6 +931,18 @@ export default function HomePage({
                                             </p>
                                         </div>
                                     </div>
+                                    <div className="aspect-[5/4] w-full max-w-sm mx-auto">
+                                        <iframe
+                                            src="https://www.google.com/maps/embed?pb=!4v1690960183730!6m8!1m7!1sAF1QipPo3cM96v6pkZgLuinpfAy7d-ZGz92hdj5_y1aa!2m2!1d-8.6599141!2d115.2508148!3f75!4f0!5f0.7820865974627469"
+                                            width="100%"
+                                            height="100%"
+                                            style={{ border: 0 }}
+                                            allowFullScreen
+                                            loading="lazy"
+                                            className="rounded w-full h-full"
+                                            referrerPolicy="no-referrer-when-downgrade"
+                                        />
+                                    </div>
                                     <div className="flex items-start">
                                         <Mail className="w-5 h-5 text-gray-900 dark:text-gray-100 mr-3 mt-0.5" />
                                         <div>
@@ -1057,12 +1008,17 @@ export default function HomePage({
                         <div>
                             <div className="flex items-center mb-4">
                                 <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mr-2">
-                                    <span className="text-gray-900 font-bold text-sm">
-                                        DR
-                                    </span>
+                                    <img
+                                        src="/logo.jpg"
+                                        alt="Dore Production Logo"
+                                        className="h-full w-full object-contain rounded-lg"
+                                    />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
-                                    Dore Production
+                                    Dore{" "}
+                                    <span className="text-red-700">
+                                        Production
+                                    </span>
                                 </h3>
                             </div>
                             <p className="text-sm mb-4">
@@ -1092,7 +1048,7 @@ export default function HomePage({
                                 {categories.slice(0, 5).map((category) => (
                                     <li key={category.id}>
                                         <Link
-                                            href={`/kategori/${category.nama_kategori}`}
+                                            href={`/peralatan/`}
                                             className="hover:text-white transition-colors"
                                         >
                                             {category.nama_kategori}

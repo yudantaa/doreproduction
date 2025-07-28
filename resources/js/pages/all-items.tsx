@@ -120,18 +120,22 @@ export default function AllItemsPage({
                     <Link href="/">
                         <div className="flex items-center">
                             <div className="w-8 h-8 bg-gray-900 dark:bg-gray-100 rounded-full flex items-center justify-center mr-2">
-                                <span className="text-white dark:text-gray-900 font-bold text-sm">
-                                    DR
-                                </span>
+                                <img
+                                    src="/logo.jpg"
+                                    alt="Dore Production Logo"
+                                    className="h-full w-full object-contain rounded-lg"
+                                />
                             </div>
-                            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                Dore Production
-                            </h1>
+                            <h3 className="text-lg font-bold text-black dark:text-white">
+                                Dore{" "}
+                                <span className="text-red-700 dark:text-red-600">
+                                    Production
+                                </span>
+                            </h3>
                         </div>
                     </Link>
-                    <nav className="hidden md:flex space-x-6">
-                        <Link href="/">Home</Link>
-                        <Link href="#kontak">Kontak</Link>
+                    <nav className="hidden md:flex space-x-6 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-sm font-medium">
+                        <Link href="/">Kembali ke Homepage</Link>
                     </nav>
                     <div className="flex items-center gap-3">
                         <AppearanceDropdown />
@@ -417,12 +421,17 @@ export default function AllItemsPage({
                         <div>
                             <div className="flex items-center mb-4">
                                 <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mr-2">
-                                    <span className="text-gray-900 font-bold text-sm">
-                                        DR
-                                    </span>
+                                    <img
+                                        src="/logo.jpg"
+                                        alt="Dore Production Logo"
+                                        className="h-full w-full object-contain rounded-lg"
+                                    />
                                 </div>
                                 <h3 className="text-lg font-bold text-white">
-                                    Dore Production
+                                    Dore{" "}
+                                    <span className="text-red-700 dark:text-red-600">
+                                        Production
+                                    </span>
                                 </h3>
                             </div>
                             <p className="text-sm mb-4">
@@ -452,7 +461,7 @@ export default function AllItemsPage({
                                 {categories.slice(0, 5).map((category) => (
                                     <li key={category.id}>
                                         <Link
-                                            href={`/kategori/${category.nama_kategori}`}
+                                            href={`/peralatan/`}
                                             className="hover:text-white transition-colors"
                                         >
                                             {category.nama_kategori}
@@ -468,7 +477,7 @@ export default function AllItemsPage({
                             <ul className="space-y-2 text-sm">
                                 <li>
                                     <a
-                                        href="#tentang"
+                                        href="./#tentang"
                                         className="hover:text-white transition-colors"
                                     >
                                         Tentang Kami
@@ -476,7 +485,7 @@ export default function AllItemsPage({
                                 </li>
                                 <li>
                                     <a
-                                        href="#proyek"
+                                        href="./#proyek"
                                         className="hover:text-white transition-colors"
                                     >
                                         Proyek
@@ -484,7 +493,7 @@ export default function AllItemsPage({
                                 </li>
                                 <li>
                                     <a
-                                        href="#testimonial"
+                                        href="./#testimonial"
                                         className="hover:text-white transition-colors"
                                     >
                                         Testimonial
@@ -492,19 +501,11 @@ export default function AllItemsPage({
                                 </li>
                                 <li>
                                     <a
-                                        href="/#kontak"
+                                        href="./#kontak"
                                         className="hover:text-white transition-colors"
                                     >
                                         Kontak
                                     </a>
-                                </li>
-                                <li>
-                                    <Link
-                                        href="/syarat-ketentuan"
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        Syarat & Ketentuan
-                                    </Link>
                                 </li>
                             </ul>
                         </div>

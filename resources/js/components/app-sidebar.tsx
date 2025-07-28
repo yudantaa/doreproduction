@@ -99,9 +99,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">
-                                        Dore Production
-                                    </span>
+                                    <h3 className="text-lg font-bold text-black dark:text-white">
+                                        Dore{" "}
+                                        <span className="text-red-700 dark:text-red-600">
+                                            Production
+                                        </span>
+                                    </h3>
                                     <span className="truncate text-xs">
                                         <div className="font-bold text-green-500">
                                             {userRole}

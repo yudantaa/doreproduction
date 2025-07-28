@@ -263,7 +263,7 @@ export default function HomePage({
             </header>
 
             {/* Hero Section */}
-            <section className="relative py-12 bg-gray-100 dark:bg-gray-800 overflow-hidden">
+            <section className="relative py-12 bg-white dark:bg-gray-800 overflow-hidden">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="flex flex-col md:flex-row items-center gap-8">
                         {/* Left Text Content */}
@@ -314,10 +314,7 @@ export default function HomePage({
             </section>
 
             {/* Featured Equipment */}
-            <section
-                id="peralatan"
-                className="py-10 bg-gray-50 dark:bg-gray-900"
-            >
+            <section id="peralatan" className="py-10 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row justify-between items-center mb-6">
                         <div>
@@ -600,7 +597,7 @@ export default function HomePage({
             </section>
 
             {/* Recent Projects */}
-            <section id="proyek" className="py-10 bg-gray-50 dark:bg-gray-900">
+            <section id="proyek" className="py-10  dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="mb-8 text-center">
                         <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-gray-100">
@@ -912,7 +909,7 @@ export default function HomePage({
                         </div>
 
                         <div className="w-full lg:w-1/2">
-                            <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full">
+                            <div className=" dark:bg-gray-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full">
                                 <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
                                     Informasi Kontak
                                 </h3>
@@ -1093,14 +1090,6 @@ export default function HomePage({
                                     >
                                         Kontak
                                     </a>
-                                </li>
-                                <li>
-                                    <Link
-                                        href="/syarat-ketentuan"
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        Syarat & Ketentuan
-                                    </Link>
                                 </li>
                             </ul>
                         </div>

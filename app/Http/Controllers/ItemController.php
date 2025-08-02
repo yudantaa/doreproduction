@@ -20,7 +20,7 @@ class ItemController extends Controller
         $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
 
         return Inertia::render('item/item-index', [
-            'items' => Item::with('category')->get()->map(fn ($item) => [
+            'items' => Item::with('category')->get()->map(fn($item) => [
                 'id' => $item->id,
                 'nama_barang' => $item->nama_barang,
                 'jumlah' => $item->jumlah,
@@ -31,7 +31,7 @@ class ItemController extends Controller
                 'nama_kategori' => $item->category?->nama_kategori ?? 'Tidak Ada Kategori',
                 'image' => $item->image
             ]),
-            'categories' => Category::all()->map(fn ($category) => [
+            'categories' => Category::all()->map(fn($category) => [
                 'id' => $category->id,
                 'nama_kategori' => $category->nama_kategori,
             ]),

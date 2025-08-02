@@ -234,7 +234,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     }
 
                     router.post(
-                        `/items/${item.id}`,
+                        `items/${item.id}`,
                         {
                             _method: "PUT",
                             ...Object.fromEntries(submitData),
@@ -315,7 +315,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                 <AlertDialogAction
                                     className="bg-red-600"
                                     onClick={() => {
-                                        router.delete(`/items/${item.id}`, {
+                                        router.delete(`items/${item.id}`, {
                                             onSuccess: () => {
                                                 toast({
                                                     description:

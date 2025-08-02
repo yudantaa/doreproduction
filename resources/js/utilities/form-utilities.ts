@@ -37,7 +37,7 @@ export const useFormState = <T>(initialData: T | null) => {
     const method = hasFileUploads ? 'post' : 'put';
     const submitData = hasFileUploads ? createFormData(data) : data;
 
-    router[method](`/${resourcePath}/${id}`, submitData, {
+    router[method](`${resourcePath}/${id}`, submitData, {
       onSuccess: () => {
         toast({ description: "Data berhasil diubah" });
         closeModal();

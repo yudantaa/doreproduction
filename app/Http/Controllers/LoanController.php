@@ -160,7 +160,7 @@ class LoanController extends Controller
             if ($loan->id_barang !== $validatedData['id_barang']) {
                 // Check new item availability
                 $newItem = Item::findOrFail($validatedData['id_barang']);
-                if ($newItem->status !== 'Tersedia' && $newItem->jumlah <= 0) {
+                if ($newItem->jumlah <= 0) {
                     throw ValidationException::withMessages([
                         'id_barang' => 'Barang baru tidak tersedia untuk disewa'
                     ]);

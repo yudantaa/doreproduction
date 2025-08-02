@@ -234,8 +234,8 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
 
                 const url =
                     confirmAction === "return"
-                        ? `/loans/${loan.id}/return`
-                        : `/loans/${loan.id}/cancel`;
+                        ? `loans/${loan.id}/return`
+                        : `loans/${loan.id}/cancel`;
 
                 const successMessage =
                     confirmAction === "return"
@@ -378,6 +378,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                         Nomor Telepon
                                     </label>
                                     <Input
+                                        type="number"
                                         id="no_tlp_penyewa"
                                         name="no_tlp_penyewa"
                                         value={formData?.no_tlp_penyewa}

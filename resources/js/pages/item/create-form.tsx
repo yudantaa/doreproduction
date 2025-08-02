@@ -99,7 +99,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
             submitData.append("image", imageFile);
         }
 
-        router.post("/items", submitData, {
+        router.post("items", submitData, {
             onSuccess: () => {
                 toast({
                     description: "Barang baru berhasil ditambahkan.",

@@ -45,7 +45,7 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        router.post("/loans", formData, {
+        router.post("loans", formData, {
             onSuccess: () => {
                 toast({ description: "Peminjaman berhasil ditambahkan" });
                 setFormData({

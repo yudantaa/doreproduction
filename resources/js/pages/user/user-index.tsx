@@ -55,20 +55,20 @@ export default function UsersIndex({ users }: UsersPageProps) {
                             >
                                 <div className="flex justify-center mb-6">
                                     <img
-                                        src="/logo.png"
+                                        src="/logo.jpg"
                                         alt="Logo"
                                         className="h-16"
                                     />
                                 </div>
 
-                                <DialogHeader className="text-center mb-4">
+                                {/* <DialogHeader className="text-center mb-4">
                                     <DialogTitle className="text-xl font-semibold">
                                         Tambah Pegawai Baru
                                     </DialogTitle>
                                     <p className="text-sm text-muted-foreground">
                                         Masukkan informasi pegawai baru
                                     </p>
-                                </DialogHeader>
+                                </DialogHeader> */}
 
                                 <Register
                                     mode="add-employee"

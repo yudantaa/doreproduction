@@ -112,7 +112,7 @@ export const columns: ColumnDef<Category>[] = [
 
             const handleUpdate = () => {
                 if (formData) {
-                    router.put(`/categories/${formData.id}`, formData, {
+                    router.put(`categories/${formData.id}`, formData, {
                         onSuccess: () => {
                             closeDialog();
                             toast({
@@ -179,7 +179,7 @@ export const columns: ColumnDef<Category>[] = [
                                     className="bg-red-600"
                                     onClick={() => {
                                         router.delete(
-                                            `/categories/${category.id}`,
+                                            `categories/${category.id}`,
                                             {
                                                 onSuccess: () => {
                                                     toast({

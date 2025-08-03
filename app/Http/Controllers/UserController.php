@@ -21,7 +21,7 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                'role' => $user->role ?? 'User' // Default role if null
+                'role' => $user->role ?? 'User'
             ])
         ]);
     }

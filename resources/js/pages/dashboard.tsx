@@ -3,6 +3,7 @@ import { Head } from "@inertiajs/react";
 import { PageProps } from "@/types";
 import { PackageIcon, ClipboardListIcon, User2 } from "lucide-react";
 import { MonthlyChart } from "./charts/monthly-chart";
+import { useState, useMemo } from "react";
 
 interface DashboardProps extends PageProps {
     totalAvailable: number;
@@ -28,6 +29,51 @@ export default function Dashboard({
     userName,
     monthlyLoanData,
 }: DashboardProps) {
+    const [selectedYear, setSelectedYear] = useState<string>("all");
+    const [selectedMonth, setSelectedMonth] = useState<string>("all");
+
+    // Extract unique years from the bulan field (assuming format like "2024-01" or "Januari 2024")
+    const availableYears = useMemo(() => {
+        const years = new Set<string>();
+        monthlyLoanData.forEach((item) => {
+            // Try to extract year from bulan string
+            const yearMatch = item.bulan.match(/\d{4}/);
+            if (yearMatch) {
+                years.add(yearMatch[0]);
+            }
+        });
+        return Array.from(years).sort();
+    }, [monthlyLoanData]);
+
+    // Extract unique months from the bulan field
+    const availableMonths = useMemo(() => {
+        const months = new Set<string>();
+        monthlyLoanData.forEach((item) => {
+            // Extract month part (assuming formats like "2024-01", "Januari 2024", etc.)
+            let monthPart = item.bulan;
+            if (item.bulan.includes("-")) {
+                monthPart =
+                    item.bulan.split("-")[1] || item.bulan.split("-")[0];
+            } else {
+                // For formats like "Januari 2024", extract the month name
+                monthPart = item.bulan.replace(/\d{4}/, "").trim();
+            }
+            months.add(monthPart);
+        });
+        return Array.from(months).sort();
+    }, [monthlyLoanData]);
+
+    // Filter data based on selected year and month
+    const filteredData = useMemo(() => {
+        return monthlyLoanData.filter((item) => {
+            const yearMatch =
+                selectedYear === "all" || item.bulan.includes(selectedYear);
+            const monthMatch =
+                selectedMonth === "all" || item.bulan.includes(selectedMonth);
+            return yearMatch && monthMatch;
+        });
+    }, [monthlyLoanData, selectedYear, selectedMonth]);
+
     return (
         <AuthenticatedLayout header="Dashboard">
             <Head title="Dashboard" />
@@ -82,9 +128,17 @@ export default function Dashboard({
                     </div>
                 </div>
 
-                {/* Chart Section - Now we use the entire width */}
+                {/* Chart Section with Filters */}
                 <div className="">
-                    <MonthlyChart data={monthlyLoanData} />
+                    <MonthlyChart
+                        data={filteredData}
+                        selectedYear={selectedYear}
+                        selectedMonth={selectedMonth}
+                        availableYears={availableYears}
+                        availableMonths={availableMonths}
+                        onYearChange={setSelectedYear}
+                        onMonthChange={setSelectedMonth}
+                    />
                 </div>
             </div>
         </AuthenticatedLayout>

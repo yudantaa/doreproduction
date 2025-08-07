@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -21,7 +22,7 @@ interface LoanCreateFormProps {
     onClose?: () => void;
 }
 
-const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
+const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items, onClose }) => {
     const [formData, setFormData] = useState({
         nama_penyewa: "",
         no_tlp_penyewa: "",
@@ -30,7 +31,37 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
         deadline_pengembalian: "",
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const { toast } = useToast();
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.nama_penyewa) {
+            newErrors.nama_penyewa = "Nama penyewa harus diisi";
+        }
+
+        if (!formData.no_tlp_penyewa) {
+            newErrors.no_tlp_penyewa = "Nomor telepon harus diisi";
+        } else if (!/^[0-9]+$/.test(formData.no_tlp_penyewa)) {
+            newErrors.no_tlp_penyewa = "Nomor telepon harus berupa angka";
+        }
+
+        if (!formData.id_barang) {
+            newErrors.id_barang = "Barang harus dipilih";
+        }
+
+        if (
+            formData.deadline_pengembalian &&
+            new Date(formData.deadline_pengembalian) <=
+                new Date(formData.tanggal_sewa)
+        ) {
+            newErrors.deadline_pengembalian =
+                "Deadline harus setelah tanggal sewa";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -40,10 +71,18 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
             ...prev,
             [name]: value,
         }));
+        // Clear error when field changes
+        if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
 
         router.post("loans", formData, {
             onSuccess: () => {
@@ -55,6 +94,7 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
                     tanggal_sewa: new Date().toISOString().split("T")[0],
                     deadline_pengembalian: "",
                 });
+                if (onClose) onClose();
             },
             onError: (errors) => {
                 Object.values(errors).forEach((error) => {
@@ -68,116 +108,146 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items }) => {
     };
 
     return (
-        <Card className="w-full max-w-md mx-auto">
+        <Card className="w-full max-w-2xl mx-auto border border-border">
             <CardHeader>
-                <CardTitle>Form Tambah Peminjaman</CardTitle>
+                <CardTitle className="text-xl font-semibold text-foreground">
+                    Form Tambah Peminjaman
+                </CardTitle>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label htmlFor="nama_penyewa" className="block mb-2">
-                            Nama Penyewa
-                        </label>
-                        <Input
-                            type="text"
-                            id="nama_penyewa"
-                            name="nama_penyewa"
-                            value={formData.nama_penyewa}
-                            onChange={handleInputChange}
-                            placeholder="Masukkan nama penyewa"
-                            required
-                        />
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="nama_penyewa">Nama Penyewa</Label>
+                            <Input
+                                type="text"
+                                id="nama_penyewa"
+                                name="nama_penyewa"
+                                value={formData.nama_penyewa}
+                                onChange={handleInputChange}
+                                placeholder="Masukkan nama penyewa"
+                                className="bg-background"
+                                required
+                            />
+                            {errors.nama_penyewa && (
+                                <p className="text-sm text-destructive mt-1">
+                                    {errors.nama_penyewa}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="no_tlp_penyewa">
+                                Nomor Telepon
+                            </Label>
+                            <Input
+                                type="tel"
+                                id="no_tlp_penyewa"
+                                name="no_tlp_penyewa"
+                                value={formData.no_tlp_penyewa}
+                                onChange={handleInputChange}
+                                placeholder="contoh: 62890000000"
+                                className="bg-background"
+                                required
+                            />
+                            {errors.no_tlp_penyewa && (
+                                <p className="text-sm text-destructive mt-1">
+                                    {errors.no_tlp_penyewa}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="id_barang">Barang</Label>
+                            <Select
+                                name="id_barang"
+                                value={formData.id_barang}
+                                onValueChange={(value) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        id_barang: value,
+                                    }))
+                                }
+                                required
+                            >
+                                <SelectTrigger className="bg-background">
+                                    <SelectValue placeholder="Pilih Barang">
+                                        {items.find(
+                                            (i) =>
+                                                i.id.toString() ===
+                                                formData.id_barang
+                                        )?.nama_barang || "Pilih Barang"}
+                                    </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent className="bg-background">
+                                    {items.map((item) => (
+                                        <SelectItem
+                                            key={item.id}
+                                            value={item.id.toString()}
+                                            disabled={item.jumlah <= 0}
+                                        >
+                                            <div className="flex justify-between w-full">
+                                                <span>{item.nama_barang}</span>
+                                                <span className="text-muted-foreground">
+                                                    Tersedia: {item.jumlah}
+                                                </span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.id_barang && (
+                                <p className="text-sm text-destructive mt-1">
+                                    {errors.id_barang}
+                                </p>
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="tanggal_sewa">Tanggal Sewa</Label>
+                            <Input
+                                type="date"
+                                id="tanggal_sewa"
+                                name="tanggal_sewa"
+                                value={formData.tanggal_sewa}
+                                onChange={handleInputChange}
+                                className="bg-background"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="deadline_pengembalian">
+                                Deadline Pengembalian
+                            </Label>
+                            <Input
+                                type="date"
+                                id="deadline_pengembalian"
+                                name="deadline_pengembalian"
+                                value={formData.deadline_pengembalian}
+                                onChange={handleInputChange}
+                                min={formData.tanggal_sewa}
+                                className="bg-background"
+                                required
+                            />
+                            {errors.deadline_pengembalian && (
+                                <p className="text-sm text-destructive mt-1">
+                                    {errors.deadline_pengembalian}
+                                </p>
+                            )}
+                        </div>
                     </div>
-                    <div>
-                        <label htmlFor="no_tlp_penyewa" className="block mb-2">
-                            Nomor Telepon{" "}
-                            <span className="font-bold text-sm">
-                                (Gunakan awalan kode negara, Contoh: 62)
-                            </span>{" "}
-                        </label>
-                        <Input
-                            type="string"
-                            id="no_tlp_penyewa"
-                            name="no_tlp_penyewa"
-                            value={formData.no_tlp_penyewa}
-                            onChange={handleInputChange}
-                            placeholder="Masukkan nomor telepon"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="id_barang" className="block mb-2">
-                            Barang
-                        </label>
-                        <Select
-                            name="id_barang"
-                            value={formData.id_barang}
-                            onValueChange={(value) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    id_barang: value,
-                                }))
-                            }
-                            required
+                    <div className="flex justify-end gap-3 pt-4">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            onClick={() => onClose && onClose()}
                         >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Pilih Barang">
-                                    {
-                                        items.filter(
-                                            (i: any) =>
-                                                i.id ===
-                                                Number(formData.id_barang)
-                                        )[0]?.nama_barang
-                                    }
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {items.map((item) => (
-                                    <SelectItem
-                                        key={item.id}
-                                        value={item.id}
-                                        disabled={item.jumlah <= 0}
-                                    >
-                                        {item.nama_barang} (Tersedia:{" "}
-                                        {item.jumlah})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div>
-                        <label htmlFor="tanggal_sewa" className="block mb-2">
-                            Tanggal Sewa
-                        </label>
-                        <Input
-                            type="date"
-                            id="tanggal_sewa"
-                            name="tanggal_sewa"
-                            value={formData.tanggal_sewa}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label
-                            htmlFor="deadline_pengembalian"
-                            className="block mb-2"
+                            Batal
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="bg-primary hover:bg-primary/90"
                         >
-                            Deadline Pengembalian
-                        </label>
-                        <Input
-                            type="date"
-                            id="deadline_pengembalian"
-                            name="deadline_pengembalian"
-                            value={formData.deadline_pengembalian}
-                            onChange={handleInputChange}
-                            min={formData.tanggal_sewa}
-                            required
-                        />
+                            Tambah Peminjaman
+                        </Button>
                     </div>
-                    <Button type="submit" className="w-full btn btn-primary">
-                        Tambah Peminjaman
-                    </Button>
                 </form>
             </CardContent>
         </Card>

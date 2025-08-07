@@ -39,9 +39,14 @@ interface LoanIndexProps {
         nama_barang: string;
         jumlah: number;
     }>;
+    isSuperAdmin: boolean;
 }
 
-export default function LoanIndex({ loans, items }: LoanIndexProps) {
+export default function LoanIndex({
+    loans,
+    items,
+    isSuperAdmin,
+}: LoanIndexProps) {
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const [nameFilter, setNameFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
@@ -66,7 +71,7 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
             <Head title="Manajemen Peminjaman" />
 
             <div className="flex-1 rounded-xl h-full">
-                <div className="mx-auto py-10 rounded-xl w-11/12">
+                <div className="mx-auto py-10 rounded-xl w-11/12 max-w-7xl">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                         <h1 className="text-2xl font-bold">
                             Manajemen Peminjaman
@@ -81,37 +86,39 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
                                     Tambah Peminjaman Baru
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
+                            <DialogContent className="sm:max-w-lg w-full max-h-[90vh] overflow-hidden">
                                 <DialogHeader>
                                     <DialogTitle>
                                         Tambah Peminjaman Baru
                                     </DialogTitle>
                                 </DialogHeader>
-                                <LoanCreateForm
-                                    items={items}
-                                    onClose={() =>
-                                        setIsRegisterModalOpen(false)
-                                    }
-                                />
+                                <div className="overflow-y-auto max-h-[calc(90vh-8rem)] pr-2">
+                                    <LoanCreateForm
+                                        items={items}
+                                        onClose={() =>
+                                            setIsRegisterModalOpen(false)
+                                        }
+                                    />
+                                </div>
                             </DialogContent>
                         </Dialog>
                     </div>
 
-                    <div className="flex items-center space-x-4 py-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 py-4">
                         <Input
                             placeholder="Filter berdasarkan nama penyewa..."
                             value={nameFilter}
                             onChange={(event) =>
                                 setNameFilter(event.target.value)
                             }
-                            className="max-w-sm"
+                            className="w-full sm:max-w-sm"
                         />
 
                         <Select
                             value={statusFilter}
                             onValueChange={setStatusFilter}
                         >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full sm:w-[180px]">
                                 <SelectValue placeholder="Pilih Status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -127,7 +134,12 @@ export default function LoanIndex({ loans, items }: LoanIndexProps) {
                         </Select>
                     </div>
 
-                    <DataTable columns={columns(items)} data={filteredLoans} />
+                    <div className="overflow-x-auto">
+                        <DataTable
+                            columns={columns(items, isSuperAdmin)}
+                            data={filteredLoans}
+                        />
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,9 @@ import {
     ClockIcon,
     CircleHelpIcon,
     XIcon,
+    TrashIcon,
+    Calendar,
+    Clock,
 } from "lucide-react";
 import { useFormState } from "@/utilities/form-utilities";
 import { useToast } from "@/components/hooks/use-toast";
@@ -42,6 +45,7 @@ import {
 import { router } from "@inertiajs/react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { Label } from "@/components/ui/label";
 
 export type Loan = {
     id: string;
@@ -54,6 +58,7 @@ export type Loan = {
     nama_barang: string;
     id_barang: string;
 };
+
 type Item = {
     id: string;
     nama_barang: string;
@@ -64,7 +69,10 @@ const formatDate = (date: Date) => {
     return format(new Date(date), "d MMMM yyyy", { locale: id });
 };
 
-export const columns = (items: Item[]): ColumnDef<Loan>[] => [
+export const columns = (
+    items: Item[],
+    isSuperAdmin: boolean
+): ColumnDef<Loan>[] => [
     {
         header: "Nomor",
         cell: ({ row }) => {
@@ -168,6 +176,18 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
         },
     },
     {
+        accessorKey: "tanggal_kembali",
+        header: "Waktu Pengembalian",
+        cell: ({ row }) => {
+            const tanggalKembali = row.original.tanggal_kembali;
+            return tanggalKembali
+                ? format(new Date(tanggalKembali), "d MMMM yyyy HH:mm", {
+                      locale: id,
+                  })
+                : "-";
+        },
+    },
+    {
         accessorKey: "status",
         header: ({ column }) => {
             return (
@@ -205,10 +225,16 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
             const loan = row.original;
             const { toast } = useToast();
             const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-                React.useState(false);
-            const [confirmAction, setConfirmAction] = React.useState<
-                "return" | "cancel" | null
+                useState(false);
+            const [isReturnDialogOpen, setIsReturnDialogOpen] = useState(false);
+            const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+            const [confirmAction, setConfirmAction] = useState<
+                "return" | "cancel" | "delete" | null
             >(null);
+            const [returnTime, setReturnTime] = useState(
+                new Date().toISOString().slice(0, 16)
+            );
+            const [isProcessing, setIsProcessing] = useState(false);
 
             const {
                 isModalOpen,
@@ -229,41 +255,108 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                 ),
             });
 
-            const handleConfirmAction = () => {
-                if (!confirmAction) return;
+            const handleReturn = async () => {
+                setIsProcessing(true);
+                try {
+                    const selectedDate = new Date(returnTime);
+                    const sewaDate = new Date(loan.tanggal_sewa);
 
-                const url =
-                    confirmAction === "return"
-                        ? `loans/${loan.id}/return`
-                        : `loans/${loan.id}/cancel`;
-
-                const successMessage =
-                    confirmAction === "return"
-                        ? "Barang berhasil dikembalikan"
-                        : "Peminjaman berhasil dibatalkan";
-
-                const errorMessage =
-                    confirmAction === "return"
-                        ? "Gagal mengembalikan barang"
-                        : "Gagal membatalkan peminjaman";
-
-                router.post(
-                    url,
-                    {},
-                    {
-                        onSuccess: () => {
-                            toast({ description: successMessage });
-                            setIsConfirmDialogOpen(false);
-                        },
-                        onError: () => {
-                            toast({
-                                description: errorMessage,
-                                variant: "destructive",
-                            });
-                            setIsConfirmDialogOpen(false);
-                        },
+                    if (selectedDate < sewaDate) {
+                        toast({
+                            title: "Error",
+                            description:
+                                "Waktu pengembalian tidak boleh sebelum tanggal sewa",
+                            variant: "destructive",
+                        });
+                        return;
                     }
-                );
+
+                    await router.post(
+                        `loans/${loan.id}/return`,
+                        {
+                            return_time: returnTime,
+                            id_barang: loan.id_barang, // Ensure item ID is included
+                        },
+                        {
+                            onSuccess: () => {
+                                toast({
+                                    description: "Barang berhasil dikembalikan",
+                                });
+                                setIsReturnDialogOpen(false);
+                            },
+                            onError: (errors) => {
+                                const errorMessage =
+                                    errors?.message ||
+                                    errors?.id_barang ||
+                                    "Gagal mengembalikan barang";
+                                toast({
+                                    title: "Error",
+                                    description: errorMessage,
+                                    variant: "destructive",
+                                });
+                            },
+                        }
+                    );
+                } finally {
+                    setIsProcessing(false);
+                }
+            };
+
+            const handleConfirmAction = async () => {
+                if (!confirmAction) return;
+                setIsProcessing(true);
+
+                try {
+                    const url =
+                        confirmAction === "return"
+                            ? `loans/${loan.id}/return`
+                            : confirmAction === "cancel"
+                            ? `loans/${loan.id}/cancel`
+                            : `loans/${loan.id}`;
+
+                    const onSuccess = () => {
+                        toast({
+                            description:
+                                confirmAction === "return"
+                                    ? "Barang berhasil dikembalikan"
+                                    : confirmAction === "cancel"
+                                    ? "Peminjaman berhasil dibatalkan"
+                                    : "Peminjaman berhasil dihapus",
+                        });
+                        setIsConfirmDialogOpen(false);
+                        setIsDeleteDialogOpen(false);
+                    };
+
+                    const onError = () => {
+                        toast({
+                            description:
+                                confirmAction === "return"
+                                    ? "Gagal mengembalikan barang"
+                                    : confirmAction === "cancel"
+                                    ? "Gagal membatalkan peminjaman"
+                                    : "Gagal menghapus peminjaman",
+                            variant: "destructive",
+                        });
+                    };
+
+                    if (confirmAction === "delete") {
+                        router.delete(url, {
+                            onSuccess,
+                            onError,
+                        });
+                    } else {
+                        router.post(
+                            url,
+                            {},
+                            {
+                                onSuccess,
+                                onError,
+                            }
+                        );
+                    }
+                } finally {
+                    setIsProcessing(false);
+                }
             };
 
             return (
@@ -305,8 +398,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => {
-                                            setConfirmAction("return");
-                                            setIsConfirmDialogOpen(true);
+                                            setIsReturnDialogOpen(true);
                                         }}
                                         className="text-green-900"
                                     >
@@ -318,30 +410,36 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                             setConfirmAction("cancel");
                                             setIsConfirmDialogOpen(true);
                                         }}
-                                        className="text-red-600"
+                                        className="text-orange-600"
                                     >
                                         <XIcon className="mr-2 h-4 w-4" />
                                         Batalkan Peminjaman
                                     </DropdownMenuItem>
                                 </>
                             )}
-                            {loan.status != "Disewa" && (
-                                <>
-                                    <DropdownMenuItem className="text-gray-600 ">
-                                        <CheckCheckIcon className="mr-2 h-4 w-4" />
-                                        Peminjaman Berakhir
-                                    </DropdownMenuItem>
-                                </>
+                            {isSuperAdmin && (
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        setConfirmAction("delete");
+                                        setIsDeleteDialogOpen(true);
+                                    }}
+                                    className="text-red-600"
+                                >
+                                    <TrashIcon className="mr-2 h-4 w-4" />
+                                    Hapus Peminjaman
+                                </DropdownMenuItem>
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
 
                     {/* Edit Dialog */}
                     <Dialog open={isModalOpen} onOpenChange={closeModal}>
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-[600px]">
                             <DialogHeader>
-                                <DialogTitle>Edit Peminjaman</DialogTitle>
-                                <DialogDescription>
+                                <DialogTitle className="text-lg font-semibold">
+                                    Edit Peminjaman
+                                </DialogTitle>
+                                <DialogDescription className="text-muted-foreground">
                                     Ubah informasi peminjaman. Pastikan semua
                                     data terisi dengan benar.
                                 </DialogDescription>
@@ -360,110 +458,212 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                 }}
                                 className="space-y-4"
                             >
-                                <div className="space-y-2">
-                                    <label htmlFor="nama_penyewa">
-                                        Nama Penyewa
-                                    </label>
-                                    <Input
-                                        id="nama_penyewa"
-                                        name="nama_penyewa"
-                                        value={formData?.nama_penyewa}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label htmlFor="no_tlp_penyewa">
-                                        Nomor Telepon
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        id="no_tlp_penyewa"
-                                        name="no_tlp_penyewa"
-                                        value={formData?.no_tlp_penyewa}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label htmlFor="id_barang">Barang</label>
-                                    <Select
-                                        name="id_barang"
-                                        value={formData?.id_barang}
-                                        onValueChange={(value) =>
-                                            handleSelectChange(
-                                                "id_barang",
-                                                value
-                                            )
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih Barang">
-                                                {
-                                                    items.filter(
-                                                        (i: any) =>
-                                                            i.id ===
-                                                            Number(
-                                                                formData?.id_barang
-                                                            )
-                                                    )[0]?.nama_barang
-                                                }
-                                            </SelectValue>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {items.map((item) => (
-                                                <SelectItem
-                                                    key={item.id}
-                                                    value={item.id}
-                                                    disabled={
-                                                        item.jumlah <= 0 &&
-                                                        item.id !==
-                                                            loan.id_barang
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nama_penyewa">
+                                            Nama Penyewa
+                                        </Label>
+                                        <Input
+                                            type="text"
+                                            id="nama_penyewa"
+                                            name="nama_penyewa"
+                                            value={formData?.nama_penyewa || ""}
+                                            onChange={handleInputChange}
+                                            placeholder="Masukkan nama penyewa"
+                                            className="bg-background"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="no_tlp_penyewa">
+                                            Nomor Telepon
+                                        </Label>
+                                        <Input
+                                            type="string"
+                                            id="no_tlp_penyewa"
+                                            name="no_tlp_penyewa"
+                                            value={
+                                                formData?.no_tlp_penyewa || ""
+                                            }
+                                            onChange={handleInputChange}
+                                            placeholder="Masukkan nomor telepon"
+                                            className="bg-background"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label htmlFor="id_barang">
+                                            Barang
+                                        </Label>
+                                        <Select
+                                            name="id_barang"
+                                            value={formData?.id_barang || ""}
+                                            onValueChange={(value) =>
+                                                handleSelectChange(
+                                                    "id_barang",
+                                                    value
+                                                )
+                                            }
+                                            required
+                                        >
+                                            <SelectTrigger className="bg-background">
+                                                <SelectValue placeholder="Pilih Barang">
+                                                    {
+                                                        items.find(
+                                                            (i) =>
+                                                                i.id.toString() ===
+                                                                formData?.id_barang?.toString()
+                                                        )?.nama_barang
                                                     }
-                                                >
-                                                    {item.nama_barang}{" "}
-                                                    (Tersedia: {item.jumlah})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                                </SelectValue>
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-background">
+                                                {items.map((item) => (
+                                                    <SelectItem
+                                                        key={item.id.toString()}
+                                                        value={item.id.toString()}
+                                                        disabled={
+                                                            item.jumlah <= 0
+                                                        }
+                                                    >
+                                                        <div className="flex justify-between w-full">
+                                                            <span>
+                                                                {
+                                                                    item.nama_barang
+                                                                }
+                                                            </span>
+                                                            <span className="text-muted-foreground">
+                                                                Tersedia:{" "}
+                                                                {item.jumlah}
+                                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tanggal_sewa">
+                                            Tanggal Sewa
+                                        </Label>
+                                        <Input
+                                            type="date"
+                                            id="tanggal_sewa"
+                                            name="tanggal_sewa"
+                                            value={formData?.tanggal_sewa || ""}
+                                            onChange={handleInputChange}
+                                            className="bg-background"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="deadline_pengembalian">
+                                            Deadline Pengembalian
+                                        </Label>
+                                        <Input
+                                            type="date"
+                                            id="deadline_pengembalian"
+                                            name="deadline_pengembalian"
+                                            value={
+                                                formData?.deadline_pengembalian ||
+                                                ""
+                                            }
+                                            onChange={handleInputChange}
+                                            min={formData?.tanggal_sewa}
+                                            className="bg-background"
+                                            required
+                                        />
+                                    </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label htmlFor="tanggal_sewa">
-                                        Tanggal Sewa
-                                    </label>
-                                    <Input
-                                        type="date"
-                                        id="tanggal_sewa"
-                                        name="tanggal_sewa"
-                                        value={formData?.tanggal_sewa}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
+                                <div className="flex justify-end gap-2 pt-4">
+                                    <Button
+                                        variant="outline"
+                                        type="button"
+                                        onClick={closeModal}
+                                    >
+                                        Batal
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        className="bg-primary hover:bg-primary/90"
+                                    >
+                                        Simpan Perubahan
+                                    </Button>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label htmlFor="deadline_pengembalian">
-                                        Deadline Pengembalian
-                                    </label>
-                                    <Input
-                                        type="date"
-                                        id="deadline_pengembalian"
-                                        name="deadline_pengembalian"
-                                        value={formData?.deadline_pengembalian}
-                                        onChange={handleInputChange}
-                                        min={formData?.tanggal_sewa}
-                                        required
-                                    />
-                                </div>
-
-                                <Button type="submit" className="w-full">
-                                    Simpan Perubahan
-                                </Button>
                             </form>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* Return Dialog */}
+                    <Dialog
+                        open={isReturnDialogOpen}
+                        onOpenChange={setIsReturnDialogOpen}
+                    >
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    Konfirmasi Pengembalian
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Pilih waktu pengembalian atau gunakan waktu
+                                    sekarang
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4" />
+                                        <Label>Waktu Pengembalian</Label>
+                                    </div>
+                                    <Input
+                                        type="datetime-local"
+                                        value={returnTime}
+                                        onChange={(e) =>
+                                            setReturnTime(e.target.value)
+                                        }
+                                        min={format(
+                                            new Date(loan.tanggal_sewa),
+                                            "yyyy-MM-dd'T'HH:mm"
+                                        )}
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                        Minimal:{" "}
+                                        {format(
+                                            new Date(loan.tanggal_sewa),
+                                            "d MMMM yyyy HH:mm",
+                                            {
+                                                locale: id,
+                                            }
+                                        )}
+                                    </p>
+                                </div>
+
+                                <div className="flex justify-end gap-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setReturnTime(
+                                                new Date()
+                                                    .toISOString()
+                                                    .slice(0, 16)
+                                            );
+                                            handleReturn();
+                                        }}
+                                        disabled={isProcessing}
+                                    >
+                                        <Clock className="mr-2 h-4 w-4" />
+                                        Gunakan Waktu Sekarang
+                                    </Button>
+                                    <Button
+                                        onClick={handleReturn}
+                                        disabled={isProcessing}
+                                    >
+                                        {isProcessing
+                                            ? "Memproses..."
+                                            : "Konfirmasi"}
+                                    </Button>
+                                </div>
+                            </div>
                         </DialogContent>
                     </Dialog>
 
@@ -491,6 +691,7 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                     onClick={() =>
                                         setIsConfirmDialogOpen(false)
                                     }
+                                    disabled={isProcessing}
                                 >
                                     Batal
                                 </Button>
@@ -501,10 +702,48 @@ export const columns = (items: Item[]): ColumnDef<Loan>[] => [
                                             : "destructive"
                                     }
                                     onClick={handleConfirmAction}
+                                    disabled={isProcessing}
                                 >
-                                    {confirmAction === "return"
+                                    {isProcessing
+                                        ? "Memproses..."
+                                        : confirmAction === "return"
                                         ? "Kembalikan"
                                         : "Batalkan"}
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* Delete Dialog */}
+                    <Dialog
+                        open={isDeleteDialogOpen}
+                        onOpenChange={setIsDeleteDialogOpen}
+                    >
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    Konfirmasi Penghapusan
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Apakah Anda yakin ingin menghapus data
+                                    peminjaman ini? Tindakan ini tidak dapat
+                                    dibatalkan.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="flex justify-end space-x-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsDeleteDialogOpen(false)}
+                                    disabled={isProcessing}
+                                >
+                                    Batal
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    onClick={handleConfirmAction}
+                                    disabled={isProcessing}
+                                >
+                                    {isProcessing ? "Memproses..." : "Hapus"}
                                 </Button>
                             </div>
                         </DialogContent>

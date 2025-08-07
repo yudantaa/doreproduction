@@ -10,18 +10,23 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
+
 class LoanController extends Controller
 {
     /**
-     * Display a listing of the loans.
+     * Menampilkan daftar semua peminjaman
      */
     public function index()
     {
+        // Hitung total peminjaman aktif
         $totalActiveLoans = Loan::where('status', 'Disewa')->count();
+
+        // Hitung total peminjaman yang melebihi deadline
         $totalOverdue = Loan::where('status', 'Disewa')
             ->where('deadline_pengembalian', '<', now())
             ->count();
 
+        // Ambil semua data peminjaman dengan relasi item
         $loans = Loan::with('item')->get()->map(function ($loan) {
             return [
                 'id' => $loan->id,
@@ -36,6 +41,7 @@ class LoanController extends Controller
             ];
         });
 
+        // Ambil data barang yang tersedia
         $items = Item::where('status', 'Tersedia')->get()->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -44,34 +50,49 @@ class LoanController extends Controller
             ];
         });
 
+        // Kirim data ke view Inertia
         return Inertia::render('loan/loan-index', [
             'loans' => $loans,
             'items' => $items,
             'totalActiveLoans' => $totalActiveLoans,
             'totalOverdue' => $totalOverdue,
+            'isSuperAdmin' => auth()->user()->role === 'SUPER ADMIN',
         ]);
     }
 
+    /**
+     * Mengambil statistik peminjaman bulanan
+     */
     public function getMonthlyStatistics()
     {
-        $currentYear = Carbon::now()->year;
+        // Ambil range tahun dari data peminjaman
+        $yearsRange = Loan::select(
+            DB::raw('MIN(YEAR(created_at)) as min_year'),
+            DB::raw('MAX(YEAR(created_at)) as max_year')
+        )->first();
 
-        // Get loans created per month
+        $minYear = $yearsRange->min_year ?? date('Y');
+        $maxYear = $yearsRange->max_year ?? date('Y');
+
+        // Ambil data peminjaman per bulan
         $monthlyLoans = Loan::select(
+            DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
             DB::raw('COUNT(*) as total_loans'),
             DB::raw('SUM(CASE WHEN status = "Disewa" THEN 1 ELSE 0 END) as active_loans'),
             DB::raw('SUM(CASE WHEN status = "Dikembalikan" THEN 1 ELSE 0 END) as returned_loans'),
             DB::raw('SUM(CASE WHEN status = "Dibatalkan" THEN 1 ELSE 0 END) as cancelled_loans'),
-            DB::raw('SUM(CASE WHEN deadline_pengembalian < NOW() AND status = "Disewa" THEN 1 ELSE 0 END) as overdue_loans')
+            DB::raw('SUM(CASE WHEN deadline_pengembalian < tanggal_kembali AND status = "Dikembalikan" THEN 1 ELSE 0 END) as terlambat_dikembalikan')
         )
-            ->whereYear('created_at', $currentYear)
-            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
+            ->orderBy('year')
             ->orderBy('month')
-            ->get();
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);
+            });
 
-        // Format data for the chart
-        $formattedData = [];
+        // Daftar nama bulan dalam Bahasa Indonesia
         $monthNames = [
             1 => 'Januari',
             2 => 'Februari',
@@ -87,25 +108,35 @@ class LoanController extends Controller
             12 => 'Desember'
         ];
 
-        foreach ($monthlyLoans as $data) {
-            $formattedData[] = [
-                'bulan' => $monthNames[$data->month],
-                'total' => $data->total_loans,
-                'aktif' => $data->active_loans,
-                'dikembalikan' => $data->returned_loans,
-                'dibatalkan' => $data->cancelled_loans,
-                'terlambat' => $data->overdue_loans
-            ];
+        $formattedData = [];
+
+        // Format data untuk semua bulan dalam range
+        for ($year = $minYear; $year <= $maxYear; $year++) {
+            foreach ($monthNames as $monthNum => $monthName) {
+                $key = $year . '-' . str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+                $loanData = $monthlyLoans->get($key);
+
+                $formattedData[] = [
+                    'bulan' => $monthName . ' ' . $year,
+                    'total' => (int) ($loanData ? $loanData->total_loans : 0),
+                    'aktif' => (int) ($loanData ? $loanData->active_loans : 0),
+                    'dikembalikan' => (int) ($loanData ? $loanData->returned_loans : 0),
+                    'dibatalkan' => (int) ($loanData ? $loanData->cancelled_loans : 0),
+                    'terlambat' => (int) ($loanData ? $loanData->terlambat_dikembalikan : 0),
+                ];
+            }
         }
+
 
         return $formattedData;
     }
 
     /**
-     * Store a newly created loan.
+     * Menyimpan peminjaman baru
      */
     public function store(Request $request)
     {
+        // Validasi input
         $validatedData = $request->validate([
             'nama_penyewa' => 'required|string|max:255',
             'no_tlp_penyewa' => 'required|string|max:20',
@@ -114,22 +145,22 @@ class LoanController extends Controller
             'deadline_pengembalian' => 'required|date|after:tanggal_sewa',
         ]);
 
-        // Check item availability
+        // Cek ketersediaan barang
         $item = Item::findOrFail($validatedData['id_barang']);
         if ($item->status !== 'Tersedia' || $item->jumlah <= 0) {
             return back()->withErrors(['id_barang' => 'Barang tidak tersedia untuk disewa']);
         }
 
-        // Reduce item quantity
+        // Kurangi stok barang
         $item->decrement('jumlah');
         $item->save();
 
-        // Update item status if no more items available
+        // Update status barang jika stok habis
         if ($item->jumlah <= 0) {
             $item->update(['status' => 'Tidak Tersedia']);
         }
 
-        // Create loan
+        // Buat data peminjaman baru
         $loan = Loan::create([
             'nama_penyewa' => $validatedData['nama_penyewa'],
             'no_tlp_penyewa' => $validatedData['no_tlp_penyewa'],
@@ -142,12 +173,16 @@ class LoanController extends Controller
 
         return redirect()->route('loans.index')->with('success', 'Penyewaan berhasil ditambahkan.');
     }
+
+    /**
+     * Memperbarui data peminjaman
+     */
     public function update(Request $request, Loan $loan)
     {
         try {
             DB::beginTransaction();
 
-            // Validate request data
+            // Validasi input
             $validatedData = $request->validate([
                 'nama_penyewa' => 'required|string|max:255',
                 'no_tlp_penyewa' => 'required|string|max:20',
@@ -156,9 +191,9 @@ class LoanController extends Controller
                 'deadline_pengembalian' => 'required|date|after:tanggal_sewa',
             ]);
 
-            // If item is being changed
+            // Jika barang diubah
             if ($loan->id_barang !== $validatedData['id_barang']) {
-                // Check new item availability
+                // Cek ketersediaan barang baru
                 $newItem = Item::findOrFail($validatedData['id_barang']);
                 if ($newItem->jumlah <= 0) {
                     throw ValidationException::withMessages([
@@ -166,21 +201,21 @@ class LoanController extends Controller
                     ]);
                 }
 
-                // Return the old item's quantity
+                // Kembalikan stok barang lama
                 $oldItem = Item::findOrFail($loan->id_barang);
                 $oldItem->increment('jumlah');
                 if ($oldItem->status === 'Tidak Tersedia' && $oldItem->jumlah > 0) {
                     $oldItem->update(['status' => 'Tersedia']);
                 }
 
-                // Decrease new item's quantity
+                // Kurangi stok barang baru
                 $newItem->decrement('jumlah');
                 if ($newItem->jumlah <= 0) {
                     $newItem->update(['status' => 'Tidak Tersedia']);
                 }
             }
 
-            // Update loan
+            // Update data peminjaman
             $loan->update($validatedData);
 
             DB::commit();
@@ -192,64 +227,79 @@ class LoanController extends Controller
     }
 
     /**
-     * Mark a loan as returned.
+     * Menandai peminjaman sebagai dikembalikan
      */
-    public function return(Loan $loan)
+    public function return(Loan $loan, Request $request)
     {
         try {
             DB::beginTransaction();
 
-            // Ensure loan is still active
+            // Validasi input
+            $validated = $request->validate([
+                'return_time' => 'required|date'
+            ]);
+
+            // Pastikan status peminjaman masih aktif
             if ($loan->status !== 'Disewa') {
                 throw ValidationException::withMessages([
                     'status' => 'Peminjaman ini tidak dalam status disewa'
                 ]);
             }
 
-            // Update item quantity and status
+            // Update stok barang
             $item = Item::findOrFail($loan->id_barang);
             $item->increment('jumlah');
             if ($item->status === 'Tidak Tersedia') {
                 $item->update(['status' => 'Tersedia']);
             }
 
-            // Update loan status
+            // Parse waktu pengembalian
+            $returnTime = Carbon::parse($validated['return_time']);
+
+            // Validasi waktu pengembalian tidak boleh sebelum tanggal sewa
+            if ($returnTime < $loan->tanggal_sewa) {
+                throw ValidationException::withMessages([
+                    'return_time' => 'Waktu pengembalian tidak boleh sebelum tanggal sewa'
+                ]);
+            }
+
+            // Update status peminjaman
             $loan->update([
                 'status' => 'Dikembalikan',
-                'tanggal_kembali' => now(),
+                'tanggal_kembali' => $returnTime,
             ]);
 
             DB::commit();
             return redirect()->route('loans.index')->with('success', 'Barang berhasil dikembalikan.');
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat mengembalikan barang.']);
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
     /**
-     * Cancel a loan.
+     * Membatalkan peminjaman
      */
     public function cancel(Loan $loan)
     {
         try {
             DB::beginTransaction();
 
-            // Ensure loan is still active
+            // Pastikan status peminjaman masih aktif
             if ($loan->status !== 'Disewa') {
                 throw ValidationException::withMessages([
                     'status' => 'Peminjaman ini tidak dalam status disewa'
                 ]);
             }
 
-            // Update item quantity and status
+            // Update stok barang
             $item = Item::findOrFail($loan->id_barang);
             $item->increment('jumlah');
             if ($item->status === 'Tidak Tersedia') {
                 $item->update(['status' => 'Tersedia']);
             }
 
-            // Update loan status
+            // Update status peminjaman
             $loan->update([
                 'status' => 'Dibatalkan',
                 'tanggal_kembali' => now(),
@@ -260,6 +310,39 @@ class LoanController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return back()->withErrors(['error' => 'Terjadi kesalahan saat membatalkan peminjaman.']);
+        }
+    }
+
+    /**
+     * Menghapus data peminjaman
+     */
+    public function destroy(Loan $loan)
+    {
+        // Only allow SUPER ADMIN to delete loans
+        if (auth()->user()->role !== 'SUPER ADMIN') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Jika peminjaman masih aktif, kembalikan stok barang
+            if ($loan->status === 'Disewa') {
+                $item = Item::findOrFail($loan->id_barang);
+                $item->increment('jumlah');
+                if ($item->status === 'Tidak Tersedia' && $item->jumlah > 0) {
+                    $item->update(['status' => 'Tersedia']);
+                }
+            }
+
+            // Hapus data peminjaman
+            $loan->delete();
+
+            DB::commit();
+            return redirect()->route('loans.index')->with('success', 'Data peminjaman berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data peminjaman.']);
         }
     }
 }

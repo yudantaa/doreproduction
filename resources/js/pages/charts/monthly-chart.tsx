@@ -30,30 +30,40 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
+import { useTheme } from "next-themes";
 
-const chartConfig = {
-    total: {
-        label: "Total Pinjaman",
-        color: "hsl(var(--chart-1))",
-    },
-    aktif: {
-        label: "Aktif",
-        color: "#3b82f6", // blue-500
-    },
-    dikembalikan: {
-        label: "Dikembalikan",
-        color: "#22c55e", // green-500
-    },
-    dibatalkan: {
-        label: "Dibatalkan",
-        color: "#f97316", // orange-500
-    },
-    terlambat: {
-        label: "Terlambat",
-        color: "#ef4444", // red-500
-    },
-} satisfies ChartConfig;
+const getChartColors = (theme: string) => ({
+    total: theme === "dark" ? "#7c3aed" : "#8b5cf6", // Purple
+    aktif: theme === "dark" ? "#2563eb" : "#3b82f6", // Blue
+    dikembalikan: theme === "dark" ? "#059669" : "#10b981", // Green
+    dibatalkan: theme === "dark" ? "#d97706" : "#f59e0b", // Amber
+    terlambat: theme === "dark" ? "#dc2626" : "#ef4444", // Red
+});
+
+const chartConfig = (theme: string) =>
+    ({
+        total: {
+            label: "Total Pinjaman",
+            color: getChartColors(theme).total,
+        },
+        aktif: {
+            label: "Aktif",
+            color: getChartColors(theme).aktif,
+        },
+        dikembalikan: {
+            label: "Dikembalikan",
+            color: getChartColors(theme).dikembalikan,
+        },
+        dibatalkan: {
+            label: "Dibatalkan",
+            color: getChartColors(theme).dibatalkan,
+        },
+        terlambat: {
+            label: "Terlambat",
+            color: getChartColors(theme).terlambat,
+        },
+    } satisfies ChartConfig);
 
 interface MonthlyChartProps {
     data: Array<{
@@ -67,7 +77,7 @@ interface MonthlyChartProps {
     selectedYear: string;
     selectedMonth: string;
     availableYears: string[];
-    availableMonths: string[];
+    availableMonths: Array<{ value: string; name: string }>;
     onYearChange: (year: string) => void;
     onMonthChange: (month: string) => void;
 }
@@ -81,7 +91,9 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
     onYearChange,
     onMonthChange,
 }) => {
-    const currentYear = new Date().getFullYear();
+    const { theme } = useTheme();
+    const colors = getChartColors(theme || "light");
+    const config = chartConfig(theme || "light");
 
     // Format data for display in chart
     const chartData = data.map((item) => ({
@@ -92,8 +104,14 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
     const getFilterDescription = () => {
         const yearText =
             selectedYear === "all" ? "Semua Tahun" : `Tahun ${selectedYear}`;
+
+        const selectedMonthData = availableMonths.find(
+            (m) => m.value === selectedMonth
+        );
         const monthText =
-            selectedMonth === "all" ? "Semua Bulan" : `Bulan ${selectedMonth}`;
+            selectedMonth === "all"
+                ? "Semua Bulan"
+                : `Bulan ${selectedMonthData?.name || selectedMonth}`;
 
         if (selectedYear === "all" && selectedMonth === "all") {
             return "Menampilkan semua data";
@@ -107,20 +125,16 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
     };
 
     return (
-        <Card>
+        <Card className="border shadow-sm bg-card">
             <CardHeader className="pb-3 sm:pb-6">
                 <div className="flex flex-col gap-3 sm:gap-4">
-                    <div>
-                        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                            <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
-                            Data Pinjaman Bulanan
-                        </CardTitle>
-                        <CardDescription className="text-xs sm:text-sm mt-1">
+                    <div className="flex flex-col gap-1">
+                        <CardDescription className="text-xs sm:text-sm">
                             {getFilterDescription()}
                         </CardDescription>
                     </div>
 
-                    {/* Filter Controls - Mobile Optimized */}
+                    {/* Filter Controls */}
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                             <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -159,8 +173,11 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
                                         Semua Bulan
                                     </SelectItem>
                                     {availableMonths.map((month) => (
-                                        <SelectItem key={month} value={month}>
-                                            {month}
+                                        <SelectItem
+                                            key={month.value}
+                                            value={month.value}
+                                        >
+                                            {month.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -171,7 +188,6 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
             </CardHeader>
 
             <CardContent className="w-full overflow-hidden px-3 sm:px-6">
-                {/* Show message if no data after filtering */}
                 {!chartData || chartData.length === 0 ? (
                     <div className="flex items-center justify-center h-48 sm:h-64">
                         <p className="text-muted-foreground text-sm sm:text-base">
@@ -180,95 +196,104 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
                     </div>
                 ) : (
                     <ChartContainer
-                        config={chartConfig}
+                        config={config}
                         className="h-48 sm:h-64 md:h-80 w-full"
                     >
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                                 data={chartData}
                                 margin={{
-                                    top: 10,
-                                    right: 5,
-                                    left: 5,
-                                    bottom: 15,
+                                    top: 20,
+                                    right: 20,
+                                    left: 20,
+                                    bottom: 20,
                                 }}
-                                barCategoryGap="15%"
+                                barGap={8}
+                                barCategoryGap={12}
                             >
                                 <CartesianGrid
                                     strokeDasharray="3 3"
                                     vertical={false}
+                                    stroke="hsl(var(--border))"
+                                    strokeWidth={0.5}
                                 />
                                 <XAxis
                                     dataKey="month"
                                     tickLine={false}
-                                    tickMargin={8}
+                                    tickMargin={10}
                                     axisLine={false}
+                                    tick={{
+                                        fontSize: 12,
+                                        fill: "hsl(var(--muted-foreground))",
+                                    }}
                                     tickFormatter={(value) => {
-                                        // Mobile-friendly month display
                                         if (window.innerWidth < 640) {
-                                            if (value.length > 6) {
-                                                return (
-                                                    value.slice(0, 4) + "..."
-                                                );
-                                            }
-                                        } else if (value.length > 10) {
-                                            return value.slice(0, 8) + "...";
+                                            return value.split(" ")[0];
                                         }
                                         return value;
                                     }}
-                                    fontSize={10}
-                                    className="sm:text-xs"
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tickMargin={8}
-                                    fontSize={10}
-                                    className="sm:text-xs"
-                                    width={35}
+                                    tickMargin={10}
+                                    tick={{
+                                        fontSize: 12,
+                                        fill: "hsl(var(--muted-foreground))",
+                                    }}
+                                    width={40}
                                 />
-                                <ChartTooltip
+                                <Tooltip
                                     content={<ChartTooltipContent />}
+                                    cursor={{
+                                        fill: "hsl(var(--secondary))",
+                                        fillOpacity: 0.2,
+                                        stroke: "hsl(var(--border))",
+                                        strokeWidth: 1,
+                                    }}
                                 />
                                 <Legend
-                                    wrapperStyle={{ fontSize: "10px" }}
-                                    iconSize={8}
-                                    className="sm:text-xs"
+                                    wrapperStyle={{
+                                        fontSize: 12,
+                                        paddingTop: 20,
+                                    }}
+                                    iconType="circle"
+                                    iconSize={10}
+                                    formatter={(value) => (
+                                        <span className="text-muted-foreground">
+                                            {value}
+                                        </span>
+                                    )}
                                 />
                                 <Bar
                                     dataKey="total"
-                                    fill="var(--color-total)"
-                                    radius={[1, 1, 0, 0]}
-                                    maxBarSize={15}
-                                    className="sm:max-w-5"
+                                    fill={colors.total}
+                                    radius={[4, 4, 0, 0]}
+                                    barSize={20}
                                 />
                                 <Bar
                                     dataKey="aktif"
-                                    fill="var(--color-aktif)"
-                                    radius={[1, 1, 0, 0]}
-                                    maxBarSize={15}
-                                    className="sm:max-w-5"
+                                    fill={colors.aktif}
+                                    radius={[4, 4, 0, 0]}
+                                    barSize={20}
                                 />
                                 <Bar
                                     dataKey="dikembalikan"
-                                    fill="var(--color-dikembalikan)"
-                                    radius={[1, 1, 0, 0]}
-                                    maxBarSize={15}
-                                    className="sm:max-w-5"
+                                    fill={colors.dikembalikan}
+                                    radius={[4, 4, 0, 0]}
+                                    barSize={20}
                                 />
                                 <Bar
                                     dataKey="dibatalkan"
-                                    fill="var(--color-dibatalkan)"
-                                    radius={[1, 1, 0, 0]}
-                                    maxBarSize={15}
-                                    className="sm:max-w-5"
+                                    fill={colors.dibatalkan}
+                                    radius={[4, 4, 0, 0]}
+                                    barSize={20}
                                 />
                                 <Bar
                                     dataKey="terlambat"
-                                    fill="var(--color-terlambat)"
-                                    radius={[1, 1, 0, 0]}
-                                    maxBarSize={15}
-                                    className="sm:max-w-5"
+                                    fill={colors.terlambat}
+                                    radius={[4, 4, 0, 0]}
+                                    barSize={20}
                                 />
                             </BarChart>
                         </ResponsiveContainer>

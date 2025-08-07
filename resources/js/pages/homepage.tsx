@@ -401,10 +401,6 @@ export default function HomePage({
                                                 <Package className="w-3 h-3 mr-1" />
                                                 Stok: {item.jumlah}
                                             </span>
-                                            <span className="flex items-center">
-                                                <Calendar className="w-3 h-3 mr-1" />
-                                                Harian
-                                            </span>
                                         </div>
 
                                         {/* Action Button */}

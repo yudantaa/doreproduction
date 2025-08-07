@@ -76,12 +76,6 @@ export default function Login({
                             <div className="grid gap-2">
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Password</Label>
-                                    <Link
-                                        href={route("password.request")}
-                                        className="ml-auto inline-block text-sm underline"
-                                    >
-                                        Lupa Password?
-                                    </Link>
                                 </div>
                                 <Input
                                     id="password"
@@ -100,9 +94,10 @@ export default function Login({
                             </Button>
                         </div>
                         <div className="mt-4 text-center text-sm">
-                            Tidak punya akun? <br />
+                            Ada kendala? <br />
                             <div className="underline">
-                                Tolong hubungi admin untuk pembuatan akun.
+                                Tolong hubungi admin untuk pembuatan akun dan
+                                perubahan password.
                             </div>
                         </div>
                     </CardContent>

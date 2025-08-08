@@ -55,7 +55,6 @@ export default function HomePage({
     const [selectedItem, setSelectedItem] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    // Testimonials data
     const testimonials = [
         {
             name: "Raiaji Pribadi",
@@ -63,7 +62,6 @@ export default function HomePage({
             content: "Support quality event equipment at friendly prices",
             avatar: "/api/placeholder/64/64",
         },
-
         {
             name: "Edi Mambo",
             role: "Client",
@@ -79,7 +77,6 @@ export default function HomePage({
         },
     ];
 
-    // Recent projects
     const recentProjects = [
         {
             title: "Festival Film Jakarta",
@@ -101,7 +98,6 @@ export default function HomePage({
         },
     ];
 
-    // Handle sticky header
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 50) {
@@ -110,7 +106,6 @@ export default function HomePage({
                 setIsHeaderSticky(false);
             }
         };
-
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
@@ -118,12 +113,9 @@ export default function HomePage({
     useEffect(() => {
         const available = items.filter((item) => item.status === "Tersedia");
         setFeaturedItems(available.slice(0, 6));
-
-        // Auto-rotate testimonials
         const interval = setInterval(() => {
             setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
         }, 5000);
-
         return () => clearInterval(interval);
     }, [items]);
 
@@ -132,11 +124,18 @@ export default function HomePage({
         return `https://wa.me/089522734461?text=${encodeURIComponent(message)}`;
     };
 
+    const getCategorySlug = (categoryId: string | number) => {
+        const category = categories.find((c) => c.id === Number(categoryId));
+        if (!category) return "default";
+        return category.nama_kategori
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^\w-]+/g, "");
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col">
             <Head title="Dore Production - Sewa Peralatan Pencahayaan Profesional" />
-
-            {/* Header */}
             <header
                 className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${
                     isHeaderSticky
@@ -162,7 +161,6 @@ export default function HomePage({
                             </h3>
                         </div>
                     </Link>
-
                     <nav className="hidden md:flex space-x-6">
                         {[
                             "peralatan",
@@ -181,7 +179,6 @@ export default function HomePage({
                             </a>
                         ))}
                     </nav>
-
                     <div className="flex items-center gap-3">
                         <AppearanceDropdown />
                         {isAuthenticated ? (
@@ -229,8 +226,6 @@ export default function HomePage({
                         </button>
                     </div>
                 </div>
-
-                {/* Mobile menu */}
                 {mobileMenuOpen && (
                     <div className="md:hidden py-3 px-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
                         <nav className="flex flex-col space-y-3">
@@ -262,11 +257,9 @@ export default function HomePage({
                 )}
             </header>
 
-            {/* Hero Section */}
             <section className="relative py-12 bg-white dark:bg-gray-800 overflow-hidden">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="flex flex-col md:flex-row items-center gap-8">
-                        {/* Left Text Content */}
                         <div className="max-w-xl flex-1">
                             <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100 leading-tight">
                                 GIVING A SOLUTION FOR YOUR EVENT.
@@ -277,7 +270,7 @@ export default function HomePage({
                                 Feel free to contact us
                             </p>
                             <div className="flex gap-3">
-                                <Link href="#peralatan">
+                                <Link href="/peralatan">
                                     <Button
                                         variant="default"
                                         className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
@@ -297,8 +290,6 @@ export default function HomePage({
                                 </a>
                             </div>
                         </div>
-
-                        {/* Right Video */}
                         <div className="aspect-video w-full md:w-1/2 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
                             <video
                                 src="/banner-video.mp4"
@@ -313,7 +304,6 @@ export default function HomePage({
                 </div>
             </section>
 
-            {/* Featured Equipment */}
             <section id="peralatan" className="py-10 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -343,7 +333,6 @@ export default function HomePage({
                                     key={item.id}
                                     className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 overflow-hidden group"
                                 >
-                                    {/* Image Section */}
                                     <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 overflow-hidden">
                                         {item.image ? (
                                             <img
@@ -352,18 +341,22 @@ export default function HomePage({
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <Image className="w-12 h-12 text-gray-400" />
+                                            <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                                                <img
+                                                    src={`/placeholders/${getCategorySlug(
+                                                        item.id_kategori
+                                                    )}-placeholder.jpg`}
+                                                    alt={item.nama_barang}
+                                                    className="w-full h-full object-cover opacity-70"
+                                                />
                                             </div>
                                         )}
-                                        {/* Status Badge */}
                                         <div className="absolute top-2 left-2">
                                             <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                                                 <CheckCircle className="w-3 h-3 mr-1" />
                                                 {item.status}
                                             </span>
                                         </div>
-                                        {/* View Details Button */}
                                         <DialogTrigger asChild>
                                             <button
                                                 className="absolute top-2 right-2 bg-white dark:bg-gray-800 p-2 rounded-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -372,38 +365,29 @@ export default function HomePage({
                                                     setIsOpen(true);
                                                 }}
                                             >
-                                                {" "}
                                                 <p className="font-bold">
                                                     Lihat Detail
                                                 </p>
                                             </button>
                                         </DialogTrigger>
                                     </div>
-
-                                    {/* Content Section */}
                                     <div className="p-4">
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
                                                 {item.nama_barang}
                                             </h3>
                                         </div>
-
-                                        {/* Description */}
                                         {item.deskripsi && (
                                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
                                                 {item.deskripsi}
                                             </p>
                                         )}
-
-                                        {/* Info Row */}
                                         <div className="flex justify-between items-center mb-3 text-xs text-gray-500 dark:text-gray-400">
                                             <span className="flex items-center">
                                                 <Package className="w-3 h-3 mr-1" />
                                                 Stok: {item.jumlah}
                                             </span>
                                         </div>
-
-                                        {/* Action Button */}
                                         <a
                                             href={getWhatsAppLink(item)}
                                             target="_blank"
@@ -420,7 +404,6 @@ export default function HomePage({
                             ))}
                         </div>
 
-                        {/* Enhanced Modal */}
                         <DialogContent className="w-full max-w-xl overflow-y-auto">
                             {selectedItem && (
                                 <>
@@ -432,22 +415,32 @@ export default function HomePage({
                                             Informasi lengkap peralatan
                                         </DialogDescription>
                                     </DialogHeader>
-
-                                    {/* Image */}
-                                    <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
-                                        <img
-                                            src={`/storage/${selectedItem.image}`}
-                                            alt={selectedItem.nama_barang}
-                                            className="w-full h-full object-cover"
-                                        />
+                                    <div className="relative aspect-video rounded-lg overflow-hidden mb-4 bg-gray-100 dark:bg-gray-700">
+                                        {selectedItem.image ? (
+                                            <img
+                                                src={`/storage/${selectedItem.image}`}
+                                                alt={selectedItem.nama_barang}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <img
+                                                    src={`/placeholders/${getCategorySlug(
+                                                        selectedItem.id_kategori
+                                                    )}-placeholder.jpg`}
+                                                    alt={
+                                                        selectedItem.nama_barang
+                                                    }
+                                                    className="w-full h-full object-cover opacity-70"
+                                                />
+                                            </div>
+                                        )}
                                         <div className="absolute top-3 left-3">
                                             <span className="bg-green-600 text-white px-2 py-0.5 rounded-full text-xs">
                                                 {selectedItem.status}
                                             </span>
                                         </div>
                                     </div>
-
-                                    {/* === Scrollable Deskripsi === */}
                                     <div className="overflow-y-auto max-h-40 mb-4">
                                         <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                                             Deskripsi
@@ -456,8 +449,6 @@ export default function HomePage({
                                             {selectedItem.deskripsi}
                                         </p>
                                     </div>
-
-                                    {/* Spesifikasi Ringkas */}
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                                             <p className="text-xs text-gray-500 mb-1">
@@ -476,8 +467,6 @@ export default function HomePage({
                                             </p>
                                         </div>
                                     </div>
-
-                                    {/* CTA Buttons */}
                                     <div className="flex gap-3 pt-4">
                                         <a
                                             href={getWhatsAppLink(selectedItem)}

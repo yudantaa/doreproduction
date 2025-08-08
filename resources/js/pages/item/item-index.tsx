@@ -57,23 +57,20 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                                     Barang Baru
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        Tambah Barang Baru
-                                    </DialogTitle>
-                                </DialogHeader>
-                                <AddItemForm
-                                    onClose={() =>
-                                        setIsRegisterModalOpen(false)
-                                    }
-                                    categories={categories}
-                                />
+                            <DialogContent className="sm:max-w-lg w-full max-h-[90vh] overflow-hidden">
+                                <div className="overflow-y-auto max-h-[calc(90vh-8rem)] pr-2">
+                                    <AddItemForm
+                                        onClose={() =>
+                                            setIsRegisterModalOpen(false)
+                                        }
+                                        categories={categories}
+                                    />
+                                </div>
                             </DialogContent>
                         </Dialog>
                     </div>
 
-                    <div className="flex items-center space-x-4 py-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:space-x-4 py-4 gap-2">
                         <Input
                             placeholder="Filter berdasarkan nama..."
                             value={nameFilter}

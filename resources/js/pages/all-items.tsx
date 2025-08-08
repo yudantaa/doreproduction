@@ -1,5 +1,3 @@
-// resources/js/Pages/all-items.tsx
-
 import { Head, Link } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -27,31 +25,50 @@ import {
     Phone,
     Menu,
     X,
-    Calendar,
-    Image,
     Instagram,
     Facebook,
-    Twitter,
-    Eye,
+    Mail,
+    MapPin,
     Package,
     Search,
     Filter,
-    Mail,
-    MapPin,
+    Eye,
 } from "lucide-react";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface AllItemsPageProps {
     items: Item[];
     categories: Category[];
     isAuthenticated?: boolean;
+    current_page?: number;
+    last_page?: number;
+    per_page?: number;
+    total?: number;
+    links?: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
 }
 
 export default function AllItemsPage({
     items,
     categories,
     isAuthenticated = false,
+    current_page = 1,
+    last_page = 1,
+    per_page = 12,
+    total = 0,
+    links = [],
 }: AllItemsPageProps) {
-    const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+    const [filteredItems, setFilteredItems] = useState<Item[]>(items);
     const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -100,6 +117,15 @@ export default function AllItemsPage({
     const getCategoryName = (categoryId: number) =>
         categories.find((c) => c.id === categoryId)?.nama_kategori || "-";
 
+    const getCategorySlug = (categoryId: number) => {
+        const category = categories.find((c) => c.id === categoryId);
+        if (!category) return "default";
+        return category.nama_kategori
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^\w-]+/g, "");
+    };
+
     const clearFilters = () => {
         setSearchTerm("");
         setSelectedCategory("All");
@@ -109,8 +135,6 @@ export default function AllItemsPage({
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
             <Head title="Semua Peralatan - Dore Production" />
-
-            {/* === Header === */}
             <header
                 className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${
                     isHeaderSticky ? "sticky top-0 z-50 shadow-sm" : ""
@@ -170,7 +194,6 @@ export default function AllItemsPage({
                 </div>
             </header>
 
-            {/* === Filters === */}
             <section className="py-10 flex-1 container mx-auto px-4">
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border mb-8">
                     <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -240,13 +263,15 @@ export default function AllItemsPage({
                     )}
                 </div>
 
-                {/* === Items Grid === */}
                 {filteredItems.length === 0 ? (
                     <div className="text-center py-12">
                         <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium">
                             Tidak ada peralatan ditemukan
                         </h3>
+                        <p className="text-gray-500 mt-2">
+                            Coba gunakan kata kunci atau filter yang berbeda
+                        </p>
                     </div>
                 ) : (
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -254,7 +279,7 @@ export default function AllItemsPage({
                             {filteredItems.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="bg-white dark:bg-gray-800 border rounded-lg shadow-sm hover:shadow-md group overflow-hidden"
+                                    className="bg-white dark:bg-gray-800 border rounded-lg shadow-sm hover:shadow-md group overflow-hidden transition-all"
                                 >
                                     <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
                                         {item.image ? (
@@ -264,58 +289,63 @@ export default function AllItemsPage({
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                             />
                                         ) : (
-                                            <div className="flex items-center justify-center h-full">
-                                                <Image className="w-12 h-12 text-gray-400" />
+                                            <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                                                <img
+                                                    src={`/placeholders/${getCategorySlug(
+                                                        item.id_kategori
+                                                    )}-placeholder.jpg`}
+                                                    alt={item.nama_barang}
+                                                    className="w-full h-full object-cover opacity-70"
+                                                />
                                             </div>
                                         )}
                                         <span
-                                            className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-full ${
+                                            className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-full flex items-center ${
                                                 item.status === "Tersedia"
-                                                    ? "bg-green-100 text-green-800"
-                                                    : "bg-red-100 text-red-800"
+                                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                    : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                                             }`}
                                         >
-                                            <CheckCircle className="w-3 h-3 mr-1 inline" />{" "}
+                                            <CheckCircle className="w-3 h-3 mr-1" />
                                             {item.status}
                                         </span>
                                         <DialogTrigger asChild>
                                             <button
-                                                className="absolute top-2 right-2 bg-white dark:bg-gray-800 p-2 rounded-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 p-2 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700"
                                                 onClick={() => {
                                                     setSelectedItem(item);
                                                     setIsOpen(true);
                                                 }}
                                             >
-                                                <p className="font-bold">
-                                                    Lihat Detail
-                                                </p>
+                                                <Eye className="w-4 h-4" />
                                             </button>
                                         </DialogTrigger>
                                     </div>
                                     <div className="p-4">
-                                        <h3 className="font-semibold mb-1">
+                                        <h3 className="font-semibold mb-1 line-clamp-1">
                                             {item.nama_barang}
                                         </h3>
-                                        <p className="text-sm text-gray-500 mb-2">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                                             {getCategoryName(item.id_kategori)}
                                         </p>
-                                        <p className="text-xs mb-2 text-gray-500">
+                                        <p className="text-xs mb-2 text-gray-500 dark:text-gray-400">
                                             Stok: {item.jumlah}
                                         </p>
                                         {item.status === "Tersedia" ? (
                                             <a
                                                 href={getWhatsAppLink(item)}
                                                 target="_blank"
+                                                rel="noopener noreferrer"
                                             >
                                                 <Button className="w-full text-sm">
-                                                    <Phone className="w-4 h-4 mr-1" />{" "}
+                                                    <Phone className="w-4 h-4 mr-1" />
                                                     Pesan Sekarang
                                                 </Button>
                                             </a>
                                         ) : (
                                             <Button
                                                 disabled
-                                                className="w-full text-sm bg-gray-300"
+                                                className="w-full text-sm bg-gray-200 dark:bg-gray-700"
                                             >
                                                 Tidak Tersedia
                                             </Button>
@@ -325,8 +355,7 @@ export default function AllItemsPage({
                             ))}
                         </div>
 
-                        {/* === Modal === */}
-                        <DialogContent className="w-full max-w-lg md:max-w-xl  overflow-y-auto">
+                        <DialogContent className="w-full max-w-lg md:max-w-xl overflow-y-auto max-h-[90vh]">
                             {selectedItem && (
                                 <>
                                     <DialogHeader className="pb-4">
@@ -339,62 +368,67 @@ export default function AllItemsPage({
                                             )}
                                         </DialogDescription>
                                     </DialogHeader>
-
-                                    {/* Gambar */}
-                                    {selectedItem.image && (
-                                        <div className="relative aspect-video mb-4 rounded-lg overflow-hidden">
+                                    <div className="relative aspect-video mb-4 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                        {selectedItem.image ? (
                                             <img
                                                 src={`/storage/${selectedItem.image}`}
                                                 alt={selectedItem.nama_barang}
                                                 className="w-full h-full object-cover"
                                             />
-                                            <div className="absolute top-3 left-3">
-                                                <span
-                                                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                                                        selectedItem.status ===
-                                                        "Tersedia"
-                                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-                                                    }`}
-                                                >
-                                                    <CheckCircle className="w-3 h-3 mr-1" />{" "}
-                                                    {selectedItem.status}
-                                                </span>
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <img
+                                                    src={`/placeholders/${getCategorySlug(
+                                                        selectedItem.id_kategori
+                                                    )}-placeholder.jpg`}
+                                                    alt={
+                                                        selectedItem.nama_barang
+                                                    }
+                                                    className="w-full h-full object-cover opacity-70"
+                                                />
                                             </div>
+                                        )}
+                                        <div className="absolute top-3 left-3">
+                                            <span
+                                                className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
+                                                    selectedItem.status ===
+                                                    "Tersedia"
+                                                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                }`}
+                                            >
+                                                <CheckCircle className="w-3 h-3 mr-1" />
+                                                {selectedItem.status}
+                                            </span>
                                         </div>
-                                    )}
-
-                                    {/* Deskripsi scrollable */}
-                                    <div className="overflow-y-auto max-h-40 mb-4">
+                                    </div>
+                                    <div className="overflow-y-auto">
                                         <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                                             Deskripsi
                                         </h4>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">
-                                            {selectedItem.deskripsi}
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line mb-4">
+                                            {selectedItem.deskripsi ||
+                                                "Tidak ada deskripsi"}
                                         </p>
-                                    </div>
-
-                                    {/* Specs */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                            <p className="text-xs text-gray-500 mb-1">
-                                                Stok Tersedia
-                                            </p>
-                                            <p className="text-lg font-bold">
-                                                {selectedItem.jumlah} unit
-                                            </p>
-                                        </div>
-                                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                            <p className="text-xs text-gray-500 mb-1">
-                                                Periode Sewa
-                                            </p>
-                                            <p className="text-lg font-bold">
-                                                Harian
-                                            </p>
+                                        <div className="grid grid-cols-2 gap-4 mb-4">
+                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    Stok Tersedia
+                                                </p>
+                                                <p className="text-lg font-bold">
+                                                    {selectedItem.jumlah} unit
+                                                </p>
+                                            </div>
+                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    Periode Sewa
+                                                </p>
+                                                <p className="text-lg font-bold">
+                                                    Harian
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    {/* Tombol CTA */}
                                     {selectedItem.status === "Tersedia" && (
                                         <a
                                             href={getWhatsAppLink(selectedItem)}
@@ -402,8 +436,8 @@ export default function AllItemsPage({
                                             rel="noopener noreferrer"
                                             className="flex-1"
                                         >
-                                            <Button className="w-full mt-4">
-                                                <Phone className="w-4 h-4 mr-2" />{" "}
+                                            <Button className="w-full">
+                                                <Phone className="w-4 h-4 mr-2" />
                                                 Pesan Sekarang
                                             </Button>
                                         </a>
@@ -412,6 +446,45 @@ export default function AllItemsPage({
                             )}
                         </DialogContent>
                     </Dialog>
+                )}
+
+                {total > per_page && (
+                    <div className="mt-8 flex flex-col items-center justify-between gap-4">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                            Menampilkan {(current_page - 1) * per_page + 1} -{" "}
+                            {Math.min(current_page * per_page, total)} dari{" "}
+                            {total} peralatan
+                        </div>
+                        <Pagination>
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious
+                                        href={`?page=${current_page - 1}`}
+                                        isActive={current_page > 1}
+                                    />
+                                </PaginationItem>
+                                {Array.from(
+                                    { length: last_page },
+                                    (_, i) => i + 1
+                                ).map((page) => (
+                                    <PaginationItem key={page}>
+                                        <PaginationLink
+                                            href={`?page=${page}`}
+                                            isActive={page === current_page}
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                ))}
+                                <PaginationItem>
+                                    <PaginationNext
+                                        href={`?page=${current_page + 1}`}
+                                        isActive={current_page < last_page}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
                 )}
             </section>
 

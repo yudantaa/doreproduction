@@ -68,7 +68,14 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         accessorKey: "image",
         header: "Gambar",
         cell: ({ row }) => {
-            const imageUrl = `/storage/${row.original.image}`;
+            const item = row.original;
+            const imageUrl = item.image
+                ? `/storage/${item.image}`
+                : `/placeholders/${getCategorySlug(
+                      item.id_kategori,
+                      categories
+                  )}-placeholder.jpg`;
+
             return (
                 <img
                     className="rounded"
@@ -215,24 +222,18 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
 
             const handleUpdate = async (e: React.FormEvent) => {
                 e.preventDefault();
-
-                // Prevent submission if already submitting or if image upload is open
                 if (isSubmitting || isImageUploadOpen || !formData) return;
-
                 try {
                     setIsSubmitting(true);
-
                     const submitData = new FormData();
                     submitData.append("nama_barang", formData.nama_barang);
                     submitData.append("jumlah", formData.jumlah.toString());
                     submitData.append("status", formData.status);
                     submitData.append("deskripsi", formData.deskripsi || "");
                     submitData.append("id_kategori", formData.id_kategori);
-
                     if (imageFile) {
                         submitData.append("image", imageFile);
                     }
-
                     router.post(
                         `items/${item.id}`,
                         {
@@ -280,7 +281,6 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Atur</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-
                                 <DialogTrigger>
                                     <DropdownMenuItem
                                         onClick={() => openModal(item)}
@@ -288,9 +288,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         Ubah Data
                                     </DropdownMenuItem>
                                 </DialogTrigger>
-
                                 <DropdownMenuSeparator />
-
                                 <AlertDialogTrigger>
                                     <DropdownMenuItem className="text-red-600">
                                         Hapus Data
@@ -346,7 +344,6 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         ubah.
                                     </DialogDescription>
                                 </DialogHeader>
-
                                 <form
                                     onSubmit={handleUpdate}
                                     className="space-y-4"
@@ -514,3 +511,15 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         },
     },
 ];
+
+const getCategorySlug = (
+    categoryId: string | number,
+    categories: Category[]
+) => {
+    const category = categories.find((c) => c.id === Number(categoryId));
+    if (!category) return "default";
+    return category.nama_kategori
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]+/g, "");
+};

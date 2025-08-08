@@ -17,6 +17,7 @@ class CategoriesSeeder extends Seeder
             ['nama_kategori' => 'Lighting', 'created_at' => now(), 'updated_at' => now()],
             ['nama_kategori' => 'Generator', 'created_at' => now(), 'updated_at' => now()],
             ['nama_kategori' => 'Additional Items', 'created_at' => now(), 'updated_at' => now()],
+            ['nama_kategori' => 'Other Items', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

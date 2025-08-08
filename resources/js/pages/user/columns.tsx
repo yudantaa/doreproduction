@@ -93,7 +93,7 @@ export const columns: ColumnDef<User>[] = [
     },
     {
         accessorKey: "role",
-        header: "Kuasa",
+        header: "Hak Akses",
     },
     {
         accessorKey: "created_at",

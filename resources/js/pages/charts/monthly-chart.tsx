@@ -13,14 +13,11 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
-    CardTitle,
 } from "@/components/ui/card";
 import {
     ChartConfig,
     ChartContainer,
-    ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
 import {
@@ -44,7 +41,7 @@ const getChartColors = (theme: string) => ({
 const chartConfig = (theme: string) =>
     ({
         total: {
-            label: "Total Pinjaman",
+            label: "Total",
             color: getChartColors(theme).total,
         },
         aktif: {
@@ -52,15 +49,15 @@ const chartConfig = (theme: string) =>
             color: getChartColors(theme).aktif,
         },
         dikembalikan: {
-            label: "Dikembalikan",
+            label: "Kembali",
             color: getChartColors(theme).dikembalikan,
         },
         dibatalkan: {
-            label: "Dibatalkan",
+            label: "Batal",
             color: getChartColors(theme).dibatalkan,
         },
         terlambat: {
-            label: "Terlambat",
+            label: "Telat",
             color: getChartColors(theme).terlambat,
         },
     } satisfies ChartConfig);
@@ -95,7 +92,6 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
     const colors = getChartColors(theme || "light");
     const config = chartConfig(theme || "light");
 
-    // Format data for display in chart
     const chartData = data.map((item) => ({
         ...item,
         month: item.bulan,
@@ -125,94 +121,93 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
     };
 
     return (
-        <Card className="border shadow-sm bg-card">
-            <CardHeader className="pb-3 sm:pb-6">
-                <div className="flex flex-col gap-3 sm:gap-4">
-                    <div className="flex flex-col gap-1">
-                        <CardDescription className="text-xs sm:text-sm">
-                            {getFilterDescription()}
-                        </CardDescription>
+        <div className="w-full h-full">
+            <CardHeader className="p-0 pb-2">
+                <div className="flex flex-col gap-1">
+                    <CardDescription className="text-xs">
+                        {getFilterDescription()}
+                    </CardDescription>
+                </div>
+
+                {/* Compact Filter Controls */}
+                <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Filter className="h-3 w-3" />
                     </div>
 
-                    {/* Filter Controls */}
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                            <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span className="hidden sm:inline">Filter:</span>
-                        </div>
-
-                        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                            <Select
-                                value={selectedYear}
-                                onValueChange={onYearChange}
-                            >
-                                <SelectTrigger className="w-full sm:w-[120px] h-8 sm:h-9 text-xs sm:text-sm">
-                                    <SelectValue placeholder="Pilih Tahun" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">
-                                        Semua Tahun
+                    <div className="flex gap-2">
+                        <Select
+                            value={selectedYear}
+                            onValueChange={onYearChange}
+                        >
+                            <SelectTrigger className="w-[100px] h-7 text-xs">
+                                <SelectValue placeholder="Tahun" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all" className="text-xs">
+                                    Semua Tahun
+                                </SelectItem>
+                                {availableYears.map((year) => (
+                                    <SelectItem
+                                        key={year}
+                                        value={year}
+                                        className="text-xs"
+                                    >
+                                        {year}
                                     </SelectItem>
-                                    {availableYears.map((year) => (
-                                        <SelectItem key={year} value={year}>
-                                            {year}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                ))}
+                            </SelectContent>
+                        </Select>
 
-                            <Select
-                                value={selectedMonth}
-                                onValueChange={onMonthChange}
-                            >
-                                <SelectTrigger className="w-full sm:w-[130px] h-8 sm:h-9 text-xs sm:text-sm">
-                                    <SelectValue placeholder="Pilih Bulan" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">
-                                        Semua Bulan
+                        <Select
+                            value={selectedMonth}
+                            onValueChange={onMonthChange}
+                        >
+                            <SelectTrigger className="w-[110px] h-7 text-xs">
+                                <SelectValue placeholder="Bulan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all" className="text-xs">
+                                    Semua Bulan
+                                </SelectItem>
+                                {availableMonths.map((month) => (
+                                    <SelectItem
+                                        key={month.value}
+                                        value={month.value}
+                                        className="text-xs"
+                                    >
+                                        {month.name}
                                     </SelectItem>
-                                    {availableMonths.map((month) => (
-                                        <SelectItem
-                                            key={month.value}
-                                            value={month.value}
-                                        >
-                                            {month.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
             </CardHeader>
 
-            <CardContent className="w-full overflow-hidden px-3 sm:px-6">
+            <CardContent className="p-0 pt-2 h-[calc(100%-60px)]">
                 {!chartData || chartData.length === 0 ? (
-                    <div className="flex items-center justify-center h-48 sm:h-64">
-                        <p className="text-muted-foreground text-sm sm:text-base">
-                            Tidak ada data untuk filter yang dipilih.
+                    <div className="flex items-center justify-center h-full">
+                        <p className="text-muted-foreground text-xs">
+                            Tidak ada data
                         </p>
                     </div>
                 ) : (
-                    <ChartContainer
-                        config={config}
-                        className="h-48 sm:h-64 md:h-80 w-full"
-                    >
+                    <ChartContainer config={config} className="h-full w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                                 data={chartData}
                                 margin={{
-                                    top: 20,
-                                    right: 20,
-                                    left: 20,
-                                    bottom: 20,
+                                    top: 10,
+                                    right: 10,
+                                    left: 0,
+                                    bottom: 5,
                                 }}
-                                barGap={8}
-                                barCategoryGap={12}
+                                barGap={4}
+                                barCategoryGap={8}
                             >
                                 <CartesianGrid
-                                    strokeDasharray="3 3"
+                                    strokeDasharray="2 2"
                                     vertical={false}
                                     stroke="hsl(var(--border))"
                                     strokeWidth={0.5}
@@ -220,45 +215,40 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
                                 <XAxis
                                     dataKey="month"
                                     tickLine={false}
-                                    tickMargin={10}
+                                    tickMargin={5}
                                     axisLine={false}
                                     tick={{
-                                        fontSize: 12,
+                                        fontSize: 10,
                                         fill: "hsl(var(--muted-foreground))",
                                     }}
-                                    tickFormatter={(value) => {
-                                        if (window.innerWidth < 640) {
-                                            return value.split(" ")[0];
-                                        }
-                                        return value;
-                                    }}
+                                    tickFormatter={(value) =>
+                                        value.split(" ")[0]
+                                    }
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tickMargin={10}
+                                    tickMargin={5}
                                     tick={{
-                                        fontSize: 12,
+                                        fontSize: 10,
                                         fill: "hsl(var(--muted-foreground))",
                                     }}
-                                    width={40}
+                                    width={30}
                                 />
                                 <Tooltip
                                     content={<ChartTooltipContent />}
                                     cursor={{
                                         fill: "hsl(var(--secondary))",
-                                        fillOpacity: 0.2,
-                                        stroke: "hsl(var(--border))",
-                                        strokeWidth: 1,
+                                        fillOpacity: 0.1,
                                     }}
                                 />
                                 <Legend
                                     wrapperStyle={{
-                                        fontSize: 12,
-                                        paddingTop: 20,
+                                        fontSize: 10,
+                                        paddingTop: 5,
                                     }}
                                     iconType="circle"
-                                    iconSize={10}
+                                    iconSize={8}
                                     formatter={(value) => (
                                         <span className="text-muted-foreground">
                                             {value}
@@ -268,47 +258,39 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({
                                 <Bar
                                     dataKey="total"
                                     fill={colors.total}
-                                    radius={[4, 4, 0, 0]}
-                                    barSize={20}
+                                    radius={[2, 2, 0, 0]}
+                                    barSize={12}
                                 />
                                 <Bar
                                     dataKey="aktif"
                                     fill={colors.aktif}
-                                    radius={[4, 4, 0, 0]}
-                                    barSize={20}
+                                    radius={[2, 2, 0, 0]}
+                                    barSize={12}
                                 />
                                 <Bar
                                     dataKey="dikembalikan"
                                     fill={colors.dikembalikan}
-                                    radius={[4, 4, 0, 0]}
-                                    barSize={20}
+                                    radius={[2, 2, 0, 0]}
+                                    barSize={12}
                                 />
                                 <Bar
                                     dataKey="dibatalkan"
                                     fill={colors.dibatalkan}
-                                    radius={[4, 4, 0, 0]}
-                                    barSize={20}
+                                    radius={[2, 2, 0, 0]}
+                                    barSize={12}
                                 />
                                 <Bar
                                     dataKey="terlambat"
                                     fill={colors.terlambat}
-                                    radius={[4, 4, 0, 0]}
-                                    barSize={20}
+                                    radius={[2, 2, 0, 0]}
+                                    barSize={12}
                                 />
                             </BarChart>
                         </ResponsiveContainer>
                     </ChartContainer>
                 )}
             </CardContent>
-
-            <CardFooter className="flex-col items-start gap-2 text-xs sm:text-sm pt-3 sm:pt-6">
-                <div className="leading-none text-muted-foreground">
-                    {chartData.length > 0
-                        ? `Menampilkan ${chartData.length} periode data pinjaman`
-                        : "Tidak ada data untuk ditampilkan"}
-                </div>
-            </CardFooter>
-        </Card>
+        </div>
     );
 };
 

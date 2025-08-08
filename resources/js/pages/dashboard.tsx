@@ -119,10 +119,10 @@ export default function Dashboard({
         <AuthenticatedLayout header="Dashboard">
             <Head title="Dashboard" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
+            <div className="flex flex-1 flex-col gap-4 p-4">
                 {/* Welcome Header */}
                 <div className="space-y-1">
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                         Selamat datang,{" "}
                         <span className="font-medium capitalize">
                             {userName}
@@ -130,22 +130,25 @@ export default function Dashboard({
                     </p>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {/* Compact Stats Grid */}
+                <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
                     {/* Available Equipment */}
-                    <Card className="hover:shadow-md transition-shadow">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                    <Card className="hover:shadow-md transition-shadow h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                            <CardTitle className="text-xs font-medium">
                                 Equipment Tersedia
                             </CardTitle>
                             <Package className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold">
                                 {totalAvailable}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                <Badge variant="destructive" className="mr-1">
+                                <Badge
+                                    variant="destructive"
+                                    className="mr-1 text-xs"
+                                >
                                     {totalUnavailable}
                                 </Badge>
                                 tidak tersedia
@@ -154,19 +157,22 @@ export default function Dashboard({
                     </Card>
 
                     {/* Active Loans */}
-                    <Card className="hover:shadow-md transition-shadow">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                    <Card className="hover:shadow-md transition-shadow h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                            <CardTitle className="text-xs font-medium">
                                 Penyewaan Aktif
                             </CardTitle>
                             <ClipboardList className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold">
                                 {totalActiveLoans}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                <Badge variant="destructive" className="mr-1">
+                                <Badge
+                                    variant="destructive"
+                                    className="mr-1 text-xs"
+                                >
                                     {totalOverdue}
                                 </Badge>
                                 melebihi deadline
@@ -175,15 +181,15 @@ export default function Dashboard({
                     </Card>
 
                     {/* Returned Loans */}
-                    <Card className="hover:shadow-md transition-shadow">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                    <Card className="hover:shadow-md transition-shadow h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                            <CardTitle className="text-xs font-medium">
                                 Dikembalikan
                             </CardTitle>
                             <CheckCircle className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold">
                                 {monthlyLoanData.reduce(
                                     (acc, curr) => acc + curr.dikembalikan,
                                     0
@@ -196,15 +202,15 @@ export default function Dashboard({
                     </Card>
 
                     {/* Cancelled Loans */}
-                    <Card className="hover:shadow-md transition-shadow">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                    <Card className="hover:shadow-md transition-shadow h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                            <CardTitle className="text-xs font-medium">
                                 Dibatalkan
                             </CardTitle>
                             <XCircle className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold">
                                 {monthlyLoanData.reduce(
                                     (acc, curr) => acc + curr.dibatalkan,
                                     0
@@ -217,28 +223,28 @@ export default function Dashboard({
                     </Card>
                 </div>
 
-                {/* Chart Section */}
-                <div className="grid gap-4 md:grid-cols-1">
-                    <Card className="hover:shadow-md transition-shadow">
-                        <CardHeader>
-                            <CardTitle>Statistik Peminjaman</CardTitle>
-                            <CardDescription>
-                                Ringkasan aktivitas peminjaman per bulan
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <MonthlyChart
-                                data={filteredData}
-                                selectedYear={selectedYear}
-                                selectedMonth={selectedMonth}
-                                availableYears={availableYears}
-                                availableMonths={availableMonths}
-                                onYearChange={setSelectedYear}
-                                onMonthChange={setSelectedMonth}
-                            />
-                        </CardContent>
-                    </Card>
-                </div>
+                {/* Compact Chart Section */}
+                <Card className="hover:shadow-md transition-shadow mt-2">
+                    <CardHeader className="p-4 pb-2">
+                        <CardTitle className="text-sm">
+                            Statistik Peminjaman
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Ringkasan aktivitas peminjaman per bulan
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0 h-[280px]">
+                        <MonthlyChart
+                            data={filteredData}
+                            selectedYear={selectedYear}
+                            selectedMonth={selectedMonth}
+                            availableYears={availableYears}
+                            availableMonths={availableMonths}
+                            onYearChange={setSelectedYear}
+                            onMonthChange={setSelectedMonth}
+                        />
+                    </CardContent>
+                </Card>
             </div>
         </AuthenticatedLayout>
     );

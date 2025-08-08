@@ -89,7 +89,7 @@ export default function LoanIndex({
                             <DialogContent className="sm:max-w-lg w-full max-h-[90vh] overflow-hidden">
                                 <DialogHeader>
                                     <DialogTitle>
-                                        Tambah Peminjaman Baru
+                                        Silahkan masukan data peminjaman baru.
                                     </DialogTitle>
                                 </DialogHeader>
                                 <div className="overflow-y-auto max-h-[calc(90vh-8rem)] pr-2">

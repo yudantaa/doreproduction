@@ -479,12 +479,6 @@ export default function HomePage({
                                                 Pesan Sekarang
                                             </Button>
                                         </a>
-                                        <Button
-                                            variant="outline"
-                                            className="flex-1"
-                                        >
-                                            Tanya Detail
-                                        </Button>
                                     </div>
                                 </>
                             )}

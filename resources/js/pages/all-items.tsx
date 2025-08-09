@@ -1,11 +1,30 @@
-// Updated all-items.tsx with working pagination
-
+import React, { useState, useEffect } from "react";
 import { Head, Link } from "@inertiajs/react";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Item } from "./item/columns";
-import { Category } from "./category/columns";
+import { Button } from "@/components/ui/button";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Package,
+    Search,
+    Filter,
+    X,
+    Menu,
+    Instagram,
+    Facebook,
+    MapPin,
+    Mail,
+    Phone,
+    ChevronRight,
+    ChevronLeft,
+    CheckCircle,
+    Eye,
+} from "lucide-react";
 import AppearanceDropdown from "@/components/appearance-dropdown";
 import {
     Dialog,
@@ -15,73 +34,37 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import {
-    CheckCircle,
-    Phone,
-    Menu,
-    X,
-    Instagram,
-    Facebook,
-    Mail,
-    MapPin,
-    Package,
-    Search,
-    Filter,
-    Eye,
-} from "lucide-react";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
 
 interface AllItemsPageProps {
-    items: Item[];
-    categories: Category[];
+    items: Array<{
+        id: string;
+        nama_barang: string;
+        deskripsi?: string;
+        jumlah: number;
+        status: string;
+        image?: string;
+        id_kategori: number;
+    }>;
+    categories: Array<{
+        id: number;
+        nama_kategori: string;
+    }>;
     isAuthenticated?: boolean;
-    current_page?: number;
-    last_page?: number;
-    per_page?: number;
-    total?: number;
-    links?: {
-        url: string | null;
-        label: string;
-        active: boolean;
-    }[];
 }
 
 export default function AllItemsPage({
     items,
     categories,
     isAuthenticated = false,
-    current_page = 1,
-    last_page = 1,
-    per_page = 12,
-    total = 0,
-    links = [],
 }: AllItemsPageProps) {
-    const [filteredItems, setFilteredItems] = useState<Item[]>(items);
-    const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [statusFilter, setStatusFilter] = useState("All");
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isHeaderSticky, setIsHeaderSticky] = useState(false);
-
-    // Client-side pagination state
+    const [itemsPerPage, setItemsPerPage] = useState(12);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 12;
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -91,63 +74,31 @@ export default function AllItemsPage({
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    useEffect(() => {
-        let filtered = items;
-        if (searchTerm) {
-            filtered = filtered.filter(
-                (item) =>
-                    item.nama_barang
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                    item.deskripsi
-                        ?.toLowerCase()
-                        .includes(searchTerm.toLowerCase())
-            );
-        }
-        if (selectedCategory !== "All") {
-            filtered = filtered.filter(
-                (item) => item.id_kategori === parseInt(selectedCategory)
-            );
-        }
-        if (statusFilter !== "All") {
-            filtered = filtered.filter((item) => item.status === statusFilter);
-        }
-        setFilteredItems(filtered);
-        setCurrentPage(1); // Reset to first page when filters change
-    }, [items, searchTerm, selectedCategory, statusFilter]);
+    const filteredItems = items.filter((item) => {
+        const matchesSearch =
+            item.nama_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.deskripsi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            false;
+        const matchesCategory =
+            selectedCategory === "All" ||
+            item.id_kategori === parseInt(selectedCategory);
+        return matchesSearch && matchesCategory;
+    });
 
-    // Calculate pagination for filtered items
-    const totalFilteredItems = filteredItems.length;
-    const totalPages = Math.ceil(totalFilteredItems / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentItems = filteredItems.slice(startIndex, endIndex);
+    // Pagination logic
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    const paginatedItems = filteredItems.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
-    // Generate page numbers to display
-    const getPageNumbers = () => {
-        const pages = [];
-        const maxPagesToShow = 5;
-
-        if (totalPages <= maxPagesToShow) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            const startPage = Math.max(1, currentPage - 2);
-            const endPage = Math.min(
-                totalPages,
-                startPage + maxPagesToShow - 1
-            );
-
-            for (let i = startPage; i <= endPage; i++) {
-                pages.push(i);
-            }
-        }
-
-        return pages;
+    const clearFilters = () => {
+        setSearchTerm("");
+        setSelectedCategory("All");
+        setCurrentPage(1);
     };
 
-    const getWhatsAppLink = (item: Item) =>
+    const getWhatsAppLink = (item: { nama_barang: string }) =>
         `https://wa.me/089522734461?text=${encodeURIComponent(
             `Halo saya mau sewa ${item.nama_barang}`
         )}`;
@@ -162,19 +113,6 @@ export default function AllItemsPage({
             .toLowerCase()
             .replace(/\s+/g, "-")
             .replace(/[^\w-]+/g, "");
-    };
-
-    const clearFilters = () => {
-        setSearchTerm("");
-        setSelectedCategory("All");
-        setStatusFilter("All");
-        setCurrentPage(1);
-    };
-
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-        // Scroll to top when page changes
-        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     return (
@@ -226,7 +164,7 @@ export default function AllItemsPage({
                         )}
                         <a href="https://wa.me/089522734461">
                             <Button size="sm" className="hidden md:flex">
-                                <Phone className="w-4 h-4 mr-2" /> Hubungi Kami
+                                Hubungi Kami
                             </Button>
                         </a>
                         <button
@@ -244,7 +182,7 @@ export default function AllItemsPage({
                     <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <Filter className="w-5 h-5" /> Cari & Filter Peralatan
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <Input
@@ -256,7 +194,10 @@ export default function AllItemsPage({
                         </div>
                         <Select
                             value={selectedCategory}
-                            onValueChange={setSelectedCategory}
+                            onValueChange={(value) => {
+                                setSelectedCategory(value);
+                                setCurrentPage(1);
+                            }}
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Pilih Kategori" />
@@ -265,47 +206,54 @@ export default function AllItemsPage({
                                 <SelectItem value="All">
                                     Semua Kategori
                                 </SelectItem>
-                                {categories.map((c) => (
+                                {categories.map((category) => (
                                     <SelectItem
-                                        key={c.id}
-                                        value={c.id.toString()}
+                                        key={category.id}
+                                        value={category.id.toString()}
                                     >
-                                        {c.nama_kategori}
+                                        {category.nama_kategori}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                         <Select
-                            value={statusFilter}
-                            onValueChange={setStatusFilter}
+                            value={itemsPerPage.toString()}
+                            onValueChange={(value) => {
+                                setItemsPerPage(parseInt(value));
+                                setCurrentPage(1);
+                            }}
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Pilih Status" />
+                                <SelectValue placeholder="Item per halaman" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="All">
-                                    Semua Status
+                                <SelectItem value="12">
+                                    12 per halaman
                                 </SelectItem>
-                                <SelectItem value="Tersedia">
-                                    Tersedia
+                                <SelectItem value="24">
+                                    24 per halaman
                                 </SelectItem>
-                                <SelectItem value="Disewa">Disewa</SelectItem>
+                                <SelectItem value="48">
+                                    48 per halaman
+                                </SelectItem>
+                                <SelectItem value="96">
+                                    96 per halaman
+                                </SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
-                    {(searchTerm ||
-                        selectedCategory !== "All" ||
-                        statusFilter !== "All") && (
-                        <div className="mt-4 text-right">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={clearFilters}
-                            >
-                                <X className="w-4 h-4 mr-1" /> Bersihkan Filter
-                            </Button>
+                        <div className="flex items-center justify-end">
+                            {(searchTerm || selectedCategory !== "All") && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={clearFilters}
+                                >
+                                    <X className="w-4 h-4 mr-1" /> Bersihkan
+                                    Filter
+                                </Button>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 {filteredItems.length === 0 ? (
@@ -320,103 +268,117 @@ export default function AllItemsPage({
                     </div>
                 ) : (
                     <>
-                        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {currentItems.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="bg-white dark:bg-gray-800 border rounded-lg shadow-sm hover:shadow-md group overflow-hidden transition-all"
-                                    >
-                                        <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
-                                            {item.image ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                            {paginatedItems.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700 overflow-hidden group"
+                                >
+                                    <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                                        {item.image ? (
+                                            <img
+                                                src={`/storage/${item.image}`}
+                                                alt={item.nama_barang}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
                                                 <img
-                                                    src={`/storage/${item.image}`}
+                                                    src={`/placeholders/${getCategorySlug(
+                                                        item.id_kategori
+                                                    )}-placeholder.jpg`}
                                                     alt={item.nama_barang}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                                    className="w-full h-full object-cover opacity-70"
                                                 />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
-                                                    <img
-                                                        src={`/placeholders/${getCategorySlug(
-                                                            item.id_kategori
-                                                        )}-placeholder.jpg`}
-                                                        alt={item.nama_barang}
-                                                        className="w-full h-full object-cover opacity-70"
-                                                    />
-                                                </div>
-                                            )}
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 left-2">
                                             <span
-                                                className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-full flex items-center ${
+                                                className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
                                                     item.status === "Tersedia"
-                                                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                                                        : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                                                 }`}
                                             >
                                                 <CheckCircle className="w-3 h-3 mr-1" />
                                                 {item.status}
                                             </span>
-                                            <DialogTrigger asChild>
-                                                <button
-                                                    className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 p-2 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700"
-                                                    onClick={() => {
-                                                        setSelectedItem(item);
-                                                        setIsOpen(true);
-                                                    }}
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                            </DialogTrigger>
                                         </div>
-                                        <div className="p-4">
-                                            <h3 className="font-semibold mb-1 line-clamp-1">
+                                        <button
+                                            className="absolute top-2 right-2 bg-white dark:bg-gray-800 p-2 rounded-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                            onClick={() => {
+                                                setSelectedItem(item);
+                                                setIsDialogOpen(true);
+                                            }}
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                    <div className="p-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
                                                 {item.nama_barang}
                                             </h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                        </div>
+                                        <div className="mb-2">
+                                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                Kategori:{" "}
                                                 {getCategoryName(
                                                     item.id_kategori
                                                 )}
-                                            </p>
-                                            <p className="text-xs mb-2 text-gray-500 dark:text-gray-400">
-                                                Stok: {item.jumlah}
-                                            </p>
-                                            {item.status === "Tersedia" ? (
-                                                <a
-                                                    href={getWhatsAppLink(item)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    <Button className="w-full text-sm">
-                                                        <Phone className="w-4 h-4 mr-1" />
-                                                        Pesan Sekarang
-                                                    </Button>
-                                                </a>
-                                            ) : (
-                                                <Button
-                                                    disabled
-                                                    className="w-full text-sm bg-gray-200 dark:bg-gray-700"
-                                                >
-                                                    Tidak Tersedia
-                                                </Button>
-                                            )}
+                                            </span>
                                         </div>
+                                        {item.deskripsi && (
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                                                {item.deskripsi}
+                                            </p>
+                                        )}
+                                        <div className="flex justify-between items-center mb-3 text-xs text-gray-500 dark:text-gray-400">
+                                            <span className="flex items-center">
+                                                <Package className="w-3 h-3 mr-1" />
+                                                Stok: {item.jumlah}
+                                            </span>
+                                        </div>
+                                        <a
+                                            href={getWhatsAppLink(item)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block"
+                                        >
+                                            <Button
+                                                className="w-full bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 text-sm h-9 font-medium"
+                                                disabled={
+                                                    item.status !== "Tersedia"
+                                                }
+                                            >
+                                                <Phone className="w-4 h-4 mr-2" />
+                                                {item.status === "Tersedia"
+                                                    ? "Pesan Sekarang"
+                                                    : "Tidak Tersedia"}
+                                            </Button>
+                                        </a>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
+                        </div>
 
-                            <DialogContent className="w-full max-w-lg md:max-w-xl overflow-y-auto max-h-[90vh]">
+                        {/* Item Detail Dialog */}
+                        <Dialog
+                            open={isDialogOpen}
+                            onOpenChange={setIsDialogOpen}
+                        >
+                            <DialogContent className="w-full max-w-xl overflow-y-auto">
                                 {selectedItem && (
                                     <>
                                         <DialogHeader className="pb-4">
-                                            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                            <DialogTitle className="text-xl font-bold">
                                                 {selectedItem.nama_barang}
                                             </DialogTitle>
-                                            <DialogDescription className="text-gray-500 dark:text-gray-400">
-                                                {getCategoryName(
-                                                    selectedItem.id_kategori
-                                                )}
+                                            <DialogDescription className="text-gray-500">
+                                                Informasi lengkap peralatan
                                             </DialogDescription>
                                         </DialogHeader>
-                                        <div className="relative aspect-video mb-4 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                        <div className="relative aspect-video rounded-lg overflow-hidden mb-4 bg-gray-100 dark:bg-gray-700">
                                             {selectedItem.image ? (
                                                 <img
                                                     src={`/storage/${selectedItem.image}`}
@@ -440,11 +402,11 @@ export default function AllItemsPage({
                                             )}
                                             <div className="absolute top-3 left-3">
                                                 <span
-                                                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
+                                                    className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full ${
                                                         selectedItem.status ===
                                                         "Tersedia"
-                                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                                                            : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                                                     }`}
                                                 >
                                                     <CheckCircle className="w-3 h-3 mr-1" />
@@ -452,35 +414,36 @@ export default function AllItemsPage({
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="overflow-y-auto">
+                                        <div className="overflow-y-auto max-h-40 mb-4">
                                             <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                                                 Deskripsi
                                             </h4>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line mb-4">
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">
                                                 {selectedItem.deskripsi ||
-                                                    "Tidak ada deskripsi"}
+                                                    "Tidak ada deskripsi tersedia."}
                                             </p>
-                                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                        Stok Tersedia
-                                                    </p>
-                                                    <p className="text-lg font-bold">
-                                                        {selectedItem.jumlah}{" "}
-                                                        unit
-                                                    </p>
-                                                </div>
-                                                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                        Periode Sewa
-                                                    </p>
-                                                    <p className="text-lg font-bold">
-                                                        Harian
-                                                    </p>
-                                                </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                <p className="text-xs text-gray-500 mb-1">
+                                                    Kategori
+                                                </p>
+                                                <p className="text-lg font-bold">
+                                                    {getCategoryName(
+                                                        selectedItem.id_kategori
+                                                    )}
+                                                </p>
+                                            </div>
+                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                <p className="text-xs text-gray-500 mb-1">
+                                                    Stok Tersedia
+                                                </p>
+                                                <p className="text-lg font-bold">
+                                                    {selectedItem.jumlah} unit
+                                                </p>
                                             </div>
                                         </div>
-                                        {selectedItem.status === "Tersedia" && (
+                                        <div className="flex gap-3 pt-4">
                                             <a
                                                 href={getWhatsAppLink(
                                                     selectedItem
@@ -490,80 +453,257 @@ export default function AllItemsPage({
                                                 className="flex-1"
                                             >
                                                 <Button className="w-full">
-                                                    <Phone className="w-4 h-4 mr-2" />
+                                                    <Phone className="w-4 h-4 mr-2" />{" "}
                                                     Pesan Sekarang
                                                 </Button>
                                             </a>
-                                        )}
+                                        </div>
                                     </>
                                 )}
                             </DialogContent>
                         </Dialog>
 
-                        {/* Pagination - Updated to work with client-side filtering */}
+                        {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="mt-8 flex flex-col items-center justify-between gap-4">
+                            <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
                                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                                    Menampilkan {startIndex + 1} -{" "}
-                                    {Math.min(endIndex, totalFilteredItems)}{" "}
-                                    dari {totalFilteredItems} peralatan
+                                    Menampilkan{" "}
+                                    <span className="font-medium">
+                                        {(currentPage - 1) * itemsPerPage + 1}
+                                    </span>{" "}
+                                    -{" "}
+                                    <span className="font-medium">
+                                        {Math.min(
+                                            currentPage * itemsPerPage,
+                                            filteredItems.length
+                                        )}
+                                    </span>{" "}
+                                    dari{" "}
+                                    <span className="font-medium">
+                                        {filteredItems.length}
+                                    </span>{" "}
+                                    hasil
                                 </div>
-                                <Pagination>
-                                    <PaginationContent>
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                onClick={() =>
-                                                    currentPage > 1 &&
-                                                    handlePageChange(
-                                                        currentPage - 1
-                                                    )
+                                <div className="flex items-center space-x-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                            setCurrentPage((prev) =>
+                                                Math.max(prev - 1, 1)
+                                            )
+                                        }
+                                        disabled={currentPage === 1}
+                                    >
+                                        <ChevronLeft className="w-4 h-4 mr-1" />
+                                        Sebelumnya
+                                    </Button>
+                                    <div className="flex items-center space-x-1">
+                                        {Array.from(
+                                            { length: Math.min(5, totalPages) },
+                                            (_, i) => {
+                                                let pageNum;
+                                                if (totalPages <= 5) {
+                                                    pageNum = i + 1;
+                                                } else if (currentPage <= 3) {
+                                                    pageNum = i + 1;
+                                                } else if (
+                                                    currentPage >=
+                                                    totalPages - 2
+                                                ) {
+                                                    pageNum =
+                                                        totalPages - 4 + i;
+                                                } else {
+                                                    pageNum =
+                                                        currentPage - 2 + i;
                                                 }
-                                                className={
-                                                    currentPage <= 1
-                                                        ? "pointer-events-none opacity-50"
-                                                        : "cursor-pointer"
-                                                }
-                                            />
-                                        </PaginationItem>
-
-                                        {getPageNumbers().map((page) => (
-                                            <PaginationItem key={page}>
-                                                <PaginationLink
+                                                return (
+                                                    <Button
+                                                        key={pageNum}
+                                                        variant={
+                                                            currentPage ===
+                                                            pageNum
+                                                                ? "default"
+                                                                : "outline"
+                                                        }
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            setCurrentPage(
+                                                                pageNum
+                                                            )
+                                                        }
+                                                    >
+                                                        {pageNum}
+                                                    </Button>
+                                                );
+                                            }
+                                        )}
+                                        {totalPages > 5 &&
+                                            currentPage < totalPages - 2 && (
+                                                <span className="px-2">
+                                                    ...
+                                                </span>
+                                            )}
+                                        {totalPages > 5 &&
+                                            currentPage < totalPages - 2 && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
                                                     onClick={() =>
-                                                        handlePageChange(page)
+                                                        setCurrentPage(
+                                                            totalPages
+                                                        )
                                                     }
-                                                    isActive={
-                                                        page === currentPage
-                                                    }
-                                                    className="cursor-pointer"
                                                 >
-                                                    {page}
-                                                </PaginationLink>
-                                            </PaginationItem>
-                                        ))}
-
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                onClick={() =>
-                                                    currentPage < totalPages &&
-                                                    handlePageChange(
-                                                        currentPage + 1
-                                                    )
-                                                }
-                                                className={
-                                                    currentPage >= totalPages
-                                                        ? "pointer-events-none opacity-50"
-                                                        : "cursor-pointer"
-                                                }
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
+                                                    {totalPages}
+                                                </Button>
+                                            )}
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                            setCurrentPage((prev) =>
+                                                Math.min(prev + 1, totalPages)
+                                            )
+                                        }
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Selanjutnya
+                                        <ChevronRight className="w-4 h-4 ml-1" />
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </>
                 )}
             </section>
+
+            <footer className="bg-gray-900 dark:bg-gray-950 py-8 text-gray-300 dark:text-gray-400 border-t border-gray-800 dark:border-gray-900">
+                <div className="container mx-auto px-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                        <div>
+                            <div className="flex items-center mb-4">
+                                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mr-2">
+                                    <img
+                                        src="/logo.jpg"
+                                        alt="Dore Production Logo"
+                                        className="h-full w-full object-contain rounded-lg"
+                                    />
+                                </div>
+                                <h3 className="text-lg font-bold text-white">
+                                    Dore{" "}
+                                    <span className="text-red-700 dark:text-red-600">
+                                        Production
+                                    </span>
+                                </h3>
+                            </div>
+                            <p className="text-sm mb-4">
+                                Solusi pencahayaan profesional untuk produksi
+                                film, fotografi, dan acara.
+                            </p>
+                            <div className="flex space-x-3">
+                                <a
+                                    href="https://www.instagram.com/doreproduction/"
+                                    className="text-gray-400 hover:text-white transition-colors"
+                                >
+                                    <Instagram className="w-5 h-5" />
+                                </a>
+                                <a
+                                    href="https://www.facebook.com/Dorepro/"
+                                    className="text-gray-400 hover:text-white transition-colors"
+                                >
+                                    <Facebook className="w-5 h-5" />
+                                </a>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 className="font-medium text-white mb-3">
+                                Peralatan
+                            </h4>
+                            <ul className="space-y-2 text-sm">
+                                {categories.slice(0, 5).map((category) => (
+                                    <li key={category.id}>
+                                        <Link
+                                            href={`/peralatan/`}
+                                            className="hover:text-white transition-colors"
+                                        >
+                                            {category.nama_kategori}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="font-medium text-white mb-3">
+                                Links
+                            </h4>
+                            <ul className="space-y-2 text-sm">
+                                <li>
+                                    <a
+                                        href="./#tentang"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Tentang Kami
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="./#proyek"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Proyek
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="./#testimonial"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Testimonial
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="./#kontak"
+                                        className="hover:text-white transition-colors"
+                                    >
+                                        Kontak
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="font-medium text-white mb-3">
+                                Kontak
+                            </h4>
+                            <ul className="space-y-2 text-sm">
+                                <li className="flex items-start">
+                                    <MapPin className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
+                                    <span>
+                                        Jalan Sedap Malam Gg Rampai 1b no 22,
+                                        Denpasar, Indonesia, Bali
+                                    </span>
+                                </li>
+                                <li className="flex items-start">
+                                    <Mail className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
+                                    <span>info@doreproduction.id</span>
+                                </li>
+                                <li className="flex items-start">
+                                    <Phone className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
+                                    <span>0819-1640-2006</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="border-t border-gray-800 pt-6 text-center text-xs">
+                        <p>
+                            &copy; {new Date().getFullYear()} Dore Production.
+                            All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

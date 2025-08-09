@@ -1,3 +1,5 @@
+// Updated all-items.tsx with working pagination
+
 import { Head, Link } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -77,6 +79,10 @@ export default function AllItemsPage({
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isHeaderSticky, setIsHeaderSticky] = useState(false);
 
+    // Client-side pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 12;
+
     useEffect(() => {
         const handleScroll = () => {
             setIsHeaderSticky(window.scrollY > 50);
@@ -107,7 +113,39 @@ export default function AllItemsPage({
             filtered = filtered.filter((item) => item.status === statusFilter);
         }
         setFilteredItems(filtered);
+        setCurrentPage(1); // Reset to first page when filters change
     }, [items, searchTerm, selectedCategory, statusFilter]);
+
+    // Calculate pagination for filtered items
+    const totalFilteredItems = filteredItems.length;
+    const totalPages = Math.ceil(totalFilteredItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = filteredItems.slice(startIndex, endIndex);
+
+    // Generate page numbers to display
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxPagesToShow = 5;
+
+        if (totalPages <= maxPagesToShow) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(
+                totalPages,
+                startPage + maxPagesToShow - 1
+            );
+
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+        }
+
+        return pages;
+    };
 
     const getWhatsAppLink = (item: Item) =>
         `https://wa.me/089522734461?text=${encodeURIComponent(
@@ -130,6 +168,13 @@ export default function AllItemsPage({
         setSearchTerm("");
         setSelectedCategory("All");
         setStatusFilter("All");
+        setCurrentPage(1);
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        // Scroll to top when page changes
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     return (
@@ -274,345 +319,251 @@ export default function AllItemsPage({
                         </p>
                     </div>
                 ) : (
-                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filteredItems.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="bg-white dark:bg-gray-800 border rounded-lg shadow-sm hover:shadow-md group overflow-hidden transition-all"
-                                >
-                                    <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
-                                        {item.image ? (
-                                            <img
-                                                src={`/storage/${item.image}`}
-                                                alt={item.nama_barang}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                    <>
+                        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {currentItems.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="bg-white dark:bg-gray-800 border rounded-lg shadow-sm hover:shadow-md group overflow-hidden transition-all"
+                                    >
+                                        <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+                                            {item.image ? (
                                                 <img
-                                                    src={`/placeholders/${getCategorySlug(
-                                                        item.id_kategori
-                                                    )}-placeholder.jpg`}
+                                                    src={`/storage/${item.image}`}
                                                     alt={item.nama_barang}
-                                                    className="w-full h-full object-cover opacity-70"
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                                 />
-                                            </div>
-                                        )}
-                                        <span
-                                            className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-full flex items-center ${
-                                                item.status === "Tersedia"
-                                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                                    : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                            }`}
-                                        >
-                                            <CheckCircle className="w-3 h-3 mr-1" />
-                                            {item.status}
-                                        </span>
-                                        <DialogTrigger asChild>
-                                            <button
-                                                className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 p-2 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700"
-                                                onClick={() => {
-                                                    setSelectedItem(item);
-                                                    setIsOpen(true);
-                                                }}
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                        </DialogTrigger>
-                                    </div>
-                                    <div className="p-4">
-                                        <h3 className="font-semibold mb-1 line-clamp-1">
-                                            {item.nama_barang}
-                                        </h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                            {getCategoryName(item.id_kategori)}
-                                        </p>
-                                        <p className="text-xs mb-2 text-gray-500 dark:text-gray-400">
-                                            Stok: {item.jumlah}
-                                        </p>
-                                        {item.status === "Tersedia" ? (
-                                            <a
-                                                href={getWhatsAppLink(item)}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <Button className="w-full text-sm">
-                                                    <Phone className="w-4 h-4 mr-1" />
-                                                    Pesan Sekarang
-                                                </Button>
-                                            </a>
-                                        ) : (
-                                            <Button
-                                                disabled
-                                                className="w-full text-sm bg-gray-200 dark:bg-gray-700"
-                                            >
-                                                Tidak Tersedia
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <DialogContent className="w-full max-w-lg md:max-w-xl overflow-y-auto max-h-[90vh]">
-                            {selectedItem && (
-                                <>
-                                    <DialogHeader className="pb-4">
-                                        <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                            {selectedItem.nama_barang}
-                                        </DialogTitle>
-                                        <DialogDescription className="text-gray-500 dark:text-gray-400">
-                                            {getCategoryName(
-                                                selectedItem.id_kategori
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                                                    <img
+                                                        src={`/placeholders/${getCategorySlug(
+                                                            item.id_kategori
+                                                        )}-placeholder.jpg`}
+                                                        alt={item.nama_barang}
+                                                        className="w-full h-full object-cover opacity-70"
+                                                    />
+                                                </div>
                                             )}
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="relative aspect-video mb-4 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
-                                        {selectedItem.image ? (
-                                            <img
-                                                src={`/storage/${selectedItem.image}`}
-                                                alt={selectedItem.nama_barang}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <img
-                                                    src={`/placeholders/${getCategorySlug(
-                                                        selectedItem.id_kategori
-                                                    )}-placeholder.jpg`}
-                                                    alt={
-                                                        selectedItem.nama_barang
-                                                    }
-                                                    className="w-full h-full object-cover opacity-70"
-                                                />
-                                            </div>
-                                        )}
-                                        <div className="absolute top-3 left-3">
                                             <span
-                                                className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                                                    selectedItem.status ===
-                                                    "Tersedia"
+                                                className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-full flex items-center ${
+                                                    item.status === "Tersedia"
                                                         ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                                                         : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
                                                 }`}
                                             >
                                                 <CheckCircle className="w-3 h-3 mr-1" />
-                                                {selectedItem.status}
+                                                {item.status}
                                             </span>
+                                            <DialogTrigger asChild>
+                                                <button
+                                                    className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 p-2 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                    onClick={() => {
+                                                        setSelectedItem(item);
+                                                        setIsOpen(true);
+                                                    }}
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                            </DialogTrigger>
+                                        </div>
+                                        <div className="p-4">
+                                            <h3 className="font-semibold mb-1 line-clamp-1">
+                                                {item.nama_barang}
+                                            </h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                                {getCategoryName(
+                                                    item.id_kategori
+                                                )}
+                                            </p>
+                                            <p className="text-xs mb-2 text-gray-500 dark:text-gray-400">
+                                                Stok: {item.jumlah}
+                                            </p>
+                                            {item.status === "Tersedia" ? (
+                                                <a
+                                                    href={getWhatsAppLink(item)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <Button className="w-full text-sm">
+                                                        <Phone className="w-4 h-4 mr-1" />
+                                                        Pesan Sekarang
+                                                    </Button>
+                                                </a>
+                                            ) : (
+                                                <Button
+                                                    disabled
+                                                    className="w-full text-sm bg-gray-200 dark:bg-gray-700"
+                                                >
+                                                    Tidak Tersedia
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="overflow-y-auto">
-                                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                                            Deskripsi
-                                        </h4>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line mb-4">
-                                            {selectedItem.deskripsi ||
-                                                "Tidak ada deskripsi"}
-                                        </p>
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                    Stok Tersedia
-                                                </p>
-                                                <p className="text-lg font-bold">
-                                                    {selectedItem.jumlah} unit
-                                                </p>
-                                            </div>
-                                            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                                    Periode Sewa
-                                                </p>
-                                                <p className="text-lg font-bold">
-                                                    Harian
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {selectedItem.status === "Tersedia" && (
-                                        <a
-                                            href={getWhatsAppLink(selectedItem)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex-1"
-                                        >
-                                            <Button className="w-full">
-                                                <Phone className="w-4 h-4 mr-2" />
-                                                Pesan Sekarang
-                                            </Button>
-                                        </a>
-                                    )}
-                                </>
-                            )}
-                        </DialogContent>
-                    </Dialog>
-                )}
-
-                {total > per_page && (
-                    <div className="mt-8 flex flex-col items-center justify-between gap-4">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Menampilkan {(current_page - 1) * per_page + 1} -{" "}
-                            {Math.min(current_page * per_page, total)} dari{" "}
-                            {total} peralatan
-                        </div>
-                        <Pagination>
-                            <PaginationContent>
-                                <PaginationItem>
-                                    <PaginationPrevious
-                                        href={`?page=${current_page - 1}`}
-                                        isActive={current_page > 1}
-                                    />
-                                </PaginationItem>
-                                {Array.from(
-                                    { length: last_page },
-                                    (_, i) => i + 1
-                                ).map((page) => (
-                                    <PaginationItem key={page}>
-                                        <PaginationLink
-                                            href={`?page=${page}`}
-                                            isActive={page === current_page}
-                                        >
-                                            {page}
-                                        </PaginationLink>
-                                    </PaginationItem>
                                 ))}
-                                <PaginationItem>
-                                    <PaginationNext
-                                        href={`?page=${current_page + 1}`}
-                                        isActive={current_page < last_page}
-                                    />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
+                            </div>
+
+                            <DialogContent className="w-full max-w-lg md:max-w-xl overflow-y-auto max-h-[90vh]">
+                                {selectedItem && (
+                                    <>
+                                        <DialogHeader className="pb-4">
+                                            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                                {selectedItem.nama_barang}
+                                            </DialogTitle>
+                                            <DialogDescription className="text-gray-500 dark:text-gray-400">
+                                                {getCategoryName(
+                                                    selectedItem.id_kategori
+                                                )}
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="relative aspect-video mb-4 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                            {selectedItem.image ? (
+                                                <img
+                                                    src={`/storage/${selectedItem.image}`}
+                                                    alt={
+                                                        selectedItem.nama_barang
+                                                    }
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <img
+                                                        src={`/placeholders/${getCategorySlug(
+                                                            selectedItem.id_kategori
+                                                        )}-placeholder.jpg`}
+                                                        alt={
+                                                            selectedItem.nama_barang
+                                                        }
+                                                        className="w-full h-full object-cover opacity-70"
+                                                    />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-3 left-3">
+                                                <span
+                                                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
+                                                        selectedItem.status ===
+                                                        "Tersedia"
+                                                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                                                    }`}
+                                                >
+                                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                                    {selectedItem.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="overflow-y-auto">
+                                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                                Deskripsi
+                                            </h4>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line mb-4">
+                                                {selectedItem.deskripsi ||
+                                                    "Tidak ada deskripsi"}
+                                            </p>
+                                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                        Stok Tersedia
+                                                    </p>
+                                                    <p className="text-lg font-bold">
+                                                        {selectedItem.jumlah}{" "}
+                                                        unit
+                                                    </p>
+                                                </div>
+                                                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                        Periode Sewa
+                                                    </p>
+                                                    <p className="text-lg font-bold">
+                                                        Harian
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {selectedItem.status === "Tersedia" && (
+                                            <a
+                                                href={getWhatsAppLink(
+                                                    selectedItem
+                                                )}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex-1"
+                                            >
+                                                <Button className="w-full">
+                                                    <Phone className="w-4 h-4 mr-2" />
+                                                    Pesan Sekarang
+                                                </Button>
+                                            </a>
+                                        )}
+                                    </>
+                                )}
+                            </DialogContent>
+                        </Dialog>
+
+                        {/* Pagination - Updated to work with client-side filtering */}
+                        {totalPages > 1 && (
+                            <div className="mt-8 flex flex-col items-center justify-between gap-4">
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    Menampilkan {startIndex + 1} -{" "}
+                                    {Math.min(endIndex, totalFilteredItems)}{" "}
+                                    dari {totalFilteredItems} peralatan
+                                </div>
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                onClick={() =>
+                                                    currentPage > 1 &&
+                                                    handlePageChange(
+                                                        currentPage - 1
+                                                    )
+                                                }
+                                                className={
+                                                    currentPage <= 1
+                                                        ? "pointer-events-none opacity-50"
+                                                        : "cursor-pointer"
+                                                }
+                                            />
+                                        </PaginationItem>
+
+                                        {getPageNumbers().map((page) => (
+                                            <PaginationItem key={page}>
+                                                <PaginationLink
+                                                    onClick={() =>
+                                                        handlePageChange(page)
+                                                    }
+                                                    isActive={
+                                                        page === currentPage
+                                                    }
+                                                    className="cursor-pointer"
+                                                >
+                                                    {page}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                onClick={() =>
+                                                    currentPage < totalPages &&
+                                                    handlePageChange(
+                                                        currentPage + 1
+                                                    )
+                                                }
+                                                className={
+                                                    currentPage >= totalPages
+                                                        ? "pointer-events-none opacity-50"
+                                                        : "cursor-pointer"
+                                                }
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
+                        )}
+                    </>
                 )}
             </section>
-
-            <footer className="bg-gray-900 dark:bg-gray-950 py-8 text-gray-300 dark:text-gray-400 border-t border-gray-800 dark:border-gray-900">
-                <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                        <div>
-                            <div className="flex items-center mb-4">
-                                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mr-2">
-                                    <img
-                                        src="/logo.jpg"
-                                        alt="Dore Production Logo"
-                                        className="h-full w-full object-contain rounded-lg"
-                                    />
-                                </div>
-                                <h3 className="text-lg font-bold text-white">
-                                    Dore{" "}
-                                    <span className="text-red-700 dark:text-red-600">
-                                        Production
-                                    </span>
-                                </h3>
-                            </div>
-                            <p className="text-sm mb-4">
-                                Solusi pencahayaan profesional untuk produksi
-                                film, fotografi, dan acara.
-                            </p>
-                            <div className="flex space-x-3">
-                                <a
-                                    href="https://www.instagram.com/doreproduction/"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    <Instagram className="w-5 h-5" />
-                                </a>
-                                <a
-                                    href="https://www.facebook.com/Dorepro/"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    <Facebook className="w-5 h-5" />
-                                </a>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 className="font-medium text-white mb-3">
-                                Peralatan
-                            </h4>
-                            <ul className="space-y-2 text-sm">
-                                {categories.slice(0, 5).map((category) => (
-                                    <li key={category.id}>
-                                        <Link
-                                            href={`/peralatan/`}
-                                            className="hover:text-white transition-colors"
-                                        >
-                                            {category.nama_kategori}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium text-white mb-3">
-                                Links
-                            </h4>
-                            <ul className="space-y-2 text-sm">
-                                <li>
-                                    <a
-                                        href="./#tentang"
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        Tentang Kami
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="./#proyek"
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        Proyek
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="./#testimonial"
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        Testimonial
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        href="./#kontak"
-                                        className="hover:text-white transition-colors"
-                                    >
-                                        Kontak
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium text-white mb-3">
-                                Kontak
-                            </h4>
-                            <ul className="space-y-2 text-sm">
-                                <li className="flex items-start">
-                                    <MapPin className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
-                                    <span>
-                                        Jalan Sedap Malam Gg Rampai 1b no 22,
-                                        Denpasar, Indonesia, Bali
-                                    </span>
-                                </li>
-                                <li className="flex items-start">
-                                    <Mail className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
-                                    <span>info@doreproduction.id</span>
-                                </li>
-                                <li className="flex items-start">
-                                    <Phone className="w-4 h-4 mr-2 mt-0.5 shrink-0" />
-                                    <span>0819-1640-2006</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="border-t border-gray-800 pt-6 text-center text-xs">
-                        <p>
-                            &copy; {new Date().getFullYear()} Dore Production.
-                            All rights reserved.
-                        </p>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

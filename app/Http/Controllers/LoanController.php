@@ -345,4 +345,29 @@ class LoanController extends Controller
             return back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data peminjaman.']);
         }
     }
+    public function getFrequentlyRentedItems()
+    {
+        $frequentItemIds = Loan::select('id_barang', DB::raw('COUNT(*) as rental_count'))
+            ->groupBy('id_barang')
+            ->orderBy('rental_count', 'DESC')
+            ->limit(6)
+            ->pluck('id_barang');
+
+        return Item::with('category')
+            ->whereIn('id', $frequentItemIds)
+            ->where('status', 'Tersedia')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'nama_barang' => $item->nama_barang,
+                    'jumlah' => $item->jumlah,
+                    'status' => $item->status,
+                    'deskripsi' => $item->deskripsi,
+                    'id_kategori' => $item->id_kategori,
+                    'nama_kategori' => $item->category->nama_kategori ?? 'Tidak Ada Kategori',
+                    'image' => $item->image
+                ];
+            });
+    }
 }

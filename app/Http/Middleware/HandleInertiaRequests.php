@@ -27,9 +27,7 @@ class HandleInertiaRequests extends Middleware
         ];
     }
 
-    /**
-     * Render custom Inertia error pages from lowercase path.
-     */
+
     public function render($request, Throwable $e)
     {
         if ($e instanceof HttpExceptionInterface) {

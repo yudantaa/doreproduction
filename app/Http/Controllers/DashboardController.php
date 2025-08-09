@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\{Item, Loan};
+use App\Http\Controllers\LoanController;
+use Illuminate\Support\Facades\Auth;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+
+        $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
+        $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
+        $totalActiveLoans = Loan::where('status', 'Disewa')->count();
+        $totalOverdue = Loan::where('status', 'Disewa')
+            ->where('deadline_pengembalian', '<', now())
+            ->count();
+
+        $loanController = new LoanController();
+        $monthlyLoanData = $loanController->getMonthlyStatistics();
+
+        return inertia('dashboard', [
+            'userName' => $user->name,
+            'totalAvailable' => $totalAvailable,
+            'totalUnavailable' => $totalUnavailable,
+            'totalActiveLoans' => $totalActiveLoans,
+            'totalOverdue' => $totalOverdue,
+            'monthlyLoanData' => $monthlyLoanData,
+        ]);
+    }
+}

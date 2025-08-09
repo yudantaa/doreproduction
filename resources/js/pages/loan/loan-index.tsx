@@ -134,11 +134,18 @@ export default function LoanIndex({
                         </Select>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <DataTable
-                            columns={columns(items, isSuperAdmin)}
-                            data={filteredLoans}
-                        />
+                    {/* Scrollable table container */}
+                    <div className="border rounded-lg overflow-hidden">
+                        <div className="relative h-[calc(100vh-300px)]">
+                            {" "}
+                            {/* Adjust height as needed */}
+                            <div className="absolute inset-0 overflow-auto">
+                                <DataTable
+                                    columns={columns(items, isSuperAdmin)}
+                                    data={filteredLoans}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

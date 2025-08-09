@@ -8,6 +8,7 @@ import {
     AlertTriangle,
     CheckCircle,
     XCircle,
+    Download,
 } from "lucide-react";
 import { MonthlyChart } from "./charts/monthly-chart";
 import { useState, useMemo } from "react";
@@ -19,6 +20,13 @@ import {
     CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface DashboardProps extends PageProps {
     totalAvailable: number;
@@ -114,6 +122,89 @@ export default function Dashboard({
             return yearMatch && monthMatch;
         });
     }, [monthlyLoanData, selectedYear, selectedMonth]);
+
+    // Function to export data as CSV
+    const exportToCSV = (data: any[], filename: string) => {
+        const headers = Object.keys(data[0]).join(",");
+        const rows = data.map((item) => Object.values(item).join(","));
+        const csvContent = [headers, ...rows].join("\n");
+
+        const blob = new Blob([csvContent], {
+            type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `${filename}.csv`);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Function to export chart data
+    const exportChartData = () => {
+        const dataToExport = filteredData.map((item) => ({
+            Bulan: item.bulan,
+            "Total Peminjaman": item.total,
+            "Peminjaman Aktif": item.aktif,
+            Dikembalikan: item.dikembalikan,
+            Dibatalkan: item.dibatalkan,
+            "Terlambat Dikembalikan": item.terlambat,
+        }));
+        exportToCSV(
+            dataToExport,
+            `statistik-peminjaman-${selectedYear}-${selectedMonth}`
+        );
+    };
+
+    // Function to export summary data
+    const exportSummaryData = (period: "monthly" | "yearly") => {
+        let dataToExport;
+
+        if (period === "monthly") {
+            dataToExport = monthlyLoanData.map((item) => ({
+                Bulan: item.bulan,
+                "Total Peminjaman": item.total,
+                "Peminjaman Aktif": item.aktif,
+                Dikembalikan: item.dikembalikan,
+                Dibatalkan: item.dibatalkan,
+                "Terlambat Dikembalikan": item.terlambat,
+            }));
+        } else {
+            // Group by year
+            const yearlyData = monthlyLoanData.reduce((acc, item) => {
+                const { year } = parseBulanString(item.bulan);
+                if (!year) return acc;
+
+                if (!acc[year]) {
+                    acc[year] = {
+                        Tahun: year,
+                        "Total Peminjaman": 0,
+                        "Peminjaman Aktif": 0,
+                        Dikembalikan: 0,
+                        Dibatalkan: 0,
+                        "Terlambat Dikembalikan": 0,
+                    };
+                }
+
+                acc[year]["Total Peminjaman"] += item.total;
+                acc[year]["Peminjaman Aktif"] += item.aktif;
+                acc[year]["Dikembalikan"] += item.dikembalikan;
+                acc[year]["Dibatalkan"] += item.dibatalkan;
+                acc[year]["Terlambat Dikembalikan"] += item.terlambat;
+
+                return acc;
+            }, {} as Record<string, any>);
+
+            dataToExport = Object.values(yearlyData);
+        }
+
+        exportToCSV(
+            dataToExport,
+            `ringkasan-${period === "monthly" ? "bulanan" : "tahunan"}`
+        );
+    };
 
     return (
         <AuthenticatedLayout header="Dashboard">
@@ -226,12 +317,49 @@ export default function Dashboard({
                 {/* Compact Chart Section */}
                 <Card className="hover:shadow-md transition-shadow mt-2">
                     <CardHeader className="p-4 pb-2">
-                        <CardTitle className="text-sm">
-                            Statistik Peminjaman
-                        </CardTitle>
-                        <CardDescription className="text-xs">
-                            Ringkasan aktivitas peminjaman per bulan
-                        </CardDescription>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <CardTitle className="text-sm">
+                                    Statistik Peminjaman
+                                </CardTitle>
+                                <CardDescription className="text-xs">
+                                    Ringkasan aktivitas peminjaman per bulan
+                                </CardDescription>
+                            </div>
+                            {/* <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 gap-1"
+                                    >
+                                        <Download className="h-3.5 w-3.5" />
+                                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                            Export
+                                        </span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={exportChartData}>
+                                        Export Data Chart
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            exportSummaryData("monthly")
+                                        }
+                                    >
+                                        Export Ringkasan Bulanan
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            exportSummaryData("yearly")
+                                        }
+                                    >
+                                        Export Ringkasan Tahunan
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu> */}
+                        </div>
                     </CardHeader>
                     <CardContent className="p-4 pt-0 h-[280px]">
                         <MonthlyChart

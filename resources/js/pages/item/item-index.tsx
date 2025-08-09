@@ -103,10 +103,19 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                         </Select>
                     </div>
 
-                    <DataTable
-                        columns={columns(categories)}
-                        data={filteredItems}
-                    />
+                    {/* Add scrollable container */}
+                    <div className="border rounded-lg overflow-hidden">
+                        <div className="relative h-[calc(100vh-300px)]">
+                            {" "}
+                            {/* Adjust height as needed */}
+                            <div className="absolute inset-0 overflow-auto">
+                                <DataTable
+                                    columns={columns(categories)}
+                                    data={filteredItems}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

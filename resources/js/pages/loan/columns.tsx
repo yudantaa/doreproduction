@@ -157,7 +157,7 @@ export const columns = (
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    <ClockIcon className="mr-2 h-4 w-4" /> Deadline
+                    Deadline
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
@@ -221,6 +221,7 @@ export const columns = (
     },
     {
         id: "actions",
+        header: "Aksi",
         cell: ({ row }) => {
             const loan = row.original;
             const { toast } = useToast();
@@ -275,7 +276,7 @@ export const columns = (
                         `loans/${loan.id}/return`,
                         {
                             return_time: returnTime,
-                            id_barang: loan.id_barang, // Ensure item ID is included
+                            id_barang: loan.id_barang,
                         },
                         {
                             onSuccess: () => {

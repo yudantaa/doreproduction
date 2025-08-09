@@ -71,7 +71,7 @@ export default function LoanIndex({
             <Head title="Manajemen Peminjaman" />
 
             <div className="flex-1 rounded-xl h-full">
-                <div className="mx-auto py-10 rounded-xl w-11/12 max-w-7xl">
+                <div className="mx-auto py-10 px-4 sm:px-6 lg:px-8 rounded-xl w-full max-w-[1800px]">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
                         <h1 className="text-2xl font-bold">
                             Manajemen Peminjaman
@@ -134,18 +134,14 @@ export default function LoanIndex({
                         </Select>
                     </div>
 
-                    {/* Scrollable table container */}
-                    <div className="border rounded-lg overflow-hidden">
-                        <div className="relative h-[calc(100vh-300px)]">
-                            {" "}
-                            {/* Adjust height as needed */}
-                            <div className="absolute inset-0 overflow-auto">
-                                <DataTable
-                                    columns={columns(items, isSuperAdmin)}
-                                    data={filteredLoans}
-                                />
-                            </div>
-                        </div>
+                    {/* Table container with responsive width */}
+                    <div className="border rounded-lg w-full h-[calc(100vh-300px)] min-h-[400px]">
+                        <DataTable
+                            columns={columns(items, isSuperAdmin)}
+                            data={filteredLoans}
+                            pageSize={5}
+                            pageSizeOptions={[5, 10, 20, 50]}
+                        />
                     </div>
                 </div>
             </div>

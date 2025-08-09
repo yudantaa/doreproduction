@@ -65,9 +65,14 @@ class LoansSeeder extends Seeder
                 // Determine status:
                 // - If return date is in the future -> Disewa (still rented)
                 // - If returned on/before deadline -> Dikembalikan
-                // - If returned after deadline -> Terlambat
+                // - If would have been late, now randomly choose between Dibatalkan or Disewa
                 if ($returnDate->lte(Carbon::now())) {
-                    $status = $returnDate->lte($deadline) ? 'Dikembalikan' : 'Terlambat';
+                    if ($returnDate->lte($deadline)) {
+                        $status = 'Dikembalikan';
+                    } else {
+                        // Replace "Terlambat" with either "Dibatalkan" or "Disewa"
+                        $status = rand(0, 1) ? 'Dibatalkan' : 'Disewa';
+                    }
                     $updatedAt = $returnDate->toDateTimeString();
                 } else {
                     $status = 'Disewa';

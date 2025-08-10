@@ -56,8 +56,7 @@ export function DataTable<TData, TValue>({
                                 {headerGroup.headers.map((header) => (
                                     <TableHead
                                         key={header.id}
-                                        className="sticky top-0 z-20 bg-white text-sm border-b"
-                                        style={{ background: "white" }}
+                                        className="sticky top-0 z-20 bg-background text-sm border-b"
                                     >
                                         {header.isPlaceholder
                                             ? null

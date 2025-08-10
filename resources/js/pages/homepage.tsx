@@ -290,15 +290,14 @@ export default function HomePage({
                                 </a>
                             </div>
                         </div>
-                        <div className="aspect-video w-full md:w-1/2 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-                            <video
-                                src="/banner-video.mp4"
-                                className="w-full h-full object-cover"
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
-                            />
+                        <div className="w-full lg:w-1/2">
+                            <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                                <img
+                                    src="/banner-video.webp"
+                                    className="w-full h-full object-cover"
+                                    alt="Banner"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -699,16 +698,11 @@ export default function HomePage({
                         </div>
                         <div className="w-full lg:w-1/2">
                             <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                                <video
-                                    src="/banner-video.mp4"
+                                <img
+                                    src="/banner-video.webp"
                                     className="w-full h-full object-cover"
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                >
-                                    Your browser does not support the video tag.
-                                </video>
+                                    alt="Banner"
+                                />
                             </div>
                         </div>
                     </div>

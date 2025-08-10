@@ -42,6 +42,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { usePage } from "@inertiajs/react";
 
 export type User = {
     id: string;
@@ -138,6 +139,9 @@ export const columns: ColumnDef<User>[] = [
             const { toast } = useToast();
             const roles = ["ADMIN", "SUPER ADMIN"];
             const [showPassword, setShowPassword] = useState(false);
+            const { auth } = usePage().props as any;
+            const isCurrentUser = auth.user.id === user.id;
+            const isSuperAdmin = auth.user.role === "SUPER ADMIN";
 
             const openDialog = () => setFormData({ ...user });
             const closeDialog = () => setFormData(null);
@@ -186,7 +190,10 @@ export const columns: ColumnDef<User>[] = [
                                 <DropdownMenuSeparator></DropdownMenuSeparator>
 
                                 <AlertDialogTrigger>
-                                    <DropdownMenuItem className="text-red-600">
+                                    <DropdownMenuItem
+                                        className="text-red-600"
+                                        disabled={isCurrentUser && isSuperAdmin}
+                                    >
                                         Hapus Data
                                     </DropdownMenuItem>
                                 </AlertDialogTrigger>
@@ -210,6 +217,15 @@ export const columns: ColumnDef<User>[] = [
                                 <AlertDialogAction
                                     className="bg-red-600"
                                     onClick={() => {
+                                        if (isCurrentUser && isSuperAdmin) {
+                                            toast({
+                                                title: "Tidak dapat menghapus akun sendiri",
+                                                description:
+                                                    "Super Admin tidak dapat menghapus akun sendiri",
+                                                variant: "destructive",
+                                            });
+                                            return;
+                                        }
                                         router.delete(`users/${user.id}`, {
                                             onSuccess: () => {
                                                 toast({

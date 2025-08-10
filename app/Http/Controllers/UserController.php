@@ -22,7 +22,13 @@ class UserController extends Controller
                 'email' => $user->email,
                 'created_at' => $user->created_at->format('Y-m-d H:i:s'),
                 'role' => $user->role ?? 'User'
-            ])
+            ]),
+            'auth' => [
+                'user' => [
+                    'id' => auth()->id(),
+                    'role' => auth()->user()->role
+                ]
+            ]
         ]);
     }
 
@@ -79,14 +85,12 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => "required|email|unique:users,email,{$user->id}",
-            // 'password' => 'nullable|string|min:8|confirmed',
             'role' => 'nullable|string|max:255',
         ]);
 
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            // 'password' => $validated['password'] ? Hash::make($validated['password']) : $user->password,
             'role' => $validated['role'] ?? $user->role,
         ]);
 
@@ -98,6 +102,11 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        // Prevent SUPER ADMIN from deleting their own account
+        if ($user->id === auth()->id() && $user->role === 'SUPER ADMIN') {
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun SUPER ADMIN sendiri');
+        }
+
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\{Item, Loan};
 use App\Http\Controllers\LoanController;
+use App\Models\BrokenItemReport;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -19,6 +20,10 @@ class DashboardController extends Controller
             ->where('deadline_pengembalian', '<', now())
             ->count();
 
+
+        $totalBrokenItems = BrokenItemReport::count();
+        $pendingRepairs = BrokenItemReport::where('status', 'reported')->count();
+
         $loanController = new LoanController();
         $monthlyLoanData = $loanController->getMonthlyStatistics();
 
@@ -28,6 +33,8 @@ class DashboardController extends Controller
             'totalUnavailable' => $totalUnavailable,
             'totalActiveLoans' => $totalActiveLoans,
             'totalOverdue' => $totalOverdue,
+            'totalBrokenItems' => $totalBrokenItems,
+            'pendingRepairs' => $pendingRepairs,
             'monthlyLoanData' => $monthlyLoanData,
         ]);
     }

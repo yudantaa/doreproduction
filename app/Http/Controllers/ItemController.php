@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\BrokenItemReport;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class ItemController extends Controller
     {
         $totalAvailable = Item::where('status', 'Tersedia')->sum('jumlah');
         $totalUnavailable = Item::where('status', 'Tidak Tersedia')->sum('jumlah');
+        $totalOnHold = Item::where('status', 'Sedang Ditahan')->sum('jumlah');
 
         return Inertia::render('item/item-index', [
             'items' => Item::with('category')->get()->map(fn($item) => [
@@ -48,7 +50,7 @@ class ItemController extends Controller
         $validatedData = $request->validate([
             'nama_barang' => 'required|string|max:255',
             'jumlah' => 'required|integer|min:0',
-            'status' => 'required|in:Tersedia,Tidak Tersedia',
+            'status' => 'required|in:Tersedia,Tidak Tersedia,Sedang Ditahan',
             'deskripsi' => 'nullable|string',
             'id_kategori' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,webp|max:5120' // 5MB max
@@ -70,26 +72,31 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
+        // Check if item has active broken reports
+        $hasActiveReports = BrokenItemReport::where('item_id', $item->id)
+            ->whereIn('status', ['reported', 'repair_requested', 'in_repair'])
+            ->exists();
+
+        if ($hasActiveReports || $item->status === 'Sedang Ditahan') {
+            return back()->with('error', 'Item ini sedang dalam proses diperbaiki/ditahan dan tidak dapat diubah');
+        }
+
         $validatedData = $request->validate([
             'nama_barang' => 'required|string|max:255',
             'jumlah' => 'required|integer|min:0',
-            'status' => 'required|in:Tersedia,Tidak Tersedia',
+            'status' => 'required|in:Tersedia,Tidak Tersedia,Sedang Ditahan',
             'deskripsi' => 'nullable|string',
             'id_kategori' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,webp|max:5120' // 5MB max
+            'image' => 'nullable|image|mimes:jpeg,png,webp|max:5120'
         ]);
 
         // Handle image upload/update
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($item->image && Storage::disk('public')->exists($item->image)) {
                 Storage::disk('public')->delete($item->image);
             }
-            // Store new image
             $imagePath = $request->file('image')->store('items', 'public');
             $validatedData['image'] = $imagePath;
-
-
         }
 
         $item->update($validatedData);
@@ -97,11 +104,19 @@ class ItemController extends Controller
         return redirect()->route('items.index')->with('success', 'Item updated successfully.');
     }
 
-    /**
-     * Remove the specified item.
-     */
     public function destroy(Item $item)
     {
+        $hasReports = BrokenItemReport::where('item_id', $item->id)->exists();
+
+        if ($hasReports) {
+            return redirect()->route('items.index')
+                ->with('error', 'Item ini memiliki laporan kerusakan dan tidak dapat dihapus');
+        }
+
+        if ($item->image && Storage::disk('public')->exists($item->image)) {
+            Storage::disk('public')->delete($item->image);
+        }
+
         $item->delete();
 
         return redirect()->route('items.index')->with('success', 'Item deleted successfully.');

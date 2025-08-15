@@ -4,19 +4,28 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserHasRole
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
-        if ($user && empty($user->role)) {
-            throw new HttpException(403);
+        // If no user or user has no role
+        if (!$user || empty($user->role)) {
+            abort(Response::HTTP_FORBIDDEN);
         }
 
+        // If called as 'has.role' middleware without parameters
+        if (empty($roles)) {
+            return $next($request);
+        }
+
+        // If specific roles are provided, check if user has one of them
+        if (!in_array($user->role, $roles)) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
 
         return $next($request);
     }

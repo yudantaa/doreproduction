@@ -41,12 +41,16 @@ const data = {
             isActive: true,
             items: [
                 {
-                    title: "List Barang",
+                    title: "Barang",
                     url: "/dashboard/items",
                 },
                 {
-                    title: "List Kategori",
+                    title: "Kategori",
                     url: "/dashboard/categories",
+                },
+                {
+                    title: "Kerusakan Barang",
+                    url: "/dashboard/broken-items",
                 },
             ],
         },

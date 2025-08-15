@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
+    // In app.php
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
@@ -19,7 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'has.role' => EnsureUserHasRole::class,
+            'has.role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            'superadmin' => \App\Http\Middleware\SuperAdminOnly::class,
             'isSuperAdmin' => \App\Http\Middleware\SuperAdminOnly::class,
         ]);
     })

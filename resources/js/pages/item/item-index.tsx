@@ -22,6 +22,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Category } from "../category/columns";
+import { useForm } from "@inertiajs/react";
+import { useToast } from "@/components/hooks/use-toast";
 
 interface ItemsPageProps {
     items: Item[];
@@ -32,12 +34,22 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const [nameFilter, setNameFilter] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("All");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const { toast } = useToast();
 
     const filteredItems = items.filter(
         (item) =>
             item.nama_barang.toLowerCase().includes(nameFilter.toLowerCase()) &&
-            (categoryFilter === "All" || item.id_kategori === categoryFilter)
+            (categoryFilter === "All" || item.id_kategori === categoryFilter) &&
+            (statusFilter === "All" || item.status === statusFilter)
     );
+
+    const statusOptions = [
+        { value: "All", label: "Semua Status" },
+        { value: "Tersedia", label: "Tersedia" },
+        { value: "Tidak Tersedia", label: "Tidak Tersedia" },
+        { value: "Sedang Ditahan", label: "Sedang Ditahan" },
+    ];
 
     return (
         <AuthenticatedLayout header={"Manajemen Barang"}>
@@ -101,13 +113,29 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                                 ))}
                             </SelectContent>
                         </Select>
+
+                        <Select
+                            value={statusFilter}
+                            onValueChange={setStatusFilter}
+                        >
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Pilih Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statusOptions.map((status) => (
+                                    <SelectItem
+                                        key={status.value}
+                                        value={status.value}
+                                    >
+                                        {status.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
-                    {/* Add scrollable container */}
                     <div className="border rounded-lg overflow-hidden">
                         <div className="relative h-[calc(100vh-300px)]">
-                            {" "}
-                            {/* Adjust height as needed */}
                             <div className="absolute inset-0 overflow-auto">
                                 <DataTable
                                     columns={columns(categories)}

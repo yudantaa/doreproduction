@@ -92,7 +92,7 @@ class LoanController extends Controller
                 return $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);
             });
 
-        // Daftar nama bulan dalam Bahasa Indonesia
+
         $monthNames = [
             1 => 'Januari',
             2 => 'Februari',

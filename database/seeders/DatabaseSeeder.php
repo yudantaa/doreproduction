@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             CategoriesSeeder::class,
             ItemsSeeder::class,
             LoansSeeder::class,
+            BrokenItemReportsSeeder::class
         ]);
 
     }

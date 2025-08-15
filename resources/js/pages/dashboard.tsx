@@ -33,6 +33,8 @@ interface DashboardProps extends PageProps {
     totalUnavailable: number;
     totalActiveLoans: number;
     totalOverdue: number;
+    totalBrokenItems: number;
+    pendingRepairs: number;
     userName: string;
     monthlyLoanData: Array<{
         bulan: string;
@@ -49,6 +51,8 @@ export default function Dashboard({
     totalUnavailable,
     totalActiveLoans,
     totalOverdue,
+    totalBrokenItems,
+    pendingRepairs,
     userName,
     monthlyLoanData,
 }: DashboardProps) {
@@ -247,6 +251,30 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
 
+                    {/* Broken Items Card */}
+                    <Card className="hover:shadow-md transition-shadow h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                            <CardTitle className="text-xs font-medium">
+                                Barang Rusak
+                            </CardTitle>
+                            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold">
+                                {totalBrokenItems}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                <Badge
+                                    variant="destructive"
+                                    className="mr-1 text-xs"
+                                >
+                                    {pendingRepairs}
+                                </Badge>
+                                menunggu perbaikan
+                            </p>
+                        </CardContent>
+                    </Card>
+
                     {/* Active Loans */}
                     <Card className="hover:shadow-md transition-shadow h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
@@ -275,7 +303,7 @@ export default function Dashboard({
                     <Card className="hover:shadow-md transition-shadow h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
                             <CardTitle className="text-xs font-medium">
-                                Dikembalikan
+                                Selesai
                             </CardTitle>
                             <CheckCircle className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
@@ -287,7 +315,7 @@ export default function Dashboard({
                                 )}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                Total pengembalian bulan ini
+                                Total selesai bulan ini
                             </p>
                         </CardContent>
                     </Card>

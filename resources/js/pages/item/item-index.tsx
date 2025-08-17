@@ -3,7 +3,7 @@ import { Item, columns } from "./columns";
 import { DataTable } from "@/components/ui/data-table";
 import { Head } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { AddItemForm } from "./create-form";
@@ -55,22 +55,39 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
         <AuthenticatedLayout header={"Manajemen Barang"}>
             <Head title="Manajemen Barang" />
 
-            <div className="flex-1 rounded-xl h-full">
-                <div className="mx-auto py-10 rounded-xl w-11/12">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-                        <h1 className="text-2xl font-bold">Manajemen Barang</h1>
+            <div className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
+                <div className="mx-auto w-full max-w-7xl space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                                Manajemen Barang
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                Kelola data barang inventori dengan mudah
+                            </p>
+                        </div>
+
                         <Dialog
                             open={isRegisterModalOpen}
                             onOpenChange={setIsRegisterModalOpen}
                         >
                             <DialogTrigger asChild>
-                                <Button className="btn btn-primary">
-                                    <PlusIcon className="mr-2 h-4 w-4" /> Tambah
-                                    Barang Baru
+                                <Button
+                                    className="w-full sm:w-auto"
+                                    size="default"
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Tambah Barang Baru
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-lg w-full max-h-[90vh] overflow-hidden">
-                                <div className="overflow-y-auto max-h-[calc(90vh-8rem)] pr-2">
+                            <DialogContent className="w-[95vw] max-w-lg sm:w-full">
+                                <DialogHeader>
+                                    <DialogTitle className="text-left">
+                                        Tambah Barang Baru
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <div className="max-h-[70vh] overflow-y-auto pr-1">
                                     <AddItemForm
                                         onClose={() =>
                                             setIsRegisterModalOpen(false)
@@ -82,66 +99,81 @@ export default function ItemsIndex({ items, categories }: ItemsPageProps) {
                         </Dialog>
                     </div>
 
-                    <div className="flex flex-col md:flex-row md:items-center md:space-x-4 py-4 gap-2">
-                        <Input
-                            placeholder="Filter berdasarkan nama..."
-                            value={nameFilter}
-                            onChange={(event) =>
-                                setNameFilter(event.target.value)
-                            }
-                            className="max-w-sm"
-                        />
-
-                        <Select
-                            value={categoryFilter}
-                            onValueChange={setCategoryFilter}
-                        >
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Pilih Kategori" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="All">
-                                    Semua Kategori
-                                </SelectItem>
-                                {categories.map((category) => (
-                                    <SelectItem
-                                        key={category.id}
-                                        value={category.id}
-                                    >
-                                        {category.nama_kategori}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
-                        <Select
-                            value={statusFilter}
-                            onValueChange={setStatusFilter}
-                        >
-                            <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Pilih Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {statusOptions.map((status) => (
-                                    <SelectItem
-                                        key={status.value}
-                                        value={status.value}
-                                    >
-                                        {status.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="border rounded-lg overflow-hidden">
-                        <div className="relative h-[calc(100vh-300px)]">
-                            <div className="absolute inset-0 overflow-auto">
-                                <DataTable
-                                    columns={columns(categories)}
-                                    data={filteredItems}
+                    {/* Filters */}
+                    <div className="rounded-lg border border-border bg-card p-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    placeholder="Cari berdasarkan nama barang..."
+                                    value={nameFilter}
+                                    onChange={(event) =>
+                                        setNameFilter(event.target.value)
+                                    }
+                                    className="pl-9"
                                 />
                             </div>
+
+                            <Select
+                                value={categoryFilter}
+                                onValueChange={setCategoryFilter}
+                            >
+                                <SelectTrigger className="w-full sm:w-48">
+                                    <SelectValue placeholder="Filter Kategori" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All">
+                                        Semua Kategori
+                                    </SelectItem>
+                                    {categories.map((category) => (
+                                        <SelectItem
+                                            key={category.id}
+                                            value={category.id}
+                                        >
+                                            {category.nama_kategori}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            <Select
+                                value={statusFilter}
+                                onValueChange={setStatusFilter}
+                            >
+                                <SelectTrigger className="w-full sm:w-48">
+                                    <SelectValue placeholder="Filter Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statusOptions.map((status) => (
+                                        <SelectItem
+                                            key={status.value}
+                                            value={status.value}
+                                        >
+                                            {status.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Results count */}
+                        <div className="mt-3 pt-3 border-t border-border">
+                            <p className="text-sm text-muted-foreground">
+                                Menampilkan {filteredItems.length} dari{" "}
+                                {items.length} data
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Data Table */}
+                    <div className="rounded-lg border border-border bg-card">
+                        <div className="h-[calc(100vh-20rem)] min-h-[400px]">
+                            <DataTable
+                                columns={columns(categories)}
+                                data={filteredItems}
+                                pageSize={10}
+                                pageSizeOptions={[5, 10, 20, 50]}
+                            />
                         </div>
                     </div>
                 </div>

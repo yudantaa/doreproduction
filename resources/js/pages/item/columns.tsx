@@ -101,7 +101,6 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     }
                 >
                     Nama Barang
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
@@ -117,7 +116,6 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     }
                 >
                     Status
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
@@ -175,7 +173,6 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     }
                 >
                     Waktu Ditambahkan
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },

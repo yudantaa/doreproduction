@@ -32,7 +32,6 @@ export const columns = (
                     }
                 >
                     Nama Barang
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
@@ -60,7 +59,6 @@ export const columns = (
                     }
                 >
                     Status
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },

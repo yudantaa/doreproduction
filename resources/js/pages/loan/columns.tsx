@@ -4,18 +4,16 @@ import { Button } from "@/components/ui/button";
 import {
     ArrowUpDown,
     MoreHorizontal,
-    EditIcon,
-    CheckCheckIcon,
-    UserIcon,
-    PackageIcon,
-    ContactIcon,
-    CalendarIcon,
-    ClockIcon,
-    CircleHelpIcon,
-    XIcon,
-    TrashIcon,
+    Edit,
+    Check,
+    X,
+    Trash2,
     Calendar,
     Clock,
+    Phone,
+    User,
+    Package,
+    AlertTriangle,
 } from "lucide-react";
 import { useFormState } from "@/utilities/form-utilities";
 import { useToast } from "@/components/hooks/use-toast";
@@ -66,7 +64,11 @@ type Item = {
 };
 
 const formatDate = (date: Date) => {
-    return format(new Date(date), "d MMMM yyyy", { locale: id });
+    return format(new Date(date), "d MMM yyyy", { locale: id });
+};
+
+const formatDateTime = (date: Date) => {
+    return format(new Date(date), "d MMM yyyy, HH:mm", { locale: id });
 };
 
 export const columns = (
@@ -74,94 +76,100 @@ export const columns = (
     isSuperAdmin: boolean
 ): ColumnDef<Loan>[] => [
     {
-        header: "Nomor",
-        cell: ({ row }) => {
-            return <div className="font-medium">{row.index + 1}</div>;
-        },
+        header: "No",
+        cell: ({ row }) => (
+            <div className="w-8 text-center text-sm font-medium text-muted-foreground">
+                {row.index + 1}
+            </div>
+        ),
     },
     {
         accessorKey: "nama_penyewa",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    <UserIcon className="mr-2 h-4 w-4" /> Nama Penyewa
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="h-auto p-0 font-medium"
+            >
+                <User className="mr-2 h-4 w-4" />
+                Penyewa
+            </Button>
+        ),
+        cell: ({ row }) => (
+            <div className="min-w-[120px]">
+                <div className="font-medium text-foreground">
+                    {row.original.nama_penyewa}
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                    <Phone className="mr-1 h-3 w-3" />
+                    <a
+                        href={`https://wa.me/${row.original.no_tlp_penyewa}`}
+                        className="hover:text-primary transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {row.original.no_tlp_penyewa}
+                    </a>
+                </div>
+            </div>
+        ),
     },
     {
         accessorKey: "nama_barang",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    <PackageIcon className="mr-2 h-4 w-4" /> Barang
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-    },
-    {
-        accessorKey: "no_tlp_penyewa",
-        header: () => {
-            return (
-                <div className="flex items-center">
-                    <ContactIcon className="mr-2 h-4 w-4" />
-                    Kontak
-                </div>
-            );
-        },
-        cell: ({ row }) => (
-            <a
-                href={`https://wa.me/${row.original.no_tlp_penyewa}`}
-                className="text-blue-600 hover:underline"
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="h-auto p-0 font-medium"
             >
-                {row.original.no_tlp_penyewa}
-            </a>
+                <Package className="mr-2 h-4 w-4" />
+                Barang
+            </Button>
+        ),
+        cell: ({ row }) => (
+            <div className="min-w-[100px] font-medium text-foreground">
+                {row.original.nama_barang}
+            </div>
         ),
     },
     {
         accessorKey: "tanggal_sewa",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4" /> Tanggal Sewa
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => formatDate(row.original.tanggal_sewa),
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="h-auto p-0 font-medium"
+            >
+                <Calendar className="mr-2 h-4 w-4" />
+                Tanggal Sewa
+            </Button>
+        ),
+        cell: ({ row }) => (
+            <div className="min-w-[100px] text-sm text-muted-foreground">
+                {formatDate(row.original.tanggal_sewa)}
+            </div>
+        ),
     },
     {
         accessorKey: "deadline_pengembalian",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    Deadline
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="h-auto p-0 font-medium"
+            >
+                <Clock className="mr-2 h-4 w-4" />
+                Deadline
+            </Button>
+        ),
         cell: ({ row }) => {
             const deadline = new Date(row.original.deadline_pengembalian);
             const today = new Date();
@@ -169,50 +177,68 @@ export const columns = (
                 row.original.status === "Disewa" && deadline < today;
 
             return (
-                <span className={isOverdue ? "text-red-600 font-medium" : ""}>
-                    {formatDate(deadline)}
-                </span>
+                <div className="min-w-[100px]">
+                    <div
+                        className={`text-sm ${
+                            isOverdue
+                                ? "text-destructive font-medium"
+                                : "text-muted-foreground"
+                        }`}
+                    >
+                        {formatDate(deadline)}
+                    </div>
+                    {isOverdue && (
+                        <div className="flex items-center text-xs text-destructive">
+                            <AlertTriangle className="mr-1 h-3 w-3" />
+                            Terlambat
+                        </div>
+                    )}
+                </div>
             );
         },
     },
     {
         accessorKey: "tanggal_kembali",
-        header: "Waktu Pengembalian",
+        header: "Dikembalikan",
         cell: ({ row }) => {
             const tanggalKembali = row.original.tanggal_kembali;
-            return tanggalKembali
-                ? format(new Date(tanggalKembali), "d MMMM yyyy HH:mm", {
-                      locale: id,
-                  })
-                : "-";
+            return (
+                <div className="min-w-[120px] text-sm text-muted-foreground">
+                    {tanggalKembali
+                        ? formatDateTime(new Date(tanggalKembali))
+                        : "-"}
+                </div>
+            );
         },
     },
     {
         accessorKey: "status",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                >
-                    <CircleHelpIcon className="mr-2 h-4 w-4" /> Status
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="h-auto p-0 font-medium"
+            >
+                Status
+            </Button>
+        ),
         cell: ({ getValue }) => {
             const status = getValue() as Loan["status"];
-            const styles: Record<Loan["status"], string> = {
-                Disewa: "bg-yellow-100 text-yellow-800 border-yellow-300",
-                Dikembalikan: "bg-green-100 text-green-800 border-green-300",
-                Dibatalkan: "bg-red-100 text-red-800 border-red-300",
+            const variants = {
+                Disewa: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
+                Dikembalikan:
+                    "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800",
+                Dibatalkan:
+                    "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
             };
 
             return (
                 <div
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status]}`}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
+                        variants[status as keyof typeof variants]
+                    }`}
                 >
                     {status}
                 </div>
@@ -281,6 +307,7 @@ export const columns = (
                         {
                             onSuccess: () => {
                                 toast({
+                                    title: "Berhasil",
                                     description: "Barang berhasil dikembalikan",
                                 });
                                 setIsReturnDialogOpen(false);
@@ -315,14 +342,22 @@ export const columns = (
                             ? `loans/${loan.id}/cancel`
                             : `loans/${loan.id}`;
 
+                    const successMessages = {
+                        return: "Barang berhasil dikembalikan",
+                        cancel: "Peminjaman berhasil dibatalkan",
+                        delete: "Peminjaman berhasil dihapus",
+                    };
+
+                    const errorMessages = {
+                        return: "Gagal mengembalikan barang",
+                        cancel: "Gagal membatalkan peminjaman",
+                        delete: "Gagal menghapus peminjaman",
+                    };
+
                     const onSuccess = () => {
                         toast({
-                            description:
-                                confirmAction === "return"
-                                    ? "Barang berhasil dikembalikan"
-                                    : confirmAction === "cancel"
-                                    ? "Peminjaman berhasil dibatalkan"
-                                    : "Peminjaman berhasil dihapus",
+                            title: "Berhasil",
+                            description: successMessages[confirmAction],
                         });
                         setIsConfirmDialogOpen(false);
                         setIsDeleteDialogOpen(false);
@@ -330,30 +365,16 @@ export const columns = (
 
                     const onError = () => {
                         toast({
-                            description:
-                                confirmAction === "return"
-                                    ? "Gagal mengembalikan barang"
-                                    : confirmAction === "cancel"
-                                    ? "Gagal membatalkan peminjaman"
-                                    : "Gagal menghapus peminjaman",
+                            title: "Error",
+                            description: errorMessages[confirmAction],
                             variant: "destructive",
                         });
                     };
 
                     if (confirmAction === "delete") {
-                        router.delete(url, {
-                            onSuccess,
-                            onError,
-                        });
+                        router.delete(url, { onSuccess, onError });
                     } else {
-                        router.post(
-                            url,
-                            {},
-                            {
-                                onSuccess,
-                                onError,
-                            }
-                        );
+                        router.post(url, {}, { onSuccess, onError });
                     }
                 } finally {
                     setIsProcessing(false);
@@ -365,13 +386,14 @@ export const columns = (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
+                                <span className="sr-only">Buka menu</span>
                                 <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                             <DropdownMenuSeparator />
+
                             {loan.status === "Disewa" && (
                                 <>
                                     <DropdownMenuItem
@@ -393,58 +415,64 @@ export const columns = (
                                                 ),
                                             })
                                         }
+                                        className="cursor-pointer"
                                     >
-                                        <EditIcon className="mr-2 h-4 w-4" />
+                                        <Edit className="mr-2 h-4 w-4" />
                                         Edit Peminjaman
                                     </DropdownMenuItem>
+
                                     <DropdownMenuItem
-                                        onClick={() => {
-                                            setIsReturnDialogOpen(true);
-                                        }}
-                                        className="text-green-900"
+                                        onClick={() =>
+                                            setIsReturnDialogOpen(true)
+                                        }
+                                        className="cursor-pointer text-green-700 dark:text-green-400"
                                     >
-                                        <CheckCheckIcon className="mr-2 h-4 w-4" />
-                                        Barang Dikembalikan
+                                        <Check className="mr-2 h-4 w-4" />
+                                        Kembalikan Barang
                                     </DropdownMenuItem>
+
                                     <DropdownMenuItem
                                         onClick={() => {
                                             setConfirmAction("cancel");
                                             setIsConfirmDialogOpen(true);
                                         }}
-                                        className="text-orange-600"
+                                        className="cursor-pointer text-orange-700 dark:text-orange-400"
                                     >
-                                        <XIcon className="mr-2 h-4 w-4" />
+                                        <X className="mr-2 h-4 w-4" />
                                         Batalkan Peminjaman
                                     </DropdownMenuItem>
                                 </>
                             )}
+
                             {isSuperAdmin && (
-                                <DropdownMenuItem
-                                    onClick={() => {
-                                        setConfirmAction("delete");
-                                        setIsDeleteDialogOpen(true);
-                                    }}
-                                    className="text-red-600"
-                                >
-                                    <TrashIcon className="mr-2 h-4 w-4" />
-                                    Hapus Peminjaman
-                                </DropdownMenuItem>
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            setConfirmAction("delete");
+                                            setIsDeleteDialogOpen(true);
+                                        }}
+                                        className="cursor-pointer text-destructive"
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Hapus Peminjaman
+                                    </DropdownMenuItem>
+                                </>
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
 
                     {/* Edit Dialog */}
                     <Dialog open={isModalOpen} onOpenChange={closeModal}>
-                        <DialogContent className="sm:max-w-[600px]">
+                        <DialogContent className="w-[95vw] max-w-2xl sm:w-full">
                             <DialogHeader>
-                                <DialogTitle className="text-lg font-semibold">
-                                    Edit Peminjaman
-                                </DialogTitle>
-                                <DialogDescription className="text-muted-foreground">
+                                <DialogTitle>Edit Peminjaman</DialogTitle>
+                                <DialogDescription>
                                     Ubah informasi peminjaman. Pastikan semua
                                     data terisi dengan benar.
                                 </DialogDescription>
                             </DialogHeader>
+
                             <form
                                 onSubmit={(e) => {
                                     e.preventDefault();
@@ -459,28 +487,26 @@ export const columns = (
                                 }}
                                 className="space-y-4"
                             >
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="nama_penyewa">
                                             Nama Penyewa
                                         </Label>
                                         <Input
-                                            type="text"
                                             id="nama_penyewa"
                                             name="nama_penyewa"
                                             value={formData?.nama_penyewa || ""}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nama penyewa"
-                                            className="bg-background"
                                             required
                                         />
                                     </div>
+
                                     <div className="space-y-2">
                                         <Label htmlFor="no_tlp_penyewa">
                                             Nomor Telepon
                                         </Label>
                                         <Input
-                                            type="string"
                                             id="no_tlp_penyewa"
                                             name="no_tlp_penyewa"
                                             value={
@@ -488,11 +514,11 @@ export const columns = (
                                             }
                                             onChange={handleInputChange}
                                             placeholder="Masukkan nomor telepon"
-                                            className="bg-background"
                                             required
                                         />
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
+
+                                    <div className="space-y-2 sm:col-span-2">
                                         <Label htmlFor="id_barang">
                                             Barang
                                         </Label>
@@ -507,18 +533,10 @@ export const columns = (
                                             }
                                             required
                                         >
-                                            <SelectTrigger className="bg-background">
-                                                <SelectValue placeholder="Pilih Barang">
-                                                    {
-                                                        items.find(
-                                                            (i) =>
-                                                                i.id.toString() ===
-                                                                formData?.id_barang?.toString()
-                                                        )?.nama_barang
-                                                    }
-                                                </SelectValue>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pilih Barang" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-background">
+                                            <SelectContent>
                                                 {items.map((item) => (
                                                     <SelectItem
                                                         key={item.id.toString()}
@@ -527,14 +545,14 @@ export const columns = (
                                                             item.jumlah <= 0
                                                         }
                                                     >
-                                                        <div className="flex justify-between w-full">
+                                                        <div className="flex w-full justify-between">
                                                             <span>
                                                                 {
                                                                     item.nama_barang
                                                                 }
                                                             </span>
                                                             <span className="text-muted-foreground">
-                                                                Tersedia:{" "}
+                                                                Stok:{" "}
                                                                 {item.jumlah}
                                                             </span>
                                                         </div>
@@ -543,6 +561,7 @@ export const columns = (
                                             </SelectContent>
                                         </Select>
                                     </div>
+
                                     <div className="space-y-2">
                                         <Label htmlFor="tanggal_sewa">
                                             Tanggal Sewa
@@ -553,10 +572,10 @@ export const columns = (
                                             name="tanggal_sewa"
                                             value={formData?.tanggal_sewa || ""}
                                             onChange={handleInputChange}
-                                            className="bg-background"
                                             required
                                         />
                                     </div>
+
                                     <div className="space-y-2">
                                         <Label htmlFor="deadline_pengembalian">
                                             Deadline Pengembalian
@@ -571,12 +590,12 @@ export const columns = (
                                             }
                                             onChange={handleInputChange}
                                             min={formData?.tanggal_sewa}
-                                            className="bg-background"
                                             required
                                         />
                                     </div>
                                 </div>
-                                <div className="flex justify-end gap-2 pt-4">
+
+                                <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
                                     <Button
                                         variant="outline"
                                         type="button"
@@ -586,9 +605,11 @@ export const columns = (
                                     </Button>
                                     <Button
                                         type="submit"
-                                        className="bg-primary hover:bg-primary/90"
+                                        disabled={isProcessing}
                                     >
-                                        Simpan Perubahan
+                                        {isProcessing
+                                            ? "Menyimpan..."
+                                            : "Simpan Perubahan"}
                                     </Button>
                                 </div>
                             </form>
@@ -600,23 +621,23 @@ export const columns = (
                         open={isReturnDialogOpen}
                         onOpenChange={setIsReturnDialogOpen}
                     >
-                        <DialogContent>
+                        <DialogContent className="w-[95vw] max-w-md sm:w-full">
                             <DialogHeader>
                                 <DialogTitle>
                                     Konfirmasi Pengembalian
                                 </DialogTitle>
                                 <DialogDescription>
-                                    Pilih waktu pengembalian atau gunakan waktu
-                                    sekarang
+                                    Pilih waktu pengembalian barang
                                 </DialogDescription>
                             </DialogHeader>
+
                             <div className="space-y-4">
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="h-4 w-4" />
-                                        <Label>Waktu Pengembalian</Label>
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="return-time">
+                                        Waktu Pengembalian
+                                    </Label>
                                     <Input
+                                        id="return-time"
                                         type="datetime-local"
                                         value={returnTime}
                                         onChange={(e) =>
@@ -627,19 +648,15 @@ export const columns = (
                                             "yyyy-MM-dd'T'HH:mm"
                                         )}
                                     />
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-xs text-muted-foreground">
                                         Minimal:{" "}
-                                        {format(
-                                            new Date(loan.tanggal_sewa),
-                                            "d MMMM yyyy HH:mm",
-                                            {
-                                                locale: id,
-                                            }
+                                        {formatDateTime(
+                                            new Date(loan.tanggal_sewa)
                                         )}
                                     </p>
                                 </div>
 
-                                <div className="flex justify-end gap-2">
+                                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                                     <Button
                                         variant="outline"
                                         onClick={() => {
@@ -653,7 +670,7 @@ export const columns = (
                                         disabled={isProcessing}
                                     >
                                         <Clock className="mr-2 h-4 w-4" />
-                                        Gunakan Waktu Sekarang
+                                        Waktu Sekarang
                                     </Button>
                                     <Button
                                         onClick={handleReturn}
@@ -673,7 +690,7 @@ export const columns = (
                         open={isConfirmDialogOpen}
                         onOpenChange={setIsConfirmDialogOpen}
                     >
-                        <DialogContent>
+                        <DialogContent className="w-[95vw] max-w-md sm:w-full">
                             <DialogHeader>
                                 <DialogTitle>
                                     {confirmAction === "return"
@@ -686,7 +703,8 @@ export const columns = (
                                         : "Apakah Anda yakin ingin membatalkan peminjaman ini? Tindakan ini akan memperbarui stok barang."}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="flex justify-end space-x-2">
+
+                            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                                 <Button
                                     variant="outline"
                                     onClick={() =>
@@ -720,7 +738,7 @@ export const columns = (
                         open={isDeleteDialogOpen}
                         onOpenChange={setIsDeleteDialogOpen}
                     >
-                        <DialogContent>
+                        <DialogContent className="w-[95vw] max-w-md sm:w-full">
                             <DialogHeader>
                                 <DialogTitle>
                                     Konfirmasi Penghapusan
@@ -731,7 +749,8 @@ export const columns = (
                                     dibatalkan.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="flex justify-end space-x-2">
+
+                            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                                 <Button
                                     variant="outline"
                                     onClick={() => setIsDeleteDialogOpen(false)}
@@ -744,7 +763,7 @@ export const columns = (
                                     onClick={handleConfirmAction}
                                     disabled={isProcessing}
                                 >
-                                    {isProcessing ? "Memproses..." : "Hapus"}
+                                    {isProcessing ? "Menghapus..." : "Hapus"}
                                 </Button>
                             </div>
                         </DialogContent>

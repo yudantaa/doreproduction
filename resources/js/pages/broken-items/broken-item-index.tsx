@@ -13,11 +13,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { PageProps } from "@/types";
 
 interface BrokenItemIndexProps {
-    reports: BrokenItemReport[]; // Changed from paginated response to direct array
+    reports: BrokenItemReport[];
     canRequestRepair: boolean;
 }
 
@@ -55,72 +55,114 @@ export default function BrokenItemIndex({
     }, [reports, searchTerm, statusFilter]);
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout header={"Manajemen Barang Rusak"}>
             <Head title="Manajemen Barang Rusak" />
 
-            <div className="container mx-auto py-6 px-4">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">
-                        Manajemen Barang Rusak
-                    </h1>
-                    {(auth.user?.role === "ADMIN" ||
-                        auth.user?.role === "SUPER ADMIN") && (
-                        <Button asChild>
-                            <Link href={route("dashboard.broken-items.create")}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Laporkan Barang Rusak
-                            </Link>
-                        </Button>
-                    )}
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4 mb-4">
-                    <Input
-                        placeholder="Cari berdasarkan nama barang..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="max-w-md"
-                    />
-                    <Select
-                        value={statusFilter}
-                        onValueChange={setStatusFilter}
-                    >
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Filter Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {statusOptions.map((option) => (
-                                <SelectItem
-                                    key={option.value}
-                                    value={option.value}
-                                >
-                                    {option.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className="bg-card rounded-lg shadow border overflow-hidden">
-                    {filteredReports.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">
-                            <p>Tidak ada data laporan barang rusak.</p>
-                            {(statusFilter !== "all" || searchTerm) && (
-                                <p className="text-sm mt-2">
-                                    Coba ubah filter atau kata kunci pencarian.
-                                </p>
-                            )}
+            <div className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
+                <div className="mx-auto w-full max-w-7xl space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                                Manajemen Barang Rusak
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                Kelola laporan dan perbaikan barang rusak dengan
+                                mudah
+                            </p>
                         </div>
-                    ) : (
-                        <div className="relative">
-                            <div className="overflow-auto">
+
+                        {(auth.user?.role === "ADMIN" ||
+                            auth.user?.role === "SUPER ADMIN") && (
+                            <Button
+                                asChild
+                                className="w-full sm:w-auto"
+                                size="default"
+                            >
+                                <Link
+                                    href={route(
+                                        "dashboard.broken-items.create"
+                                    )}
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Laporkan Barang Rusak
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
+
+                    {/* Filters */}
+                    <div className="rounded-lg border border-border bg-card p-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    placeholder="Cari berdasarkan nama barang..."
+                                    value={searchTerm}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
+                                    className="pl-9"
+                                />
+                            </div>
+
+                            <Select
+                                value={statusFilter}
+                                onValueChange={setStatusFilter}
+                            >
+                                <SelectTrigger className="w-full sm:w-48">
+                                    <SelectValue placeholder="Filter Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statusOptions.map((option) => (
+                                        <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Results count */}
+                        <div className="mt-3 pt-3 border-t border-border">
+                            <p className="text-sm text-muted-foreground">
+                                Menampilkan {filteredReports.length} dari{" "}
+                                {reports.length} data
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Data Table */}
+                    <div className="rounded-lg border border-border bg-card">
+                        <div className="h-[calc(100vh-20rem)] min-h-[400px]">
+                            {filteredReports.length === 0 ? (
+                                <div className="flex h-full items-center justify-center p-8">
+                                    <div className="text-center text-muted-foreground">
+                                        <p className="text-lg font-medium">
+                                            Tidak ada data laporan barang rusak
+                                        </p>
+                                        {(statusFilter !== "all" ||
+                                            searchTerm) && (
+                                            <p className="mt-2 text-sm">
+                                                Coba ubah filter atau kata kunci
+                                                pencarian
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
                                 <DataTable
                                     columns={columns(canRequestRepair)}
                                     data={filteredReports}
+                                    pageSize={10}
+                                    pageSizeOptions={[5, 10, 20, 50]}
                                 />
-                            </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

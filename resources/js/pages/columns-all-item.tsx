@@ -37,12 +37,19 @@ export const columns: ColumnDef<Item>[] = [
                 </Button>
             );
         },
+        cell: ({ row }) => (
+            <div className="line-clamp-2 max-w-[200px]">
+                {row.original.nama_barang}
+            </div>
+        ),
     },
     {
         accessorKey: "deskripsi",
         header: "Deskripsi",
         cell: ({ row }) => (
-            <div className="line-clamp-2">{row.original.deskripsi || "-"}</div>
+            <div className="line-clamp-2 max-w-[300px]">
+                {row.original.deskripsi || "-"}
+            </div>
         ),
     },
     {

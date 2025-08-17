@@ -5,7 +5,7 @@ import { columns } from "./columns";
 import LoanCreateForm from "./create-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -70,29 +70,39 @@ export default function LoanIndex({
         <AuthenticatedLayout header={"Manajemen Peminjaman"}>
             <Head title="Manajemen Peminjaman" />
 
-            <div className="flex-1 rounded-xl h-full">
-                <div className="mx-auto py-10 px-4 sm:px-6 lg:px-8 rounded-xl w-full max-w-[1800px]">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-                        <h1 className="text-2xl font-bold">
-                            Manajemen Peminjaman
-                        </h1>
+            <div className="flex-1 space-y-6 p-4 md:p-6 lg:p-8">
+                <div className="mx-auto w-full max-w-7xl space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                                Manajemen Peminjaman
+                            </h1>
+                            <p className="text-sm text-muted-foreground">
+                                Kelola data peminjaman barang dengan mudah
+                            </p>
+                        </div>
+
                         <Dialog
                             open={isRegisterModalOpen}
                             onOpenChange={setIsRegisterModalOpen}
                         >
                             <DialogTrigger asChild>
-                                <Button className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base flex items-center justify-center gap-2 btn btn-primary">
-                                    <PlusIcon className="h-4 w-4" />
-                                    Tambah Peminjaman Baru
+                                <Button
+                                    className="w-full sm:w-auto"
+                                    size="default"
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Tambah Peminjaman
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="sm:max-w-lg w-full max-h-[90vh] overflow-hidden">
+                            <DialogContent className="w-[95vw] max-w-lg sm:w-full">
                                 <DialogHeader>
-                                    <DialogTitle>
-                                        Silahkan masukan data peminjaman baru.
+                                    <DialogTitle className="text-left">
+                                        Tambah Peminjaman Baru
                                     </DialogTitle>
                                 </DialogHeader>
-                                <div className="overflow-y-auto max-h-[calc(90vh-8rem)] pr-2">
+                                <div className="max-h-[70vh] overflow-y-auto pr-1">
                                     <LoanCreateForm
                                         items={items}
                                         onClose={() =>
@@ -104,44 +114,60 @@ export default function LoanIndex({
                         </Dialog>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 py-4">
-                        <Input
-                            placeholder="Filter berdasarkan nama penyewa..."
-                            value={nameFilter}
-                            onChange={(event) =>
-                                setNameFilter(event.target.value)
-                            }
-                            className="w-full sm:max-w-sm"
-                        />
+                    {/* Filters */}
+                    <div className="rounded-lg border border-border bg-card p-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    placeholder="Cari berdasarkan nama penyewa..."
+                                    value={nameFilter}
+                                    onChange={(event) =>
+                                        setNameFilter(event.target.value)
+                                    }
+                                    className="pl-9"
+                                />
+                            </div>
 
-                        <Select
-                            value={statusFilter}
-                            onValueChange={setStatusFilter}
-                        >
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Pilih Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {statusOptions.map((status) => (
-                                    <SelectItem
-                                        key={status.value}
-                                        value={status.value}
-                                    >
-                                        {status.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            <Select
+                                value={statusFilter}
+                                onValueChange={setStatusFilter}
+                            >
+                                <SelectTrigger className="w-full sm:w-48">
+                                    <SelectValue placeholder="Filter Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statusOptions.map((status) => (
+                                        <SelectItem
+                                            key={status.value}
+                                            value={status.value}
+                                        >
+                                            {status.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Results count */}
+                        <div className="mt-3 pt-3 border-t border-border">
+                            <p className="text-sm text-muted-foreground">
+                                Menampilkan {filteredLoans.length} dari{" "}
+                                {loans.length} data
+                            </p>
+                        </div>
                     </div>
 
-                    {/* Table container with responsive width */}
-                    <div className="border rounded-lg w-full h-[calc(100vh-300px)] min-h-[400px]">
-                        <DataTable
-                            columns={columns(items, isSuperAdmin)}
-                            data={filteredLoans}
-                            pageSize={5}
-                            pageSizeOptions={[5, 10, 20, 50]}
-                        />
+                    {/* Data Table */}
+                    <div className="rounded-lg border border-border bg-card">
+                        <div className="h-[calc(100vh-20rem)] min-h-[400px]">
+                            <DataTable
+                                columns={columns(items, isSuperAdmin)}
+                                data={filteredLoans}
+                                pageSize={10}
+                                pageSizeOptions={[5, 10, 20, 50]}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

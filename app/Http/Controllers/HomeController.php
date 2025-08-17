@@ -42,7 +42,7 @@ class HomeController extends Controller
     public function peralatan()
     {
         return inertia('all-items', [
-            'items' => Item::all(),
+            'items' => Item::where('status', 'Tersedia')->get(),
             'categories' => Category::all(),
             'isAuthenticated' => auth()->check() && auth()->user()->role,
         ]);

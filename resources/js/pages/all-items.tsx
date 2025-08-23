@@ -72,7 +72,8 @@ export default function AllItemsPage({
     const [isHeaderSticky, setIsHeaderSticky] = useState(false);
     const [itemsPerPage, setItemsPerPage] = useState(12);
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedItem, setSelectedItem] = useState(null);
+    type ThisItem = (typeof items)[number];
+    const [selectedItem, setSelectedItem] = useState<ThisItem | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState("name");

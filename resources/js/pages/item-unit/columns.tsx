@@ -137,21 +137,26 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                 e.preventDefault();
                 if (!formData) return;
 
-                router.put(`item-units/${unit.id}`, formData, {
-                    onSuccess: () => {
-                        toast({
-                            description: "Unit berhasil diperbarui.",
-                        });
-                        closeModal();
-                    },
-                    onError: (errors) => {
-                        toast({
-                            title: "Gagal Memperbarui Unit",
-                            description: "Silakan periksa kembali input Anda.",
-                            variant: "destructive",
-                        });
-                    },
-                });
+                router.put(
+                    `item-units/${unit.id}`,
+                    formData as unknown as Record<string, any>,
+                    {
+                        onSuccess: () => {
+                            toast({
+                                description: "Unit berhasil diperbarui.",
+                            });
+                            closeModal();
+                        },
+                        onError: (errors) => {
+                            toast({
+                                title: "Gagal Memperbarui Unit",
+                                description:
+                                    "Silakan periksa kembali input Anda.",
+                                variant: "destructive",
+                            });
+                        },
+                    }
+                );
             };
 
             return (

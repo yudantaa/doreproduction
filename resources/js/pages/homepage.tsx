@@ -57,7 +57,7 @@ export default function HomePage({
     const [formEmail, setFormEmail] = useState("");
     const [formSubject, setFormSubject] = useState("");
     const [formMessage, setFormMessage] = useState("");
-    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItem, setSelectedItem] = useState<Item | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
     const testimonials = [
@@ -133,7 +133,9 @@ export default function HomePage({
     };
 
     const getCategorySlug = (categoryId: string | number) => {
-        const category = categories.find((c) => c.id === Number(categoryId));
+        const category = categories.find(
+            (c) => Number(c.id) === Number(categoryId)
+        );
         if (!category) return "default";
         return category.nama_kategori
             .toLowerCase()
@@ -415,7 +417,7 @@ export default function HomePage({
                                         <div className="flex justify-between items-center mb-4 text-sm text-gray-500 dark:text-gray-400">
                                             <span className="flex items-center">
                                                 <Package className="w-4 h-4 mr-1" />
-                                                Stok: {item.jumlah}
+                                                Stok: {item.available_units}
                                             </span>
                                             <span className="flex items-center">
                                                 <Shield className="w-4 h-4 mr-1" />
@@ -490,7 +492,8 @@ export default function HomePage({
                                                 Stok Tersedia
                                             </p>
                                             <p className="text-xl font-bold text-gray-900 dark:text-white">
-                                                {selectedItem.jumlah} unit
+                                                {selectedItem?.available_units}{" "}
+                                                unit
                                             </p>
                                         </div>
                                         {/* <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">

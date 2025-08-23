@@ -79,7 +79,6 @@ export function DataTable<TData, TValue>({
         pageSize,
     });
 
-    // Ensure data is always an array to prevent undefined errors
     const safeData = React.useMemo(() => {
         if (!data || !Array.isArray(data)) {
             console.warn(
@@ -90,7 +89,6 @@ export function DataTable<TData, TValue>({
         return data;
     }, [data]);
 
-    // Ensure columns is always an array with proper sorting configuration
     const safeColumns = React.useMemo(() => {
         if (!columns || !Array.isArray(columns)) {
             console.warn(
@@ -128,7 +126,6 @@ export function DataTable<TData, TValue>({
         globalFilterFn: "includesString",
     });
 
-    // Reset to first page when data changes
     React.useEffect(() => {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }, [safeData, globalFilter]);
@@ -161,7 +158,6 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className={cn("flex flex-col space-y-4", className)}>
-            {/* Search */}
             {enableGlobalFilter && (
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1">
@@ -188,9 +184,7 @@ export function DataTable<TData, TValue>({
                 </div>
             )}
 
-            {/* Table Container */}
             <div className="relative border border-border rounded-lg bg-card shadow-sm">
-                {/* Loading Overlay */}
                 {isLoading && (
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
                         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -200,7 +194,6 @@ export function DataTable<TData, TValue>({
                     </div>
                 )}
 
-                {/* Desktop Table */}
                 <div className="hidden lg:block overflow-auto max-h-[70vh]">
                     <Table>
                         <TableHeader className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
@@ -291,7 +284,6 @@ export function DataTable<TData, TValue>({
                     </Table>
                 </div>
 
-                {/* Mobile Card View */}
                 <div className="lg:hidden space-y-3 p-4 max-h-[70vh] overflow-auto">
                     {table.getRowModel().rows.length ? (
                         table.getRowModel().rows.map((row, index) => (
@@ -302,7 +294,6 @@ export function DataTable<TData, TValue>({
                                 {row
                                     .getVisibleCells()
                                     .map((cell, cellIndex) => {
-                                        // Get header text for mobile display
                                         const header =
                                             safeColumns[cellIndex]?.header;
                                         let headerText = "";
@@ -312,81 +303,26 @@ export function DataTable<TData, TValue>({
                                         } else if (
                                             typeof header === "function"
                                         ) {
-                                            // Try to extract text from React elements
                                             const headerElement = flexRender(
-                                                header,
-                                                { column: cell.column }
+                                                header as any,
+                                                { column: cell.column } as any
                                             );
-                                            if (
-                                                React.isValidElement(
-                                                    headerElement
-                                                )
-                                            ) {
-                                                // Look for text content in the element
-                                                const extractText = (
-                                                    element: React.ReactElement
-                                                ): string => {
-                                                    if (
-                                                        typeof element.props
-                                                            ?.children ===
-                                                        "string"
-                                                    ) {
-                                                        return element.props
-                                                            .children;
-                                                    }
-                                                    if (
-                                                        Array.isArray(
-                                                            element.props
-                                                                ?.children
-                                                        )
-                                                    ) {
-                                                        return element.props.children
-                                                            .map((child: any) =>
-                                                                typeof child ===
-                                                                "string"
-                                                                    ? child
-                                                                    : React.isValidElement(
-                                                                          child
-                                                                      )
-                                                                    ? extractText(
-                                                                          child
-                                                                      )
-                                                                    : ""
-                                                            )
-                                                            .join(" ");
-                                                    }
-                                                    return "Data";
-                                                };
-                                                headerText =
-                                                    extractText(headerElement);
-                                            } else {
-                                                headerText =
-                                                    String(headerElement);
-                                            }
+                                            headerText = String(headerElement);
                                         } else {
                                             headerText = `Kolom ${
                                                 cellIndex + 1
                                             }`;
                                         }
 
-                                        // Hide number column in mobile
-                                        if (
-                                            headerText === "No" ||
-                                            (cellIndex === 0 &&
-                                                headerText.includes("No"))
-                                        ) {
-                                            return null;
-                                        }
-
                                         return (
                                             <div
                                                 key={cell.id}
-                                                className="space-y-1"
+                                                className="flex flex-col text-sm"
                                             >
-                                                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                                <div className="font-medium text-muted-foreground mb-1">
                                                     {headerText}
                                                 </div>
-                                                <div className="text-sm text-foreground">
+                                                <div>
                                                     {flexRender(
                                                         cell.column.columnDef
                                                             .cell,
@@ -396,38 +332,24 @@ export function DataTable<TData, TValue>({
                                             </div>
                                         );
                                     })}
-
-                                {/* Add a small divider for visual separation */}
-                                <div className="flex items-center justify-center pt-2">
-                                    <div className="w-12 h-px bg-border"></div>
-                                </div>
                             </div>
                         ))
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                            <Search className="h-12 w-12 text-muted-foreground mb-4" />
-                            <p className="text-base font-medium text-muted-foreground mb-2">
+                        <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+                            <p className="text-sm font-medium">
                                 {emptyMessage}
                             </p>
-                            {globalFilter && (
-                                <p className="text-sm text-muted-foreground/70">
-                                    Coba ubah kata kunci pencarian Anda
-                                </p>
-                            )}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Mobile-friendly Pagination */}
             {enablePagination && totalRows > 0 && (
                 <div className="flex flex-col space-y-4 p-4 border-t border-border bg-background/50 rounded-b-lg">
-                    {/* Results info */}
                     <div className="text-center text-sm text-muted-foreground">
                         Menampilkan {startRow} - {endRow} dari {totalRows} data
                     </div>
 
-                    {/* Page size selector - Mobile friendly */}
                     <div className="flex items-center justify-center space-x-2">
                         <span className="text-sm text-muted-foreground whitespace-nowrap">
                             Baris per halaman:
@@ -451,14 +373,12 @@ export function DataTable<TData, TValue>({
                         </Select>
                     </div>
 
-                    {/* Pagination controls */}
                     <div className="flex flex-col items-center space-y-3">
                         <div className="text-sm text-muted-foreground">
                             Halaman {currentPage} dari {totalPages}
                         </div>
 
                         <div className="flex items-center space-x-2">
-                            {/* First page - Hidden on mobile if not needed */}
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -470,7 +390,6 @@ export function DataTable<TData, TValue>({
                                 <span className="sr-only">Halaman pertama</span>
                             </Button>
 
-                            {/* Previous */}
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -484,12 +403,10 @@ export function DataTable<TData, TValue>({
                                 </span>
                             </Button>
 
-                            {/* Page indicator for small screens */}
                             <div className="flex items-center justify-center min-w-[60px] h-9 px-3 text-sm font-medium border border-border rounded-md bg-background">
                                 {currentPage}
                             </div>
 
-                            {/* Next */}
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -503,7 +420,6 @@ export function DataTable<TData, TValue>({
                                 <ChevronRight className="h-4 w-4 sm:ml-1" />
                             </Button>
 
-                            {/* Last page - Hidden on mobile if not needed */}
                             <Button
                                 variant="outline"
                                 size="sm"

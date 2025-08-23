@@ -461,7 +461,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                         className="bg-red-600 text-xs h-8"
                                         onClick={() => {
                                             router.delete(`items/${item.id}`, {
-                                                onSuccess: (page) => {
+                                                onSuccess: (page: any) => {
                                                     if (
                                                         page.props.flash.error
                                                     ) {

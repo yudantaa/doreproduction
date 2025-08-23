@@ -8,7 +8,9 @@ export default function Guest({ children }: PropsWithChildren) {
         <div className="min-h-screen flex flex-col items-center bg-background px-4 py-8">
             <div className="mb-4">
                 <Link href="/">
-                    <ApplicationLogo className="w-20 h-20 text-gray-500" />
+                    <div className="w-20 h-20 text-gray-500">
+                        <ApplicationLogo />
+                    </div>
                 </Link>
             </div>
             <AppearanceDropdown />

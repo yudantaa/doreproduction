@@ -32,13 +32,14 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
     categories,
 }) => {
     const { toast } = useToast();
-    const status = ["Tersedia", "Tidak Tersedia"];
+    const statusOptions = ["Tersedia", "Tidak Tersedia", "Sedang Ditahan"];
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
 
     const [formData, setFormData] = useState({
         nama_barang: "",
-        jumlah: 1,
+        base_code: "",
+        initial_units: 1,
         status: "Tersedia",
         deskripsi: "",
         id_kategori: "",
@@ -53,7 +54,6 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
             deskripsi: e.target.value,
         });
 
-        // Adjust textarea height dynamically
         if (textareaRef.current) {
             textareaRef.current.style.height = "auto";
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
@@ -61,7 +61,6 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
     };
 
     const handleSubmit = () => {
-        // Validate form data
         if (!formData.nama_barang.trim()) {
             toast({
                 title: "Validasi Gagal",
@@ -71,14 +70,15 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
             return;
         }
 
-        if (formData.jumlah < 0) {
+        if (!formData.base_code.trim()) {
             toast({
                 title: "Validasi Gagal",
-                description: "Jumlah stok tidak valid.",
+                description: "Kode Unit harus diisi.",
                 variant: "destructive",
             });
             return;
         }
+
         if (!formData.id_kategori) {
             toast({
                 title: "Validasi Gagal",
@@ -90,7 +90,8 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
 
         const submitData = new FormData();
         submitData.append("nama_barang", formData.nama_barang);
-        submitData.append("jumlah", formData.jumlah.toString());
+        submitData.append("base_code", formData.base_code);
+        submitData.append("initial_units", formData.initial_units.toString());
         submitData.append("status", formData.status);
         submitData.append("deskripsi", formData.deskripsi);
         submitData.append("id_kategori", formData.id_kategori);
@@ -143,24 +144,44 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
                         className="col-span-3"
                     />
                 </div>
+
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="jumlah" className="text-right">
-                        Stok
+                    <Label htmlFor="base_code" className="text-right">
+                        Kode Base
                     </Label>
                     <Input
-                        id="jumlah"
-                        type="number"
-                        value={formData.jumlah}
+                        id="base_code"
+                        value={formData.base_code}
                         onChange={(e) =>
                             setFormData({
                                 ...formData,
-                                jumlah: parseInt(e.target.value) || 0,
+                                base_code: e.target.value.toUpperCase(),
                             })
                         }
-                        placeholder="Masukkan jumlah stok"
+                        placeholder="Masukkan kode unit utama (contoh: TNB)"
                         className="col-span-3"
                     />
                 </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="initial_units" className="text-right">
+                        Jumlah Unit Awal
+                    </Label>
+                    <Input
+                        id="initial_units"
+                        type="number"
+                        min="1"
+                        value={formData.initial_units}
+                        onChange={(e) =>
+                            setFormData({
+                                ...formData,
+                                initial_units: parseInt(e.target.value) || 1,
+                            })
+                        }
+                        className="col-span-3"
+                    />
+                </div>
+
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="status" className="text-right">
                         Status
@@ -178,7 +199,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
                             <SelectValue placeholder="Pilih Status" />
                         </SelectTrigger>
                         <SelectContent>
-                            {status.map((stat) => (
+                            {statusOptions.map((stat) => (
                                 <SelectItem key={stat} value={stat}>
                                     {stat}
                                 </SelectItem>

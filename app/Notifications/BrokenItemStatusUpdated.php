@@ -26,7 +26,7 @@ class BrokenItemStatusUpdated extends Notification implements ShouldQueue
         return [
             'message' => "Status updated for {$this->report->item->nama_barang}: {$this->report->status}",
             'url' => route('dashboard.broken-items.show', $this->report),
-            'item_id' => $this->report->item_id,
+            'id_barang' => $this->report->id_barang,
             'report_id' => $this->report->id,
         ];
     }

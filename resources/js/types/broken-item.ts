@@ -1,26 +1,47 @@
+// Add this to your types file (e.g., @/types/broken-item.ts)
+
 export interface BrokenItemReport {
-    id: string;
-    item_id: string;
-    reporter_id: string;
+    id: number;
+    id_item_unit: number;
+    reporter_id: number;
+    repair_requester_id?: number;
     description: string;
-    proof_image_path: string | null;
+    proof_image_path?: string;
     status: 'reported' | 'in_repair' | 'repaired' | 'rejected';
-    repair_notes: string | null;
-    repair_requester_id: string | null;
-    repair_requested_at: string | null;
+    repair_requested_at?: string;
+    repair_notes?: string;
     created_at: string;
     updated_at: string;
-    item: {
-        id: string;
-        nama_barang: string;
-        image?: string | null;
+
+    // Relationships
+    itemUnit: {
+        id: number;
+        id_barang: number;
+        kode_unit: string;
+        status: string;
+        item: {
+            id: number;
+            nama_barang: string;
+            image?: string;
+        };
     };
+
     reporter: {
-        id: string;
+        id: number;
         name: string;
+        email: string;
     };
+
     repairRequester?: {
-        id: string;
+        id: number;
         name: string;
-    } | null;
+        email: string;
+    };
+
+    // For backward compatibility (computed in backend)
+    item: {
+        id: number;
+        nama_barang: string;
+        image?: string;
+    };
 }

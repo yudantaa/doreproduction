@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, PackageIcon, CheckCircle } from "lucide-react";
+import { PackageIcon, CheckCircle } from "lucide-react";
 import { Link } from "@inertiajs/react";
 
 export type Item = {
@@ -33,7 +33,6 @@ export const columns: ColumnDef<Item>[] = [
                 >
                     <PackageIcon className="mr-2 h-4 w-4" />
                     Nama Barang
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },

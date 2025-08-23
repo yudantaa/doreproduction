@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\ItemUnit;
 use App\Models\Loan;
 use App\Models\Item;
 use Illuminate\Http\Request;
@@ -26,8 +27,8 @@ class LoanController extends Controller
             ->where('deadline_pengembalian', '<', now())
             ->count();
 
-        // Ambil semua data peminjaman dengan relasi item
-        $loans = Loan::with('item')->get()->map(function ($loan) {
+        // Ambil semua data peminjaman dengan relasi itemUnit dan item
+        $loans = Loan::with(['itemUnit.item'])->get()->map(function ($loan) {
             return [
                 'id' => $loan->id,
                 'nama_penyewa' => $loan->nama_penyewa,
@@ -36,19 +37,26 @@ class LoanController extends Controller
                 'tanggal_kembali' => $loan->tanggal_kembali,
                 'deadline_pengembalian' => $loan->deadline_pengembalian,
                 'status' => $loan->status,
-                'nama_barang' => $loan->item ? $loan->item->nama_barang : 'Barang Tidak Tersedia',
-                'id_barang' => $loan->id_barang,
+                'kode_unit' => $loan->itemUnit ? $loan->itemUnit->kode_unit : 'Unit Tidak Tersedia',
+                'nama_barang' => $loan->itemUnit && $loan->itemUnit->item ? $loan->itemUnit->item->nama_barang : 'Barang Tidak Tersedia',
+                'id_item_unit' => $loan->id_item_unit,
             ];
         });
 
-        // Ambil data barang yang tersedia
-        $items = Item::where('status', 'Tersedia')->get()->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'nama_barang' => $item->nama_barang,
-                'jumlah' => $item->jumlah,
-            ];
-        });
+        // Ambil data items yang memiliki unit tersedia
+        $items = Item::whereHas('itemUnits', function ($query) {
+            $query->where('status', 'Tersedia');
+        })->with([
+                    'itemUnits' => function ($query) {
+                        $query->where('status', 'Tersedia');
+                    }
+                ])->get()->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama_barang' => $item->nama_barang,
+                        'available_units' => $item->itemUnits->count(),
+                    ];
+                });
 
         // Kirim data ke view Inertia
         return Inertia::render('loan/loan-index', [
@@ -92,7 +100,6 @@ class LoanController extends Controller
                 return $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);
             });
 
-
         $monthNames = [
             1 => 'Januari',
             2 => 'Februari',
@@ -127,7 +134,6 @@ class LoanController extends Controller
             }
         }
 
-
         return $formattedData;
     }
 
@@ -136,7 +142,6 @@ class LoanController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
         $validatedData = $request->validate([
             'nama_penyewa' => 'required|string|max:255',
             'no_tlp_penyewa' => 'required|string|max:20',
@@ -145,26 +150,23 @@ class LoanController extends Controller
             'deadline_pengembalian' => 'required|date|after:tanggal_sewa',
         ]);
 
-        // Cek ketersediaan barang
-        $item = Item::findOrFail($validatedData['id_barang']);
-        if ($item->status !== 'Tersedia' || $item->jumlah <= 0) {
-            return back()->withErrors(['id_barang' => 'Barang tidak tersedia untuk disewa']);
+        // Cari unit yang tersedia untuk barang ini
+        $availableUnit = ItemUnit::where('id_barang', $validatedData['id_barang'])
+            ->where('status', 'Tersedia')
+            ->first();
+
+        if (!$availableUnit) {
+            return back()->withErrors(['id_barang' => 'Tidak ada unit barang yang tersedia untuk disewa']);
         }
 
-        // Kurangi stok barang
-        $item->decrement('jumlah');
-        $item->save();
-
-        // Update status barang jika stok habis
-        if ($item->jumlah <= 0) {
-            $item->update(['status' => 'Tidak Tersedia']);
-        }
+        // Update status unit menjadi disewa
+        $availableUnit->update(['status' => 'Disewa']);
 
         // Buat data peminjaman baru
         $loan = Loan::create([
             'nama_penyewa' => $validatedData['nama_penyewa'],
             'no_tlp_penyewa' => $validatedData['no_tlp_penyewa'],
-            'id_barang' => $validatedData['id_barang'],
+            'id_item_unit' => $availableUnit->id,
             'tanggal_sewa' => $validatedData['tanggal_sewa'],
             'deadline_pengembalian' => $validatedData['deadline_pengembalian'],
             'status' => 'Disewa',
@@ -192,37 +194,42 @@ class LoanController extends Controller
             ]);
 
             // Jika barang diubah
-            if ($loan->id_barang !== $validatedData['id_barang']) {
-                // Cek ketersediaan barang baru
-                $newItem = Item::findOrFail($validatedData['id_barang']);
-                if ($newItem->jumlah <= 0) {
+            if ($loan->itemUnit->id_barang !== $validatedData['id_barang']) {
+                // Cari unit tersedia untuk barang baru
+                $newAvailableUnit = ItemUnit::where('id_barang', $validatedData['id_barang'])
+                    ->where('status', 'Tersedia')
+                    ->first();
+
+                if (!$newAvailableUnit) {
                     throw ValidationException::withMessages([
-                        'id_barang' => 'Barang baru tidak tersedia untuk disewa'
+                        'id_barang' => 'Tidak ada unit tersedia untuk barang yang dipilih'
                     ]);
                 }
 
-                // Kembalikan stok barang lama
-                $oldItem = Item::findOrFail($loan->id_barang);
-                $oldItem->increment('jumlah');
-                if ($oldItem->status === 'Tidak Tersedia' && $oldItem->jumlah > 0) {
-                    $oldItem->update(['status' => 'Tersedia']);
-                }
+                // Kembalikan unit lama ke status tersedia
+                $loan->itemUnit->update(['status' => 'Tersedia']);
 
-                // Kurangi stok barang baru
-                $newItem->decrement('jumlah');
-                if ($newItem->jumlah <= 0) {
-                    $newItem->update(['status' => 'Tidak Tersedia']);
-                }
+                // Update unit baru menjadi disewa
+                $newAvailableUnit->update(['status' => 'Disewa']);
+
+                // Update id_item_unit di loan
+                $validatedData['id_item_unit'] = $newAvailableUnit->id;
             }
 
             // Update data peminjaman
-            $loan->update($validatedData);
+            $loan->update([
+                'nama_penyewa' => $validatedData['nama_penyewa'],
+                'no_tlp_penyewa' => $validatedData['no_tlp_penyewa'],
+                'id_item_unit' => $validatedData['id_item_unit'] ?? $loan->id_item_unit,
+                'tanggal_sewa' => $validatedData['tanggal_sewa'],
+                'deadline_pengembalian' => $validatedData['deadline_pengembalian'],
+            ]);
 
             DB::commit();
             return redirect()->route('loans.index')->with('success', 'Peminjaman berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui peminjaman.']);
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui peminjaman: ' . $e->getMessage()]);
         }
     }
 
@@ -246,13 +253,6 @@ class LoanController extends Controller
                 ]);
             }
 
-            // Update stok barang
-            $item = Item::findOrFail($loan->id_barang);
-            $item->increment('jumlah');
-            if ($item->status === 'Tidak Tersedia') {
-                $item->update(['status' => 'Tersedia']);
-            }
-
             // Parse waktu pengembalian
             $returnTime = Carbon::parse($validated['return_time']);
 
@@ -262,6 +262,9 @@ class LoanController extends Controller
                     'return_time' => 'Waktu pengembalian tidak boleh sebelum tanggal sewa'
                 ]);
             }
+
+            // Update status unit kembali ke tersedia
+            $loan->itemUnit->update(['status' => 'Tersedia']);
 
             // Update status peminjaman
             $loan->update([
@@ -292,12 +295,8 @@ class LoanController extends Controller
                 ]);
             }
 
-            // Update stok barang
-            $item = Item::findOrFail($loan->id_barang);
-            $item->increment('jumlah');
-            if ($item->status === 'Tidak Tersedia') {
-                $item->update(['status' => 'Tersedia']);
-            }
+            // Update status unit kembali ke tersedia
+            $loan->itemUnit->update(['status' => 'Tersedia']);
 
             // Update status peminjaman
             $loan->update([
@@ -326,13 +325,9 @@ class LoanController extends Controller
         try {
             DB::beginTransaction();
 
-            // Jika peminjaman masih aktif, kembalikan stok barang
+            // Jika peminjaman masih aktif, kembalikan unit ke tersedia
             if ($loan->status === 'Disewa') {
-                $item = Item::findOrFail($loan->id_barang);
-                $item->increment('jumlah');
-                if ($item->status === 'Tidak Tersedia' && $item->jumlah > 0) {
-                    $item->update(['status' => 'Tersedia']);
-                }
+                $loan->itemUnit->update(['status' => 'Tersedia']);
             }
 
             // Hapus data peminjaman
@@ -345,23 +340,28 @@ class LoanController extends Controller
             return back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data peminjaman.']);
         }
     }
+
     public function getFrequentlyRentedItems()
     {
-        $frequentItemIds = Loan::select('id_barang', DB::raw('COUNT(*) as rental_count'))
-            ->groupBy('id_barang')
+        // Get frequently rented item IDs based on item units
+        $frequentItemIds = Loan::join('item_units', 'loans.id_item_unit', '=', 'item_units.id')
+            ->select('item_units.id_barang', DB::raw('COUNT(*) as rental_count'))
+            ->groupBy('item_units.id_barang')
             ->orderBy('rental_count', 'DESC')
             ->limit(6)
-            ->pluck('id_barang');
+            ->pluck('item_units.id_barang');
 
         return Item::with('category')
             ->whereIn('id', $frequentItemIds)
-            ->where('status', 'Tersedia')
+            ->whereHas('itemUnits', function ($query) {
+                $query->where('status', 'Tersedia');
+            })
             ->get()
             ->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'nama_barang' => $item->nama_barang,
-                    'jumlah' => $item->jumlah,
+                    'available_units' => $item->itemUnits->where('status', 'Tersedia')->count(),
                     'status' => $item->status,
                     'deskripsi' => $item->deskripsi,
                     'id_kategori' => $item->id_kategori,

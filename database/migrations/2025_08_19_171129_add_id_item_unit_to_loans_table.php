@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('loans', function (Blueprint $table) {
-            $table->foreignId('id_barang')->constrained('items', 'id')->onDelete('cascade');
+            $table->foreignId('id_item_unit')->constrained('item_units', 'id')->onDelete('cascade');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('loans', function (Blueprint $table) {
-            $table->dropForeign(['id_barang']); // Hapus foreign key 'id_barang'
-            $table->dropColumn(['id_barang']); // Hapus kolom terkait
+            $table->dropForeign(['id_item_unit']);
+            $table->dropColumn('id_item_unit');
         });
     }
 };

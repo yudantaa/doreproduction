@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->date('tanggal_sewa');
             $table->date('tanggal_kembali')->nullable();
             $table->date('deadline_pengembalian');
-            $table->string('status');
+            $table->enum('status', ['Disewa', 'Dikembalikan', 'Dibatalkan']);
             $table->timestamps();
         });
     }

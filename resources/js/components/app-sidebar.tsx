@@ -45,6 +45,10 @@ const data = {
                     url: "/dashboard/items",
                 },
                 {
+                    title: "Unit Barang",
+                    url: "/dashboard/item-units",
+                },
+                {
                     title: "Kategori",
                     url: "/dashboard/categories",
                 },

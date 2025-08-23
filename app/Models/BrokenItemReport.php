@@ -3,37 +3,47 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BrokenItemReport extends Model
 {
     protected $fillable = [
-        'item_id',
+        'id_item_unit',
         'reporter_id',
         'description',
         'proof_image_path',
         'status',
         'repair_notes',
-        'repair_requester_id',
-        'repair_requested_at'
     ];
 
     protected $casts = [
-        'repair_requested_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    public function item(): BelongsTo
+    public function itemUnit()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(ItemUnit::class, 'id_item_unit');
     }
 
-    public function reporter(): BelongsTo
+    public function item()
+    {
+        return $this->hasOneThrough(Item::class, ItemUnit::class, 'id', 'id', 'id_item_unit', 'id_barang');
+    }
+
+    public function reporter()
     {
         return $this->belongsTo(User::class, 'reporter_id');
     }
 
-    public function repairRequester(): BelongsTo
+    // Helper method to get item name through item unit
+    public function getItemNameAttribute()
     {
-        return $this->belongsTo(User::class, 'repair_requester_id');
+        return $this->itemUnit?->item?->nama_barang;
+    }
+
+    // Helper method to get unit code
+    public function getUnitCodeAttribute()
+    {
+        return $this->itemUnit?->kode_unit;
     }
 }

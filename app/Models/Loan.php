@@ -9,17 +9,15 @@ class Loan extends Model
     protected $fillable = [
         'nama_penyewa',
         'no_tlp_penyewa',
+        'item_unit_id',
         'tanggal_sewa',
         'tanggal_kembali',
         'deadline_pengembalian',
         'status',
-        'id_barang'
     ];
 
-
-    // Relasi ke tabel items
-    public function item()
+    public function itemUnit()
     {
-        return $this->belongsTo(Item::class, 'id_barang');
+        return $this->belongsTo(ItemUnit::class, 'id_item_unit');
     }
 }

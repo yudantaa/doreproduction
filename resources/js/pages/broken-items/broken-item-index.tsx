@@ -3,7 +3,7 @@ import AuthenticatedLayout from "@/layouts/authenticated-layout";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { BrokenItemReport } from "@/types/broken-item";
 import { Input } from "@/components/ui/input";
 import {
@@ -155,7 +155,7 @@ export default function BrokenItemIndex({
                                 </div>
                             ) : (
                                 <DataTable
-                                    columns={columns(canRequestRepair)}
+                                    columns={getColumns(canRequestRepair)}
                                     data={filteredReports}
                                     pageSize={10}
                                     pageSizeOptions={[5, 10, 20, 50]}

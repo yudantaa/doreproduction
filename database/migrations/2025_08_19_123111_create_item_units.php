@@ -10,12 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('items', function (Blueprint $table) {
+        Schema::create('item_units', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_barang');
-            $table->enum('status', ['Tersedia', 'Tidak Tersedia', 'Sedang Ditahan']);
-            $table->text('deskripsi')->nullable();
-            $table->string('image')->nullable();
+            $table->foreignId('id_barang')->constrained('items')->onDelete('cascade');
+            $table->string('kode_unit')->unique();
+            $table->enum('status', ['Tersedia', 'Tidak Tersedia', 'Rusak', 'Dalam Perbaikan', 'Disewa']);
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('items');
+        Schema::dropIfExists('item_units');
     }
 };

@@ -26,7 +26,7 @@ class BrokenItemReported extends Notification implements ShouldQueue
         return [
             'message' => "New broken item reported: {$this->report->item->nama_barang}",
             'url' => route('dashboard.broken-items.show', $this->report),
-            'item_id' => $this->report->item_id,
+            'id_barang' => $this->report->id_barang,
             'report_id' => $this->report->id,
         ];
     }

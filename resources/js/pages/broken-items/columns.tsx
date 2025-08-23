@@ -1,7 +1,7 @@
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, ArrowUpDown } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,7 +12,8 @@ import {
 import { Link } from "@inertiajs/react";
 import { BrokenItemReport } from "@/types/broken-item";
 
-export const columns = (
+// Export a function that returns the columns
+export const getColumns = (
     canRequestRepair: boolean
 ): ColumnDef<BrokenItemReport>[] => [
     {
@@ -22,7 +23,7 @@ export const columns = (
         },
     },
     {
-        accessorKey: "item.nama_barang",
+        accessorKey: "itemUnit.item.nama_barang",
         header: ({ column }) => {
             return (
                 <Button
@@ -33,6 +34,19 @@ export const columns = (
                 >
                     Nama Barang
                 </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const report = row.original;
+            return (
+                <div>
+                    <div className="font-medium">
+                        {report.itemUnit?.item?.nama_barang || "N/A"}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                        Unit: {report.itemUnit?.kode_unit || "N/A"}
+                    </div>
+                </div>
             );
         },
     },
@@ -66,7 +80,6 @@ export const columns = (
             const status = getValue() as string;
             const statusMap: Record<string, string> = {
                 reported: "Dilaporkan",
-                repair_requested: "Perbaikan Diminta",
                 in_repair: "Dalam Perbaikan",
                 repaired: "Sudah Diperbaiki",
                 rejected: "Ditolak",
@@ -75,8 +88,6 @@ export const columns = (
             const colorMap: Record<string, string> = {
                 reported:
                     "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-                repair_requested:
-                    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
                 in_repair:
                     "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
                 repaired:
@@ -138,6 +149,21 @@ export const columns = (
                                 Lihat Detail
                             </Link>
                         </DropdownMenuItem>
+                        {/* Conditionally show repair request option */}
+                        {canRequestRepair && report.status === "reported" && (
+                            <DropdownMenuItem asChild>
+                                <Link
+                                    href={route(
+                                        "dashboard.broken-items.request-repair",
+                                        report.id
+                                    )}
+                                    method="post"
+                                    as="button"
+                                >
+                                    Minta Perbaikan
+                                </Link>
+                            </DropdownMenuItem>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

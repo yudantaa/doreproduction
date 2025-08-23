@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\BrokenItemReport;
 use App\Models\Item;
+use App\Models\ItemUnit;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -15,9 +16,11 @@ class BrokenItemReportsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get all items with quantity > 0 and available status
-        $items = Item::where('jumlah', '>', 0)
-            ->where('status', 'Tersedia')
+        // Get all items that have available units
+        $items = Item::where('status', 'Tersedia')
+            ->whereHas('itemUnits', function ($query) {
+                $query->where('status', 'Tersedia');
+            })
             ->get();
 
         // Get admin users who can report broken items
@@ -55,6 +58,16 @@ class BrokenItemReportsSeeder extends Seeder
             $item = $items->random();
             $reporter = $users->random();
 
+            // Get an available unit for this item
+            $availableUnit = ItemUnit::where('id_barang', $item->id)
+                ->where('status', 'Tersedia')
+                ->inRandomOrder()
+                ->first();
+
+            if (!$availableUnit) {
+                continue; // Skip if no available unit found
+            }
+
             // Random date within the last 6 months
             $createdAt = Carbon::now()->subDays(rand(0, 180))
                 ->subHours(rand(0, 23))
@@ -63,7 +76,7 @@ class BrokenItemReportsSeeder extends Seeder
             $status = $this->getWeightedRandomStatus();
 
             $report = BrokenItemReport::create([
-                'item_id' => $item->id,
+                'id_item_unit' => $availableUnit->id, // Changed from id_unit to id_item_unit
                 'reporter_id' => $reporter->id,
                 'description' => $descriptions[array_rand($descriptions)],
                 'status' => $status,
@@ -71,13 +84,24 @@ class BrokenItemReportsSeeder extends Seeder
                 'updated_at' => $createdAt,
             ]);
 
-            // Update item status and quantity if reported
+            // Update unit status if reported
             if ($status === 'reported') {
-                $item->update([
-                    'status' => 'Sedang Ditahan',
-                    'jumlah' => max(0, $item->jumlah - 1),
+                $availableUnit->update([
+                    'status' => 'Rusak',
                     'updated_at' => $createdAt
                 ]);
+
+                // Update item status if no more available units
+                $availableUnitsCount = ItemUnit::where('id_barang', $item->id)
+                    ->where('status', 'Tersedia')
+                    ->count();
+
+                if ($availableUnitsCount === 0) {
+                    $item->update([
+                        'status' => 'Tidak Tersedia',
+                        'updated_at' => $createdAt
+                    ]);
+                }
             }
 
             // For non-reported statuses, add additional details
@@ -96,13 +120,30 @@ class BrokenItemReportsSeeder extends Seeder
                         'repair_requester_id' => $admin->id,
                         'repair_requested_at' => $createdAt->copy()->addDays(rand(1, 7)),
                     ]);
+
+                    // Mark unit as repaired and available again
+                    $availableUnit->update([
+                        'status' => 'Tersedia',
+                        'updated_at' => $updatedAt
+                    ]);
+
+                    // Update item status to available
+                    $item->update([
+                        'status' => 'Tersedia',
+                        'updated_at' => $updatedAt
+                    ]);
                 }
 
-                // If repaired or rejected, restore item quantity
-                if (in_array($status, ['repaired', 'rejected'])) {
-                    $item->increment('jumlah');
+                // For rejected reports, mark unit as available again
+                if ($status === 'rejected') {
+                    $availableUnit->update([
+                        'status' => 'Tersedia',
+                        'updated_at' => $updatedAt
+                    ]);
+
+                    // Update item status to available
                     $item->update([
-                        'status' => $item->jumlah > 0 ? 'Tersedia' : 'Tidak Tersedia',
+                        'status' => 'Tersedia',
                         'updated_at' => $updatedAt
                     ]);
                 }

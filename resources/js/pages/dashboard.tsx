@@ -8,7 +8,6 @@ import {
     AlertTriangle,
     CheckCircle,
     XCircle,
-    Download,
 } from "lucide-react";
 import { MonthlyChart } from "./charts/monthly-chart";
 import { useState, useMemo } from "react";
@@ -20,13 +19,7 @@ import {
     CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// Removed DropdownMenu imports as export functionality is removed
 
 interface DashboardProps extends PageProps {
     totalAvailable: number;
@@ -63,7 +56,7 @@ export default function Dashboard({
         .padStart(2, "0");
 
     const [selectedYear, setSelectedYear] = useState<string>(currentYear);
-    const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth);
+    const [selectedMonth, setSelectedMonth] = useState<string>("all");
 
     const parseBulanString = (bulan: string) => {
         const parts = bulan.split(" ");
@@ -97,27 +90,35 @@ export default function Dashboard({
 
     const availableYears = useMemo(() => {
         const years = new Set<string>();
-        monthlyLoanData.forEach((item) => {
-            const { year } = parseBulanString(item.bulan);
-            if (year) years.add(year);
-        });
+        if (monthlyLoanData && monthlyLoanData.length > 0) {
+            monthlyLoanData.forEach((item) => {
+                const { year } = parseBulanString(item.bulan);
+                if (year) years.add(year);
+            });
+        }
         return Array.from(years).sort();
     }, [monthlyLoanData]);
 
     const availableMonths = useMemo(() => {
         const monthsMap = new Map<string, { value: string; name: string }>();
-        monthlyLoanData.forEach((item) => {
-            const { month, monthName } = parseBulanString(item.bulan);
-            if (month && monthName) {
-                monthsMap.set(month, { value: month, name: monthName });
-            }
-        });
+        if (monthlyLoanData && monthlyLoanData.length > 0) {
+            monthlyLoanData.forEach((item) => {
+                const { month, monthName } = parseBulanString(item.bulan);
+                if (month && monthName) {
+                    monthsMap.set(month, { value: month, name: monthName });
+                }
+            });
+        }
         return Array.from(monthsMap.values()).sort(
             (a, b) => parseInt(a.value) - parseInt(b.value)
         );
     }, [monthlyLoanData]);
 
     const filteredData = useMemo(() => {
+        if (!monthlyLoanData || monthlyLoanData.length === 0) {
+            return [];
+        }
+
         return monthlyLoanData.filter((item) => {
             const { year, month } = parseBulanString(item.bulan);
             const yearMatch = selectedYear === "all" || year === selectedYear;
@@ -127,88 +128,20 @@ export default function Dashboard({
         });
     }, [monthlyLoanData, selectedYear, selectedMonth]);
 
-    // Function to export data as CSV
-    const exportToCSV = (data: any[], filename: string) => {
-        const headers = Object.keys(data[0]).join(",");
-        const rows = data.map((item) => Object.values(item).join(","));
-        const csvContent = [headers, ...rows].join("\n");
+    // Removed export functions
 
-        const blob = new Blob([csvContent], {
-            type: "text/csv;charset=utf-8;",
-        });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `${filename}.csv`);
-        link.style.visibility = "hidden";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+    // Calculate totals safely
+    const totalDikembalikan =
+        monthlyLoanData?.reduce(
+            (acc, curr) => acc + (curr.dikembalikan || 0),
+            0
+        ) || 0;
 
-    // Function to export chart data
-    const exportChartData = () => {
-        const dataToExport = filteredData.map((item) => ({
-            Bulan: item.bulan,
-            "Total Peminjaman": item.total,
-            "Peminjaman Aktif": item.aktif,
-            Dikembalikan: item.dikembalikan,
-            Dibatalkan: item.dibatalkan,
-            "Terlambat Dikembalikan": item.terlambat,
-        }));
-        exportToCSV(
-            dataToExport,
-            `statistik-peminjaman-${selectedYear}-${selectedMonth}`
-        );
-    };
-
-    // Function to export summary data
-    const exportSummaryData = (period: "monthly" | "yearly") => {
-        let dataToExport;
-
-        if (period === "monthly") {
-            dataToExport = monthlyLoanData.map((item) => ({
-                Bulan: item.bulan,
-                "Total Peminjaman": item.total,
-                "Peminjaman Aktif": item.aktif,
-                Dikembalikan: item.dikembalikan,
-                Dibatalkan: item.dibatalkan,
-                "Terlambat Dikembalikan": item.terlambat,
-            }));
-        } else {
-            // Group by year
-            const yearlyData = monthlyLoanData.reduce((acc, item) => {
-                const { year } = parseBulanString(item.bulan);
-                if (!year) return acc;
-
-                if (!acc[year]) {
-                    acc[year] = {
-                        Tahun: year,
-                        "Total Peminjaman": 0,
-                        "Peminjaman Aktif": 0,
-                        Dikembalikan: 0,
-                        Dibatalkan: 0,
-                        "Terlambat Dikembalikan": 0,
-                    };
-                }
-
-                acc[year]["Total Peminjaman"] += item.total;
-                acc[year]["Peminjaman Aktif"] += item.aktif;
-                acc[year]["Dikembalikan"] += item.dikembalikan;
-                acc[year]["Dibatalkan"] += item.dibatalkan;
-                acc[year]["Terlambat Dikembalikan"] += item.terlambat;
-
-                return acc;
-            }, {} as Record<string, any>);
-
-            dataToExport = Object.values(yearlyData);
-        }
-
-        exportToCSV(
-            dataToExport,
-            `ringkasan-${period === "monthly" ? "bulanan" : "tahunan"}`
-        );
-    };
+    const totalDibatalkan =
+        monthlyLoanData?.reduce(
+            (acc, curr) => acc + (curr.dibatalkan || 0),
+            0
+        ) || 0;
 
     return (
         <AuthenticatedLayout header="Dashboard">
@@ -220,7 +153,7 @@ export default function Dashboard({
                     <p className="text-muted-foreground text-sm">
                         Selamat datang,{" "}
                         <span className="font-medium capitalize">
-                            {userName}
+                            {userName || "User"}
                         </span>
                     </p>
                 </div>
@@ -237,14 +170,14 @@ export default function Dashboard({
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                             <div className="text-xl font-bold">
-                                {totalAvailable}
+                                {totalAvailable || 0}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 <Badge
                                     variant="destructive"
                                     className="mr-1 text-xs"
                                 >
-                                    {totalUnavailable}
+                                    {totalUnavailable || 0}
                                 </Badge>
                                 tidak tersedia
                             </p>
@@ -261,14 +194,14 @@ export default function Dashboard({
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                             <div className="text-xl font-bold">
-                                {totalBrokenItems}
+                                {totalBrokenItems || 0}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 <Badge
                                     variant="destructive"
                                     className="mr-1 text-xs"
                                 >
-                                    {pendingRepairs}
+                                    {pendingRepairs || 0}
                                 </Badge>
                                 menunggu perbaikan
                             </p>
@@ -285,14 +218,14 @@ export default function Dashboard({
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                             <div className="text-xl font-bold">
-                                {totalActiveLoans}
+                                {totalActiveLoans || 0}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 <Badge
                                     variant="destructive"
                                     className="mr-1 text-xs"
                                 >
-                                    {totalOverdue}
+                                    {totalOverdue || 0}
                                 </Badge>
                                 melebihi deadline
                             </p>
@@ -309,17 +242,17 @@ export default function Dashboard({
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                             <div className="text-xl font-bold">
-                                {monthlyLoanData.reduce(
-                                    (acc, curr) => acc + curr.dikembalikan,
-                                    0
-                                )}
+                                {totalDikembalikan}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                Total selesai bulan ini
+                                Total selesai
                             </p>
                         </CardContent>
                     </Card>
+                </div>
 
+                {/* Additional Row for Cancelled Loans */}
+                <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
                     {/* Cancelled Loans */}
                     <Card className="hover:shadow-md transition-shadow h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
@@ -330,13 +263,10 @@ export default function Dashboard({
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                             <div className="text-xl font-bold">
-                                {monthlyLoanData.reduce(
-                                    (acc, curr) => acc + curr.dibatalkan,
-                                    0
-                                )}
+                                {totalDibatalkan}
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                Total pembatalan bulan ini
+                                Total pembatalan
                             </p>
                         </CardContent>
                     </Card>
@@ -354,51 +284,26 @@ export default function Dashboard({
                                     Ringkasan aktivitas peminjaman per bulan
                                 </CardDescription>
                             </div>
-                            {/* <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 gap-1"
-                                    >
-                                        <Download className="h-3.5 w-3.5" />
-                                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                                            Export
-                                        </span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={exportChartData}>
-                                        Export Data Chart
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            exportSummaryData("monthly")
-                                        }
-                                    >
-                                        Export Ringkasan Bulanan
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() =>
-                                            exportSummaryData("yearly")
-                                        }
-                                    >
-                                        Export Ringkasan Tahunan
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu> */}
                         </div>
                     </CardHeader>
                     <CardContent className="p-4 pt-0 h-[280px]">
-                        <MonthlyChart
-                            data={filteredData}
-                            selectedYear={selectedYear}
-                            selectedMonth={selectedMonth}
-                            availableYears={availableYears}
-                            availableMonths={availableMonths}
-                            onYearChange={setSelectedYear}
-                            onMonthChange={setSelectedMonth}
-                        />
+                        {!monthlyLoanData || monthlyLoanData.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                                <p className="text-muted-foreground text-sm">
+                                    Tidak ada data statistik tersedia
+                                </p>
+                            </div>
+                        ) : (
+                            <MonthlyChart
+                                data={filteredData}
+                                selectedYear={selectedYear}
+                                selectedMonth={selectedMonth}
+                                availableYears={availableYears}
+                                availableMonths={availableMonths}
+                                onYearChange={setSelectedYear}
+                                onMonthChange={setSelectedMonth}
+                            />
+                        )}
                     </CardContent>
                 </Card>
             </div>

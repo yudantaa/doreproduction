@@ -17,7 +17,7 @@ interface LoanCreateFormProps {
     items: Array<{
         id: string;
         nama_barang: string;
-        jumlah: number;
+        available_units: number;
     }>;
     onClose?: () => void;
 }
@@ -33,6 +33,7 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items, onClose }) => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { toast } = useToast();
+
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
@@ -182,12 +183,13 @@ const LoanCreateForm: React.FC<LoanCreateFormProps> = ({ items, onClose }) => {
                                         <SelectItem
                                             key={item.id}
                                             value={item.id.toString()}
-                                            disabled={item.jumlah <= 0}
+                                            disabled={item.available_units <= 0}
                                         >
                                             <div className="flex justify-between w-full">
                                                 <span>{item.nama_barang}</span>
                                                 <span className="text-muted-foreground">
-                                                    Tersedia: {item.jumlah}
+                                                    Tersedia:{" "}
+                                                    {item.available_units}
                                                 </span>
                                             </div>
                                         </SelectItem>

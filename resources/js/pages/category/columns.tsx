@@ -60,7 +60,6 @@ export const columns: ColumnDef<Category>[] = [
                     }
                 >
                     Nama Kategori
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },
@@ -76,7 +75,6 @@ export const columns: ColumnDef<Category>[] = [
                     }
                 >
                     Waktu Ditambahkan
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             );
         },

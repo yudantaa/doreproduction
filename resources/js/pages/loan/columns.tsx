@@ -49,25 +49,26 @@ export type Loan = {
     id: string;
     nama_penyewa: string;
     no_tlp_penyewa: string;
-    tanggal_sewa: Date;
-    tanggal_kembali: Date | null;
-    deadline_pengembalian: Date;
+    tanggal_sewa: string;
+    tanggal_kembali: string | null;
+    deadline_pengembalian: string;
     status: string;
+    kode_unit: string;
     nama_barang: string;
-    id_barang: string;
+    id_item_unit: string;
 };
 
 type Item = {
     id: string;
     nama_barang: string;
-    jumlah: number;
+    available_units: number;
 };
 
-const formatDate = (date: Date) => {
+const formatDate = (date: string) => {
     return format(new Date(date), "d MMM yyyy", { locale: id });
 };
 
-const formatDateTime = (date: Date) => {
+const formatDateTime = (date: string) => {
     return format(new Date(date), "d MMM yyyy, HH:mm", { locale: id });
 };
 
@@ -131,8 +132,13 @@ export const columns = (
             </Button>
         ),
         cell: ({ row }) => (
-            <div className="min-w-[100px] font-medium text-foreground">
-                {row.original.nama_barang}
+            <div className="min-w-[100px]">
+                <div className="font-medium text-foreground">
+                    {row.original.nama_barang}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                    Unit: {row.original.kode_unit}
+                </div>
             </div>
         ),
     },
@@ -185,7 +191,7 @@ export const columns = (
                                 : "text-muted-foreground"
                         }`}
                     >
-                        {formatDate(deadline)}
+                        {formatDate(row.original.deadline_pengembalian)}
                     </div>
                     {isOverdue && (
                         <div className="flex items-center text-xs text-destructive">
@@ -204,9 +210,7 @@ export const columns = (
             const tanggalKembali = row.original.tanggal_kembali;
             return (
                 <div className="min-w-[120px] text-sm text-muted-foreground">
-                    {tanggalKembali
-                        ? formatDateTime(new Date(tanggalKembali))
-                        : "-"}
+                    {tanggalKembali ? formatDateTime(tanggalKembali) : "-"}
                 </div>
             );
         },
@@ -274,7 +278,9 @@ export const columns = (
             } = useFormState({
                 nama_penyewa: loan.nama_penyewa,
                 no_tlp_penyewa: loan.no_tlp_penyewa,
-                id_barang: loan.id_barang,
+                id_barang:
+                    items.find((item) => item.nama_barang === loan.nama_barang)
+                        ?.id || "",
                 tanggal_sewa: format(new Date(loan.tanggal_sewa), "yyyy-MM-dd"),
                 deadline_pengembalian: format(
                     new Date(loan.deadline_pengembalian),
@@ -302,7 +308,6 @@ export const columns = (
                         `loans/${loan.id}/return`,
                         {
                             return_time: returnTime,
-                            id_barang: loan.id_barang,
                         },
                         {
                             onSuccess: () => {
@@ -402,7 +407,12 @@ export const columns = (
                                                 nama_penyewa: loan.nama_penyewa,
                                                 no_tlp_penyewa:
                                                     loan.no_tlp_penyewa,
-                                                id_barang: loan.id_barang,
+                                                id_barang:
+                                                    items.find(
+                                                        (item) =>
+                                                            item.nama_barang ===
+                                                            loan.nama_barang
+                                                    )?.id || "",
                                                 tanggal_sewa: format(
                                                     new Date(loan.tanggal_sewa),
                                                     "yyyy-MM-dd"
@@ -542,7 +552,8 @@ export const columns = (
                                                         key={item.id.toString()}
                                                         value={item.id.toString()}
                                                         disabled={
-                                                            item.jumlah <= 0
+                                                            item.available_units <=
+                                                            0
                                                         }
                                                     >
                                                         <div className="flex w-full justify-between">
@@ -552,8 +563,10 @@ export const columns = (
                                                                 }
                                                             </span>
                                                             <span className="text-muted-foreground">
-                                                                Stok:{" "}
-                                                                {item.jumlah}
+                                                                Tersedia:{" "}
+                                                                {
+                                                                    item.available_units
+                                                                }
                                                             </span>
                                                         </div>
                                                     </SelectItem>
@@ -650,9 +663,7 @@ export const columns = (
                                     />
                                     <p className="text-xs text-muted-foreground">
                                         Minimal:{" "}
-                                        {formatDateTime(
-                                            new Date(loan.tanggal_sewa)
-                                        )}
+                                        {formatDateTime(loan.tanggal_sewa)}
                                     </p>
                                 </div>
 

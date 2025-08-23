@@ -493,14 +493,14 @@ export default function HomePage({
                                                 {selectedItem.jumlah} unit
                                             </p>
                                         </div>
-                                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
+                                        {/* <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
                                             <p className="text-sm text-gray-500 mb-2">
                                                 Periode Sewa
                                             </p>
                                             <p className="text-xl font-bold text-gray-900 dark:text-white">
                                                 Harian/Mingguan/Bulanan
                                             </p>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="flex gap-3 pt-4">
                                         <a

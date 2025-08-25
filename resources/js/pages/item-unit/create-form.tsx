@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,12 +34,23 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
         kode_unit: "",
         status: "Tersedia" as const,
     });
+    const [unitNumber, setUnitNumber] = useState("");
+    const [selectedItem, setSelectedItem] = useState<any>(null);
+
+    useEffect(() => {
+        if (selectedItem && unitNumber) {
+            const newKodeUnit = `${selectedItem.base_code}-${unitNumber}`;
+            setFormData((prev) => ({ ...prev, kode_unit: newKodeUnit }));
+        } else {
+            setFormData((prev) => ({ ...prev, kode_unit: "" }));
+        }
+    }, [selectedItem, unitNumber]);
 
     const handleSubmit = () => {
-        if (!formData.id_barang || !formData.kode_unit) {
+        if (!formData.id_barang || !unitNumber.trim()) {
             toast({
                 title: "Validasi Gagal",
-                description: "Semua field harus diisi.",
+                description: "Barang dan nomor unit harus diisi.",
                 variant: "destructive",
             });
             return;
@@ -53,13 +64,27 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
                 onClose();
             },
             onError: (errors) => {
+                console.log("Errors:", errors);
                 toast({
                     title: "Gagal Menambahkan Unit",
-                    description: "Silakan periksa kembali input Anda.",
+                    description:
+                        "Silakan periksa kembali input Anda. Mungkin kode unit sudah ada.",
                     variant: "destructive",
                 });
             },
         });
+    };
+
+    const handleItemChange = (value: string) => {
+        setFormData((prev) => ({ ...prev, id_barang: value }));
+        const item = items.find((item) => item.id === value);
+        setSelectedItem(item);
+        setUnitNumber("");
+    };
+
+    const handleUnitNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setUnitNumber(value);
     };
 
     return (
@@ -77,9 +102,7 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
                         Barang
                     </Label>
                     <Select
-                        onValueChange={(value) =>
-                            setFormData({ ...formData, id_barang: value })
-                        }
+                        onValueChange={handleItemChange}
                         value={formData.id_barang}
                     >
                         <SelectTrigger className="col-span-3">
@@ -88,28 +111,41 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
                         <SelectContent>
                             {items.map((item) => (
                                 <SelectItem key={item.id} value={item.id}>
-                                    {item.nama_barang}
+                                    {item.nama_barang} ({item.base_code})
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="kode_unit" className="text-right">
-                        Kode Unit
+                    <Label htmlFor="unit_number" className="text-right">
+                        Nomor Unit
                     </Label>
-                    <Input
-                        id="kode_unit"
-                        value={formData.kode_unit}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                kode_unit: e.target.value,
-                            })
-                        }
-                        placeholder="Masukkan kode unit"
-                        className="col-span-3"
-                    />
+                    <div className="col-span-3">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-muted-foreground min-w-fit">
+                                {selectedItem
+                                    ? `${selectedItem.base_code}-`
+                                    : "Pilih barang dulu"}
+                            </span>
+                            <Input
+                                id="unit_number"
+                                value={unitNumber}
+                                onChange={handleUnitNumberChange}
+                                placeholder="contoh: 001 atau 102"
+                                disabled={!selectedItem}
+                                className="flex-1"
+                            />
+                        </div>
+                        {formData.kode_unit && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Kode unit:{" "}
+                                <span className="font-medium">
+                                    {formData.kode_unit}
+                                </span>
+                            </p>
+                        )}
+                    </div>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="status" className="text-right">
@@ -133,6 +169,9 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
                             <SelectItem value="Disewa">Disewa</SelectItem>
                             <SelectItem value="Tidak Tersedia">
                                 Tidak Tersedia
+                            </SelectItem>
+                            <SelectItem value="Sedang Ditahan">
+                                Sedang Ditahan
                             </SelectItem>
                         </SelectContent>
                     </Select>

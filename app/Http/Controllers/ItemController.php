@@ -19,7 +19,7 @@ class ItemController extends Controller
     public function index()
     {
         $totalAvailable = ItemUnit::where('status', 'Tersedia')->count();
-        $totalUnavailable = ItemUnit::whereIn('status', ['Tidak Tersedia', 'Rusak', 'Dalam Perbaikan'])->count();
+        $totalUnavailable = ItemUnit::whereIn('status', ['Tidak Tersedia', 'Rusak', 'Dalam Perbaikan', 'Sedang Ditahan'])->count();
         $totalRented = ItemUnit::where('status', 'Disewa')->count();
 
         return Inertia::render('item/item-index', [
@@ -31,6 +31,7 @@ class ItemController extends Controller
                 'available_units' => $item->itemUnits->where('status', 'Tersedia')->count(),
                 'rented_units' => $item->itemUnits->where('status', 'Disewa')->count(),
                 'broken_units' => $item->itemUnits->whereIn('status', ['Rusak', 'Dalam Perbaikan'])->count(),
+                'held_units' => $item->itemUnits->where('status', 'Sedang Ditahan')->count(),
                 'status' => $item->status,
                 'deskripsi' => $item->deskripsi,
                 'created_at' => $item->created_at->format('Y-m-d H:i:s'),
@@ -77,7 +78,7 @@ class ItemController extends Controller
             ItemUnit::create([
                 'id_barang' => $item->id,
                 'kode_unit' => $validatedData['base_code'] . '-' . str_pad($i, 3, '0', STR_PAD_LEFT),
-                'status' => $item->status === 'Tersedia' ? 'Tersedia' : 'Tidak Tersedia'
+                'status' => $validatedData['status'] === 'Tersedia' ? 'Tersedia' : ($validatedData['status'] === 'Sedang Ditahan' ? 'Sedang Ditahan' : 'Tidak Tersedia')
             ]);
         }
 
@@ -134,7 +135,7 @@ class ItemController extends Controller
                 ItemUnit::create([
                     'id_barang' => $item->id,
                     'kode_unit' => $baseCode . '-' . str_pad($unitNumber, 3, '0', STR_PAD_LEFT),
-                    'status' => $item->status === 'Tersedia' ? 'Tersedia' : 'Tidak Tersedia'
+                    'status' => $validatedData['status'] === 'Tersedia' ? 'Tersedia' : ($validatedData['status'] === 'Sedang Ditahan' ? 'Sedang Ditahan' : 'Tidak Tersedia')
                 ]);
             }
         }
@@ -153,17 +154,16 @@ class ItemController extends Controller
     private function updateItemUnitsStatus(Item $item, string $oldStatus, string $newStatus)
     {
         if ($newStatus === 'Sedang Ditahan') {
-            // When item is put on hold, all available units become unavailable
+            // When item is put on hold, all available units become held
             // But don't change units that are rented, broken, or in repair
             $item->itemUnits()
                 ->where('status', 'Tersedia')
-                ->update(['status' => 'Tidak Tersedia']);
+                ->update(['status' => 'Sedang Ditahan']);
 
         } elseif ($oldStatus === 'Sedang Ditahan' && $newStatus === 'Tersedia') {
-            // When item is released from hold, unavailable units become available
-            // But only those that were made unavailable due to the hold
+            // When item is released from hold, held units become available
             $item->itemUnits()
-                ->where('status', 'Tidak Tersedia')
+                ->where('status', 'Sedang Ditahan')
                 ->update(['status' => 'Tersedia']);
 
         } elseif ($newStatus === 'Tidak Tersedia') {

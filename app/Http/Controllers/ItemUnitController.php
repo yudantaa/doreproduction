@@ -19,6 +19,7 @@ class ItemUnitController extends Controller
             'items' => Item::all()->map(fn($item) => [
                 'id' => $item->id,
                 'nama_barang' => $item->nama_barang,
+                'base_code' => $item->base_code,
             ]),
         ]);
     }
@@ -31,7 +32,7 @@ class ItemUnitController extends Controller
         $validatedData = $request->validate([
             'id_barang' => 'required|exists:items,id',
             'kode_unit' => 'required|string|max:255|unique:item_units,kode_unit',
-            'status' => 'required|in:Tersedia,Tidak Tersedia,Rusak,Dalam Perbaikan,Disewa',
+            'status' => 'required|in:Tersedia,Tidak Tersedia,Rusak,Dalam Perbaikan,Disewa,Sedang Ditahan',
         ]);
 
         ItemUnit::create($validatedData);
@@ -47,7 +48,7 @@ class ItemUnitController extends Controller
         $validatedData = $request->validate([
             'id_barang' => 'required|exists:items,id',
             'kode_unit' => 'required|string|max:255|unique:item_units,kode_unit,' . $itemUnit->id,
-            'status' => 'required|in:Tersedia,Tidak Tersedia,Rusak,Dalam Perbaikan,Disewa',
+            'status' => 'required|in:Tersedia,Tidak Tersedia,Rusak,Dalam Perbaikan,Disewa,Sedang Ditahan',
         ]);
 
         $itemUnit->update($validatedData);

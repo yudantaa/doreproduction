@@ -81,6 +81,7 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                 "Dalam Perbaikan": "bg-yellow-100 text-yellow-800",
                 Disewa: "bg-blue-100 text-blue-800",
                 "Tidak Tersedia": "bg-gray-100 text-gray-800",
+                "Sedang Ditahan": "bg-yellow-100 text-yellow-800",
             };
             return (
                 <span
@@ -124,6 +125,7 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
             const unit = row.original;
             const { toast } = useToast();
             const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+            const [unitNumber, setUnitNumber] = useState("");
 
             const {
                 formData,
@@ -133,13 +135,46 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                 closeModal,
             } = useFormState<ItemUnit>(null);
 
+            // Extract unit number from kode_unit when modal opens
+            React.useEffect(() => {
+                if (formData && formData.kode_unit) {
+                    const parts = formData.kode_unit.split("-");
+                    if (parts.length > 1) {
+                        setUnitNumber(parts[parts.length - 1]);
+                    }
+                }
+            }, [formData]);
+
+            // Find selected item for display
+            const selectedItem = formData
+                ? items.find((item) => item.id === formData.id_barang)
+                : null;
+
+            // Update kode_unit when item or unit number changes
+            React.useEffect(() => {
+                if (formData && selectedItem && unitNumber) {
+                    const updatedFormData = {
+                        ...formData,
+                        kode_unit: `${selectedItem.base_code}-${unitNumber}`,
+                    };
+                    // We need to update the form data, but we can't call handleInputChange here
+                    // as it would create an infinite loop. We'll handle this in the submit function.
+                }
+            }, [selectedItem, unitNumber, formData]);
+
             const handleUpdate = async (e: React.FormEvent) => {
                 e.preventDefault();
-                if (!formData) return;
+                if (!formData || !selectedItem || !unitNumber.trim()) return;
+
+                // Construct the final kode_unit
+                const finalFormData = {
+                    ...formData,
+                    kode_unit: `${selectedItem.base_code}-${unitNumber}`,
+                };
 
                 router.put(
                     `item-units/${unit.id}`,
-                    formData as unknown as Record<string, any>,
+                    finalFormData as unknown as Record<string, any>,
                     {
                         onSuccess: () => {
                             toast({
@@ -148,15 +183,26 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                             closeModal();
                         },
                         onError: (errors) => {
+                            console.log("Update errors:", errors);
                             toast({
                                 title: "Gagal Memperbarui Unit",
                                 description:
-                                    "Silakan periksa kembali input Anda.",
+                                    "Silakan periksa kembali input Anda. Mungkin kode unit sudah ada.",
                                 variant: "destructive",
                             });
                         },
                     }
                 );
+            };
+
+            const handleItemChange = (value: string) => {
+                handleSelectChange("id_barang", value);
+            };
+
+            const handleUnitNumberChange = (
+                e: React.ChangeEvent<HTMLInputElement>
+            ) => {
+                setUnitNumber(e.target.value);
             };
 
             return (
@@ -256,21 +302,6 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                                     >
                                         <div className="grid grid-cols-4 items-center gap-4">
                                             <Label
-                                                htmlFor="kode_unit"
-                                                className="text-right"
-                                            >
-                                                Kode Unit
-                                            </Label>
-                                            <Input
-                                                id="kode_unit"
-                                                name="kode_unit"
-                                                value={formData.kode_unit}
-                                                onChange={handleInputChange}
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
                                                 htmlFor="id_barang"
                                                 className="text-right"
                                             >
@@ -278,12 +309,7 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                                             </Label>
                                             <Select
                                                 value={formData.id_barang}
-                                                onValueChange={(value) =>
-                                                    handleSelectChange(
-                                                        "id_barang",
-                                                        value
-                                                    )
-                                                }
+                                                onValueChange={handleItemChange}
                                             >
                                                 <SelectTrigger className="col-span-3">
                                                     <SelectValue placeholder="Pilih Barang" />
@@ -294,11 +320,50 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                                                             key={item.id}
                                                             value={item.id}
                                                         >
-                                                            {item.nama_barang}
+                                                            {item.nama_barang} (
+                                                            {item.base_code})
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label
+                                                htmlFor="unit_number"
+                                                className="text-right"
+                                            >
+                                                Nomor Unit
+                                            </Label>
+                                            <div className="col-span-3">
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-sm font-medium text-muted-foreground min-w-fit">
+                                                        {selectedItem
+                                                            ? `${selectedItem.base_code}-`
+                                                            : "Pilih barang dulu"}
+                                                    </span>
+                                                    <Input
+                                                        id="unit_number"
+                                                        value={unitNumber}
+                                                        onChange={
+                                                            handleUnitNumberChange
+                                                        }
+                                                        placeholder="contoh: 001 atau 102"
+                                                        disabled={!selectedItem}
+                                                        className="flex-1"
+                                                    />
+                                                </div>
+                                                {selectedItem && unitNumber && (
+                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                        Kode unit:{" "}
+                                                        <span className="font-medium">
+                                                            {
+                                                                selectedItem.base_code
+                                                            }
+                                                            -{unitNumber}
+                                                        </span>
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="grid grid-cols-4 items-center gap-4">
                                             <Label
@@ -334,6 +399,9 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                                                     </SelectItem>
                                                     <SelectItem value="Tidak Tersedia">
                                                         Tidak Tersedia
+                                                    </SelectItem>
+                                                    <SelectItem value="Sedang Ditahan">
+                                                        Sedang Ditahan
                                                     </SelectItem>
                                                 </SelectContent>
                                             </Select>

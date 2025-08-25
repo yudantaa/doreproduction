@@ -65,6 +65,7 @@ export type Item = {
     available_units: number;
     rented_units: number;
     broken_units: number;
+    held_units: number;
     created_at: string;
     image?: string | null;
 };
@@ -269,6 +270,20 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                 <div className="flex items-center justify-center text-xs">
                     <AlertTriangle className="h-3 w-3 text-red-600 mr-1" />
                     {item.broken_units}
+                </div>
+            );
+        },
+    },
+    {
+        accessorKey: "held_units",
+        header: "Ditahan",
+        size: 70,
+        cell: ({ row }) => {
+            const item = row.original;
+            return (
+                <div className="flex items-center justify-center text-xs">
+                    <Clock className="h-3 w-3 text-yellow-600 mr-1" />
+                    {item.held_units}
                 </div>
             );
         },

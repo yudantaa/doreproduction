@@ -57,6 +57,7 @@ export default function ItemUnitsIndex({
         { value: "Dalam Perbaikan", label: "Dalam Perbaikan" },
         { value: "Disewa", label: "Disewa" },
         { value: "Tidak Tersedia", label: "Tidak Tersedia" },
+        { value: "Sedang Ditahan", label: "Sedang Ditahan" },
     ];
 
     return (

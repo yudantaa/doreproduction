@@ -7,16 +7,14 @@ use Illuminate\Support\Facades\Log;
 
 class TelegramBotController extends Controller
 {
-    private string $botToken = env('TELEGRAM_BOT_TOKEN');
-
-    // List chat_id admin yang bisa dpt notif
+    private string $botToken;
     private array $adminChatIds;
 
     public function __construct()
     {
-        $this->adminChatIds = array_filter(explode(',', env('TELEGRAM_BOT_ADMIN_IDS', '')));
+        $this->botToken = config('telegrambot.bot_token');
+        $this->adminChatIds = config('telegrambot.admin_ids');
     }
-
 
     public function sendMessage(string $message)
     {
@@ -28,7 +26,7 @@ class TelegramBotController extends Controller
                 $response = Http::post($url, [
                     'chat_id' => $chatId,
                     'text' => $message,
-                    'parse_mode' => 'HTML'
+                    'parse_mode' => 'HTML',
                 ]);
 
                 $results[$chatId] = $response->json();
@@ -41,7 +39,7 @@ class TelegramBotController extends Controller
         return response()->json([
             'success' => true,
             'sent_to' => $this->adminChatIds,
-            'responses' => $results
+            'responses' => $results,
         ]);
     }
 }

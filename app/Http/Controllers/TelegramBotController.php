@@ -7,18 +7,12 @@ use Illuminate\Support\Facades\Log;
 
 class TelegramBotController extends Controller
 {
-    private string $botToken = "8139348784:AAFdfXeo5Rt4DAm255ayuD5_Ey7BJM6ecs0";
+    private string $botToken = env('TELEGRAM_BOT_TOKEN');
 
     // List chat_id admin yang bisa dpt notif
-    private array $adminChatIds = [
-        "1273596023",
-        "987654321",
-        // add more here
-    ];
+    private array $adminChatIds = env('TELEGRAM_BOT_ADMIN_IDS');
 
-    /**
-     * Send a Telegram message to all admins
-     */
+
     public function sendMessage(string $message)
     {
         $url = "https://api.telegram.org/bot{$this->botToken}/sendMessage";

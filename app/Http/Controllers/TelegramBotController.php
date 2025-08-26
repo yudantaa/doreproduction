@@ -10,7 +10,12 @@ class TelegramBotController extends Controller
     private string $botToken = env('TELEGRAM_BOT_TOKEN');
 
     // List chat_id admin yang bisa dpt notif
-    private array $adminChatIds = env('TELEGRAM_BOT_ADMIN_IDS');
+    private array $adminChatIds;
+
+    public function __construct()
+    {
+        $this->adminChatIds = array_filter(explode(',', env('TELEGRAM_BOT_ADMIN_IDS', '')));
+    }
 
 
     public function sendMessage(string $message)

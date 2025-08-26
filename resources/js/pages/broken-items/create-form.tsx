@@ -1,15 +1,15 @@
+import React, { useState, useRef } from "react";
 import AuthenticatedLayout from "@/layouts/authenticated-layout";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useToast } from "@/components/hooks/use-toast";
 
 interface ItemWithUnits {
     id: number;
     nama_barang: string;
-    image?: string;
     units: Array<{
         id: number;
         kode_unit: string;
@@ -19,60 +19,111 @@ interface ItemWithUnits {
 
 interface CreateBrokenItemProps {
     itemsWithUnits: ItemWithUnits[];
-    selectedItemUnit?: {
-        id: number;
-        kode_unit: string;
-        item: {
-            id: number;
-            nama_barang: string;
-        };
-    };
 }
 
 export default function CreateBrokenItem({
     itemsWithUnits,
-    selectedItemUnit,
 }: CreateBrokenItemProps) {
-    const [selectedItemId, setSelectedItemId] = useState<string>(
-        selectedItemUnit?.item.id.toString() || ""
-    );
-    const [availableUnits, setAvailableUnits] = useState(
-        selectedItemUnit
-            ? [
-                  {
-                      id: selectedItemUnit.id,
-                      kode_unit: selectedItemUnit.kode_unit,
-                      status: "Tersedia",
-                  },
-              ]
-            : []
-    );
+    const { toast } = useToast();
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        id_item_unit: selectedItemUnit?.id.toString() || "",
+    const [formData, setFormData] = useState({
+        id_item: "",
+        id_item_unit: "",
         description: "",
-        proof_image: null as File | null,
     });
 
-    const handleItemChange = (itemId: string) => {
-        setSelectedItemId(itemId);
-        setData("id_item_unit", "");
+    const [proofImage, setProofImage] = useState<File | null>(null);
 
-        const selectedItem = itemsWithUnits.find(
-            (item) => item.id.toString() === itemId
-        );
-        setAvailableUnits(selectedItem?.units || []);
+    const handleDescriptionChange = (
+        e: React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        setFormData({ ...formData, description: e.target.value });
+
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route("dashboard.broken-items.store"), {
+
+        // 🔹 Frontend validation
+        if (!formData.id_item) {
+            toast({
+                title: "Validasi Gagal",
+                description: "Barang harus dipilih.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!formData.id_item_unit) {
+            toast({
+                title: "Validasi Gagal",
+                description: "Unit barang harus dipilih.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (!formData.description.trim() || formData.description.length < 10) {
+            toast({
+                title: "Validasi Gagal",
+                description: "Deskripsi minimal 10 karakter.",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (proofImage) {
+            const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+            if (!allowedTypes.includes(proofImage.type)) {
+                toast({
+                    title: "Validasi Gagal",
+                    description:
+                        "Format gambar tidak valid (hanya JPG, PNG, WebP).",
+                    variant: "destructive",
+                });
+                return;
+            }
+            if (proofImage.size > 2 * 1024 * 1024) {
+                toast({
+                    title: "Validasi Gagal",
+                    description: "Ukuran gambar maksimal 2MB.",
+                    variant: "destructive",
+                });
+                return;
+            }
+        }
+
+        // 🔹 Kirim data
+        const submitData = new FormData();
+        submitData.append("id_item_unit", formData.id_item_unit);
+        submitData.append("description", formData.description);
+        if (proofImage) {
+            submitData.append("proof_image", proofImage);
+        }
+
+        router.post(route("dashboard.broken-items.store"), submitData, {
             onSuccess: () => {
-                reset();
+                toast({
+                    description: "Laporan barang rusak berhasil dikirim.",
+                });
+                setFormData({ id_item: "", id_item_unit: "", description: "" });
+                setProofImage(null);
             },
-            preserveScroll: true,
+            onError: () => {
+                toast({
+                    title: "Gagal Mengirim Laporan",
+                    description: "Silakan periksa kembali input Anda.",
+                    variant: "destructive",
+                });
+            },
         });
     };
+
+    const selectedItem = itemsWithUnits.find(
+        (item) => item.id.toString() === formData.id_item
+    );
 
     return (
         <AuthenticatedLayout>
@@ -91,179 +142,93 @@ export default function CreateBrokenItem({
 
                 <div className="bg-card rounded-lg shadow p-6 border">
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {!selectedItemUnit && (
-                            <>
-                                {/* Item Selection */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="item_select">
-                                        Pilih Barang
-                                    </Label>
-                                    <select
-                                        id="item_select"
-                                        value={selectedItemId}
-                                        onChange={(e) =>
-                                            handleItemChange(e.target.value)
-                                        }
-                                        className="w-full p-3 border rounded-md bg-background text-foreground"
-                                        required
-                                    >
-                                        <option value="">Pilih Barang</option>
-                                        {itemsWithUnits.map((item) => (
-                                            <option
-                                                key={item.id}
-                                                value={item.id}
-                                            >
-                                                {item.nama_barang} (
-                                                {item.units.length} unit
-                                                tersedia)
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.id_item_unit &&
-                                        !data.id_item_unit && (
-                                            <p className="text-red-500 text-sm">
-                                                Silakan pilih barang terlebih
-                                                dahulu
-                                            </p>
-                                        )}
-                                </div>
-
-                                {/* Unit Selection */}
-                                {selectedItemId &&
-                                    availableUnits.length > 0 && (
-                                        <div className="space-y-2">
-                                            <Label htmlFor="id_item_unit">
-                                                Pilih Unit
-                                            </Label>
-                                            <select
-                                                id="id_item_unit"
-                                                value={data.id_item_unit}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        "id_item_unit",
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className="w-full p-3 border rounded-md bg-background text-foreground"
-                                                required
-                                            >
-                                                <option value="">
-                                                    Pilih Unit
-                                                </option>
-                                                {availableUnits.map((unit) => (
-                                                    <option
-                                                        key={unit.id}
-                                                        value={unit.id}
-                                                    >
-                                                        {unit.kode_unit} -{" "}
-                                                        {unit.status}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            {errors.id_item_unit && (
-                                                <p className="text-red-500 text-sm">
-                                                    {errors.id_item_unit}
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
-
-                                {selectedItemId &&
-                                    availableUnits.length === 0 && (
-                                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                                            <p className="text-yellow-800 text-sm">
-                                                Tidak ada unit yang tersedia
-                                                untuk barang ini.
-                                            </p>
-                                        </div>
-                                    )}
-                            </>
-                        )}
-
-                        {/* Pre-selected Unit Info */}
-                        {selectedItemUnit && (
-                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-                                <h3 className="font-medium text-blue-900 mb-2">
-                                    Unit yang Dipilih:
-                                </h3>
-                                <p className="text-blue-800">
-                                    <strong>
-                                        {selectedItemUnit.item.nama_barang}
-                                    </strong>{" "}
-                                    - Unit: {selectedItemUnit.kode_unit}
-                                </p>
-                                <input
-                                    type="hidden"
-                                    value={selectedItemUnit.id}
-                                    onChange={(e) =>
-                                        setData("id_item_unit", e.target.value)
-                                    }
-                                />
-                            </div>
-                        )}
-
-                        {/* Description */}
+                        {/* Pilih Barang */}
                         <div className="space-y-2">
-                            <Label htmlFor="description">
-                                Deskripsi Kerusakan{" "}
-                                <span className="text-red-500">*</span>
-                            </Label>
-                            <Textarea
-                                id="description"
-                                value={data.description}
+                            <Label htmlFor="id_item">Pilih Barang</Label>
+                            <select
+                                id="id_item"
+                                value={formData.id_item}
                                 onChange={(e) =>
-                                    setData("description", e.target.value)
+                                    setFormData({
+                                        ...formData,
+                                        id_item: e.target.value,
+                                        id_item_unit: "",
+                                    })
                                 }
-                                className="bg-background text-foreground min-h-[100px]"
-                                placeholder="Jelaskan detail kerusakan yang ditemukan..."
-                                required
-                            />
-                            {errors.description && (
-                                <p className="text-red-500 text-sm">
-                                    {errors.description}
-                                </p>
-                            )}
+                                className="w-full p-3 border rounded-md bg-background text-foreground"
+                            >
+                                <option value="">Pilih Barang</option>
+                                {itemsWithUnits.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.nama_barang} ({item.units.length}{" "}
+                                        unit tersedia)
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
-                        {/* Proof Image */}
+                        {/* Pilih Unit */}
+                        <div className="space-y-2">
+                            <Label htmlFor="id_item_unit">Pilih Unit</Label>
+                            <select
+                                id="id_item_unit"
+                                value={formData.id_item_unit}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        id_item_unit: e.target.value,
+                                    })
+                                }
+                                className="w-full p-3 border rounded-md bg-background text-foreground"
+                                disabled={!formData.id_item}
+                            >
+                                <option value="">Pilih Unit</option>
+                                {selectedItem?.units.map((unit) => (
+                                    <option key={unit.id} value={unit.id}>
+                                        {unit.kode_unit} - {unit.status}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Deskripsi */}
+                        <div className="space-y-2">
+                            <Label htmlFor="description">
+                                Deskripsi Kerusakan
+                            </Label>
+                            <Textarea
+                                ref={textareaRef}
+                                id="description"
+                                value={formData.description}
+                                onChange={handleDescriptionChange}
+                                className="bg-background text-foreground min-h-[100px]"
+                                placeholder="Jelaskan detail kerusakan yang ditemukan..."
+                            />
+                        </div>
+
+                        {/* Foto Bukti */}
                         <div className="space-y-2">
                             <Label htmlFor="proof_image">
-                                Bukti Foto Kerusakan (Opsional)
+                                Bukti Foto (Opsional)
                             </Label>
                             <Input
                                 id="proof_image"
                                 type="file"
                                 accept="image/*"
-                                className="bg-background text-foreground"
                                 onChange={(e) =>
-                                    setData(
-                                        "proof_image",
-                                        e.target.files?.[0] || null
-                                    )
+                                    setProofImage(e.target.files?.[0] || null)
                                 }
+                                className="bg-background text-foreground"
                             />
                             <p className="text-sm text-muted-foreground">
-                                Format yang didukung: JPG, PNG, WebP. Maksimal
-                                5MB.
+                                Format didukung: JPG, PNG, WebP. Maks 2MB.
                             </p>
-                            {errors.proof_image && (
-                                <p className="text-red-500 text-sm">
-                                    {errors.proof_image}
-                                </p>
-                            )}
                         </div>
 
-                        {/* Submit Button */}
+                        {/* Tombol Submit */}
                         <div className="flex justify-end">
-                            <Button
-                                type="submit"
-                                disabled={
-                                    processing ||
-                                    (!selectedItemUnit && !data.id_item_unit)
-                                }
-                                className="w-full sm:w-auto"
-                            >
-                                {processing ? "Mengirim..." : "Kirim Laporan"}
+                            <Button type="submit" className="w-full sm:w-auto">
+                                Kirim Laporan
                             </Button>
                         </div>
                     </form>

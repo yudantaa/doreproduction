@@ -58,10 +58,10 @@ export type Loan = {
     id_item_unit: string;
 };
 
-type Item = {
+type ItemUnit = {
     id: string;
+    kode_unit: string;
     nama_barang: string;
-    available_units: number;
 };
 
 const formatDate = (date: string) => {
@@ -73,7 +73,7 @@ const formatDateTime = (date: string) => {
 };
 
 export const columns = (
-    items: Item[],
+    availableUnits: ItemUnit[],
     isSuperAdmin: boolean
 ): ColumnDef<Loan>[] => [
     {
@@ -278,9 +278,7 @@ export const columns = (
             } = useFormState({
                 nama_penyewa: loan.nama_penyewa,
                 no_tlp_penyewa: loan.no_tlp_penyewa,
-                id_barang:
-                    items.find((item) => item.nama_barang === loan.nama_barang)
-                        ?.id || "",
+                id_item_unit: loan.id_item_unit,
                 tanggal_sewa: format(new Date(loan.tanggal_sewa), "yyyy-MM-dd"),
                 deadline_pengembalian: format(
                     new Date(loan.deadline_pengembalian),
@@ -320,7 +318,7 @@ export const columns = (
                             onError: (errors) => {
                                 const errorMessage =
                                     errors?.message ||
-                                    errors?.id_barang ||
+                                    errors?.id_item_unit ||
                                     "Gagal mengembalikan barang";
                                 toast({
                                     title: "Error",
@@ -407,12 +405,7 @@ export const columns = (
                                                 nama_penyewa: loan.nama_penyewa,
                                                 no_tlp_penyewa:
                                                     loan.no_tlp_penyewa,
-                                                id_barang:
-                                                    items.find(
-                                                        (item) =>
-                                                            item.nama_barang ===
-                                                            loan.nama_barang
-                                                    )?.id || "",
+                                                id_item_unit: loan.id_item_unit,
                                                 tanggal_sewa: format(
                                                     new Date(loan.tanggal_sewa),
                                                     "yyyy-MM-dd"
@@ -529,43 +522,35 @@ export const columns = (
                                     </div>
 
                                     <div className="space-y-2 sm:col-span-2">
-                                        <Label htmlFor="id_barang">
-                                            Barang
+                                        <Label htmlFor="id_item_unit">
+                                            Unit Barang
                                         </Label>
                                         <Select
-                                            name="id_barang"
-                                            value={formData?.id_barang || ""}
+                                            name="id_item_unit"
+                                            value={formData?.id_item_unit || ""}
                                             onValueChange={(value) =>
                                                 handleSelectChange(
-                                                    "id_barang",
+                                                    "id_item_unit",
                                                     value
                                                 )
                                             }
                                             required
                                         >
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Pilih Barang" />
+                                                <SelectValue placeholder="Pilih Unit Barang" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {items.map((item) => (
+                                                {availableUnits.map((unit) => (
                                                     <SelectItem
-                                                        key={item.id.toString()}
-                                                        value={item.id.toString()}
-                                                        disabled={
-                                                            item.available_units <=
-                                                            0
-                                                        }
+                                                        key={unit.id.toString()}
+                                                        value={unit.id.toString()}
                                                     >
                                                         <div className="flex w-full justify-between">
                                                             <span>
+                                                                {unit.kode_unit}{" "}
+                                                                -{" "}
                                                                 {
-                                                                    item.nama_barang
-                                                                }
-                                                            </span>
-                                                            <span className="text-muted-foreground">
-                                                                Tersedia:{" "}
-                                                                {
-                                                                    item.available_units
+                                                                    unit.nama_barang
                                                                 }
                                                             </span>
                                                         </div>

@@ -13,7 +13,7 @@ interface ImageUploadProps {
 export const ImageUpload: React.FC<ImageUploadProps> = ({
     initialImage = null,
     onImageChange,
-    maxSizeInMB = 5, // Default 5MB max file size
+    maxSizeInMB = 2,
 }) => {
     const [previewImage, setPreviewImage] = useState<string | null>(
         initialImage

@@ -40,6 +40,12 @@ interface LoanIndexProps {
         nama_barang: string;
         available_units: number;
     }>;
+    availableUnits: Array<{
+        id: string;
+        kode_unit: string;
+        nama_barang: string;
+        item_id: string;
+    }>;
     totalActiveLoans: number;
     totalOverdue: number;
     isSuperAdmin: boolean;
@@ -48,6 +54,7 @@ interface LoanIndexProps {
 export default function LoanIndex({
     loans,
     items,
+    availableUnits,
     totalActiveLoans,
     totalOverdue,
     isSuperAdmin,
@@ -110,6 +117,7 @@ export default function LoanIndex({
                                 <div className="max-h-[70vh] overflow-y-auto pr-1">
                                     <LoanCreateForm
                                         items={items}
+                                        availableUnits={availableUnits}
                                         onClose={() =>
                                             setIsRegisterModalOpen(false)
                                         }
@@ -202,7 +210,7 @@ export default function LoanIndex({
                     <div className="rounded-lg border border-border bg-card">
                         <div className="h-[calc(100vh-20rem)] min-h-[400px]">
                             <DataTable
-                                columns={columns(items, isSuperAdmin)}
+                                columns={columns(availableUnits, isSuperAdmin)}
                                 data={filteredLoans}
                                 pageSize={10}
                                 pageSizeOptions={[5, 10, 20, 50]}

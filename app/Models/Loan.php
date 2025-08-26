@@ -9,11 +9,17 @@ class Loan extends Model
     protected $fillable = [
         'nama_penyewa',
         'no_tlp_penyewa',
-        'item_unit_id',
+        'id_item_unit',
         'tanggal_sewa',
         'tanggal_kembali',
         'deadline_pengembalian',
         'status',
+    ];
+
+    protected $casts = [
+        'tanggal_sewa' => 'datetime',
+        'tanggal_kembali' => 'datetime',
+        'deadline_pengembalian' => 'datetime',
     ];
 
     public function itemUnit()

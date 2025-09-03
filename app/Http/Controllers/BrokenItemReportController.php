@@ -195,7 +195,7 @@ class BrokenItemReportController extends Controller
 
             $report = BrokenItemReport::create([
                 'id_item_unit' => $validated['id_item_unit'],
-                'reporter_id' => Auth::id(),
+                'id_pelapor' => Auth::id(),
                 'description' => $validated['description'],
                 'proof_image_path' => $imagePath,
                 'status' => 'reported',

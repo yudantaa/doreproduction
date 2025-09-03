@@ -12,12 +12,11 @@ return new class extends Migration {
     {
         Schema::create('broken_item_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('reporter_id')->constrained('users');
+            $table->foreignId('id_pelapor')->constrained('users');
             $table->text('description');
             $table->string('proof_image_path')->nullable();
             $table->enum('status', ['reported', 'in_repair', 'repaired', 'rejected'])->default('reported');
             $table->text('repair_notes')->nullable();
-            $table->foreignId('repair_requester_id')->nullable()->constrained('users');
             $table->timestamp('repair_requested_at')->nullable();
             $table->timestamps();
         });

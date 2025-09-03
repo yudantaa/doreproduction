@@ -77,7 +77,7 @@ class BrokenItemReportsSeeder extends Seeder
 
             $report = BrokenItemReport::create([
                 'id_item_unit' => $availableUnit->id, // Changed from id_unit to id_item_unit
-                'reporter_id' => $reporter->id,
+                'id_pelapor' => $reporter->id,
                 'description' => $descriptions[array_rand($descriptions)],
                 'status' => $status,
                 'created_at' => $createdAt,

@@ -22,11 +22,13 @@ import { useToast } from "@/components/hooks/use-toast";
 interface AddItemUnitFormProps {
     onClose: () => void;
     items: any[];
+    itemUnits: any[]; // Tambahkan prop untuk itemUnits
 }
 
 export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
     onClose,
     items,
+    itemUnits, // Terima prop itemUnits
 }) => {
     const { toast } = useToast();
     const [formData, setFormData] = useState({
@@ -36,6 +38,36 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
     });
     const [unitNumber, setUnitNumber] = useState("");
     const [selectedItem, setSelectedItem] = useState<any>(null);
+    const [suggestedNumber, setSuggestedNumber] = useState("");
+
+    useEffect(() => {
+        if (selectedItem) {
+            // Cari unit terakhir untuk item yang dipilih
+            const unitsForItem = itemUnits.filter(
+                (unit) => unit.id_barang == selectedItem.id
+            );
+
+            // Ekstrak angka dari kode unit dan cari yang tertinggi
+            let maxNumber = 0;
+            unitsForItem.forEach((unit) => {
+                const parts = unit.kode_unit.split("-");
+                const numberPart = parts[parts.length - 1];
+                const number = parseInt(numberPart);
+                if (!isNaN(number) && number > maxNumber) {
+                    maxNumber = number;
+                }
+            });
+
+            // Set angka saran sebagai angka tertinggi + 1
+            const nextNumber = maxNumber + 1;
+            setSuggestedNumber(nextNumber.toString());
+
+            // Set unitNumber ke angka saran jika belum diisi
+            if (!unitNumber) {
+                setUnitNumber(nextNumber.toString());
+            }
+        }
+    }, [selectedItem, itemUnits]);
 
     useEffect(() => {
         if (selectedItem && unitNumber) {
@@ -79,16 +111,23 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
         setFormData((prev) => ({ ...prev, id_barang: value }));
         const item = items.find((item) => item.id === value);
         setSelectedItem(item);
-        setUnitNumber("");
+        setUnitNumber(""); // Reset unit number ketika item berubah
     };
 
     const handleUnitNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setUnitNumber(value);
+        // Hanya memperbolehkan angka
+        if (/^\d*$/.test(value)) {
+            setUnitNumber(value);
+        }
+    };
+
+    const useSuggestion = () => {
+        setUnitNumber(suggestedNumber);
     };
 
     return (
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
                 <DialogTitle>Tambah Unit Baru</DialogTitle>
                 <DialogDescription>
@@ -121,7 +160,7 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
                     <Label htmlFor="unit_number" className="text-right">
                         Nomor Unit
                     </Label>
-                    <div className="col-span-3">
+                    <div className="col-span-3 space-y-2">
                         <div className="flex items-center space-x-2">
                             <span className="text-sm font-medium text-muted-foreground min-w-fit">
                                 {selectedItem
@@ -132,13 +171,32 @@ export const AddItemUnitForm: React.FC<AddItemUnitFormProps> = ({
                                 id="unit_number"
                                 value={unitNumber}
                                 onChange={handleUnitNumberChange}
-                                placeholder="contoh: 001 atau 102"
+                                placeholder="Masukkan nomor unit"
                                 disabled={!selectedItem}
                                 className="flex-1"
                             />
                         </div>
+
+                        {suggestedNumber && (
+                            <div className="flex items-center text-sm text-muted-foreground">
+                                <span>
+                                    Saran: {selectedItem.base_code}-
+                                    {suggestedNumber}
+                                </span>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="ml-2 h-6 px-2"
+                                    onClick={useSuggestion}
+                                >
+                                    Gunakan
+                                </Button>
+                            </div>
+                        )}
+
                         {formData.kode_unit && (
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-muted-foreground">
                                 Kode unit:{" "}
                                 <span className="font-medium">
                                     {formData.kode_unit}

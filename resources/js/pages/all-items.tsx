@@ -440,10 +440,6 @@ export default function AllItemsPage({
                                                     <Package className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                                                     Stok: {item.jumlah}
                                                 </span>
-                                                <span className="flex items-center">
-                                                    <Shield className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                                                    Garansi
-                                                </span>
                                             </div>
                                             <div className="mt-auto">
                                                 <a
@@ -477,7 +473,7 @@ export default function AllItemsPage({
                                 open={isDialogOpen}
                                 onOpenChange={setIsDialogOpen}
                             >
-                                <DialogContent className="w-[95vw] max-w-4xl overflow-y-auto max-h-[90vh] rounded-2xl">
+                                <DialogContent className="max-w-md md:max-w-lg lg:max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
                                     {selectedItem && (
                                         <>
                                             <DialogHeader className="pb-4">
@@ -541,30 +537,6 @@ export default function AllItemsPage({
                                                                 unit
                                                             </p>
                                                         </div>
-                                                        {/* <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
-                                                            <div className="flex items-center mb-2">
-                                                                <Clock className="w-5 h-5 text-gray-900 dark:text-gray-100 mr-2" />
-                                                                <h5 className="font-medium text-gray-900 dark:text-white">
-                                                                    Periode Sewa
-                                                                </h5>
-                                                            </div>
-                                                            <p className="text-lg font-bold text-gray-900 dark:text-white">
-                                                                Harian/Mingguan/Bulanan
-                                                            </p>
-                                                        </div> */}
-                                                    </div>
-
-                                                    <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800/50">
-                                                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center">
-                                                            <Shield className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
-                                                            termasuk garansi
-                                                        </h5>
-                                                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                            Semua peralatan kami
-                                                            termasuk garansi
-                                                            kerusakan selama
-                                                            penyewaan
-                                                        </p>
                                                     </div>
 
                                                     <a

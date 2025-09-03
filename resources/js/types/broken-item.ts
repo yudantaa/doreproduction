@@ -3,7 +3,7 @@
 export interface BrokenItemReport {
     id: number;
     id_item_unit: number;
-    reporter_id: number;
+    id_pelapor: number;
     repair_requester_id?: number;
     description: string;
     proof_image_path?: string;

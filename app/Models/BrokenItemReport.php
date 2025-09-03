@@ -8,7 +8,7 @@ class BrokenItemReport extends Model
 {
     protected $fillable = [
         'id_item_unit',
-        'reporter_id',
+        'id_pelapor',
         'description',
         'proof_image_path',
         'status',
@@ -32,10 +32,10 @@ class BrokenItemReport extends Model
 
     public function reporter()
     {
-        return $this->belongsTo(User::class, 'reporter_id');
+        return $this->belongsTo(User::class, 'id_pelapor');
     }
 
-    // Helper method to get item name through item unit
+
     public function getItemNameAttribute()
     {
         return $this->itemUnit?->item?->nama_barang;

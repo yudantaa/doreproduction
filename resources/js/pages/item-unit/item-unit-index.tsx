@@ -102,6 +102,7 @@ export default function ItemUnitsIndex({
                                             setIsRegisterModalOpen(false)
                                         }
                                         items={items}
+                                        itemUnits={itemUnits}
                                     />
                                 </div>
                             </DialogContent>

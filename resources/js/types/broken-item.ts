@@ -4,7 +4,7 @@ export interface BrokenItemReport {
     id: number;
     id_item_unit: number;
     id_pelapor: number;
-    repair_requester_id?: number;
+    id_pelapor?: number;
     description: string;
     proof_image_path?: string;
     status: 'reported' | 'in_repair' | 'repaired' | 'rejected';

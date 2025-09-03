@@ -117,7 +117,7 @@ class BrokenItemReportsSeeder extends Seeder
                 if ($status === 'repaired' && rand(0, 1)) {
                     $admin = $users->where('id', '!=', $reporter->id)->random();
                     $report->update([
-                        'repair_requester_id' => $admin->id,
+                        'id_pelapor' => $admin->id,
                         'repair_requested_at' => $createdAt->copy()->addDays(rand(1, 7)),
                     ]);
 

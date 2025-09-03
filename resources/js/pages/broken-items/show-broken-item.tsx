@@ -319,7 +319,7 @@ export default function ShowBrokenItem({
                                         })}
                                     </p>
                                 </div>
-                                {report.repair_requester_id && (
+                                {report.id_pelapor && (
                                     <div>
                                         <p className="text-xs text-muted-foreground mb-1">
                                             Permintaan Perbaikan Oleh

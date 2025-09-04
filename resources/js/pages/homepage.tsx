@@ -16,7 +16,6 @@ import {
 import {
     ChevronRightIcon,
     CheckCircle,
-    ShieldCheck,
     Clock,
     Phone,
     Menu,
@@ -32,7 +31,6 @@ import {
     Package,
     UserIcon,
     Star,
-    Shield,
     Users,
     Play,
 } from "lucide-react";
@@ -85,24 +83,26 @@ export default function HomePage({
         },
     ];
 
-    const recentProjects = [
+    const services = [
         {
-            title: "Festival Film Jakarta",
-            image: "/api/placeholder/400/320",
-            description:
-                "Penyediaan pencahayaan untuk panggung utama dan area ekshibisi",
+            title: "Sound Systems",
+            description: "Professional audio equipment for any event size",
+            icon: "🎵",
         },
         {
-            title: "Konser Musik Nasional",
-            image: "/api/placeholder/400/320",
-            description:
-                "Sistem pencahayaan lengkap untuk konser indoor dengan 5000 penonton",
+            title: "Lighting",
+            description: "Stage lighting and effects for dramatic impact",
+            icon: "💡",
         },
         {
-            title: "Pemotretan Majalah Mode",
-            image: "/api/placeholder/400/320",
-            description:
-                "Setup pencahayaan studio dan lokasi untuk brand fashion terkemuka",
+            title: "Event Planning",
+            description: "Full event coordination and management",
+            icon: "📋",
+        },
+        {
+            title: "Technical Support",
+            description: "Expert technicians on-site for your event",
+            icon: "🔧",
         },
     ];
 
@@ -157,10 +157,12 @@ export default function HomePage({
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 flex flex-col">
             <Head title="Dore Production - Sewa Peralatan Pencahayaan Profesional" />
+
+            {/* Header */}
             <header
-                className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 ${
+                className={`bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 ${
                     isHeaderSticky
                         ? "sticky top-0 z-50 shadow-lg transition-all duration-300"
                         : ""
@@ -169,7 +171,7 @@ export default function HomePage({
                 <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                     <Link href="/">
                         <div className="flex items-center group">
-                            <div className="w-10 h-10 bg-gray-900 dark:bg-gray-100 rounded-full flex items-center justify-center mr-3 transition-all duration-300 group-hover:scale-110">
+                            <div className="w-10 h-10  flex items-center justify-center mr-3 transition-all duration-300 group-hover:scale-110">
                                 <img
                                     src="/logo.jpg"
                                     alt="Dore Production Logo"
@@ -184,9 +186,10 @@ export default function HomePage({
                             </h3>
                         </div>
                     </Link>
-                    <nav className="hidden md:flex space-x-6">
+                    <nav className="hidden md:flex space-x-8">
                         {[
                             "peralatan",
+                            "layanan",
                             "tentang",
                             "proyek",
                             "testimonial",
@@ -209,7 +212,7 @@ export default function HomePage({
                                 <Button
                                     variant="default"
                                     size="sm"
-                                    className="bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 text-white dark:text-gray-900 hover:opacity-90 transition-opacity shadow-md"
+                                    className="bg-gradient-to-r from-red-600 to-red-800 text-white hover:opacity-90 transition-opacity shadow-md"
                                 >
                                     Dashboard
                                 </Button>
@@ -232,7 +235,7 @@ export default function HomePage({
                             <Button
                                 variant="default"
                                 size="sm"
-                                className="bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 text-white dark:text-gray-900 hover:opacity-90 transition-opacity shadow-md"
+                                className="bg-gradient-to-r from-red-600 to-red-800 text-white hover:opacity-90 transition-opacity shadow-md"
                             >
                                 <Phone className="w-4 h-4 mr-1" /> Hubungi Kami
                             </Button>
@@ -250,10 +253,11 @@ export default function HomePage({
                     </div>
                 </div>
                 {mobileMenuOpen && (
-                    <div className="md:hidden py-4 px-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+                    <div className="md:hidden py-4 px-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
                         <nav className="flex flex-col space-y-4">
                             {[
                                 "peralatan",
+                                "layanan",
                                 "tentang",
                                 "proyek",
                                 "testimonial",
@@ -280,42 +284,43 @@ export default function HomePage({
                 )}
             </header>
 
-            <section className="relative py-16 md:py-20 bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900 overflow-hidden">
+            {/* Hero Section */}
+            <section className="relative py-20 md:py-28 bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900 overflow-hidden">
                 <div className="absolute inset-0 bg-black/40"></div>
                 <div className="container mx-auto px-4 relative z-10">
-                    <div className="flex flex-col md:flex-row items-center gap-10">
-                        <div className="max-w-xl flex-1">
-                            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight">
-                                GIVING A SOLUTION FOR YOUR EVENT
+                    <div className="flex flex-col md:flex-row items-center gap-12">
+                        <div className="max-w-xl flex-1 text-center md:text-left">
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white leading-tight">
+                                Professional Event Solutions
                             </h1>
-                            <p className="text-lg mb-8 text-gray-200">
-                                We are ready to provide you a Good Sound System
-                                and Lighting with BEST quality and BEST price.
-                                Feel free to contact us
+                            <p className="text-lg md:text-xl mb-8 text-gray-200">
+                                We provide premium sound systems, lighting, and
+                                event production services to make your event
+                                unforgettable.
                             </p>
-                            <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                                 <Link href="/peralatan">
                                     <Button
                                         variant="default"
-                                        className="bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 text-base font-medium shadow-lg"
+                                        className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-base font-medium shadow-lg"
                                     >
-                                        Lihat Peralatan{" "}
+                                        Browse Equipment{" "}
                                         <ChevronRightIcon className="ml-1 w-5 h-5" />
                                     </Button>
                                 </Link>
                                 <a href="https://wa.me/089522734461">
                                     <Button
                                         variant="outline"
-                                        className="border-white text-white hover:bg-white/10 px-6 py-3 text-base font-medium"
+                                        className="border-white text-black dark:text-white hover:bg-white/10 px-8 py-4 text-base font-medium"
                                     >
                                         <Phone className="w-5 h-5 mr-1" />{" "}
-                                        Konsultasi
+                                        Contact Us
                                     </Button>
                                 </a>
                             </div>
                         </div>
                         <div className="w-full lg:w-1/2">
-                            <div className="aspect-video bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700 relative">
+                            <div className="aspect-video bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border border-gray-700 relative">
                                 <img
                                     src="/banner-video.webp"
                                     className="w-full h-full object-cover"
@@ -332,23 +337,60 @@ export default function HomePage({
                 </div>
             </section>
 
-            <section id="peralatan" className="py-16 bg-white dark:bg-gray-900">
+            {/* Services Section */}
+            <section id="layanan" className="py-16 bg-white dark:bg-gray-900">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-gray-100">
+                            Our Services
+                        </h2>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+                            Comprehensive event solutions tailored to your needs
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {services.map((service, index) => (
+                            <div
+                                key={index}
+                                className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group"
+                            >
+                                <div className="text-4xl mb-4">
+                                    {service.icon}
+                                </div>
+                                <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-red-700 dark:group-hover:text-red-600 transition-colors">
+                                    {service.title}
+                                </h3>
+                                <p className="text-gray-500 dark:text-gray-400">
+                                    {service.description}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Equipment Section */}
+            <section
+                id="peralatan"
+                className="py-16 bg-gray-50 dark:bg-gray-800"
+            >
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row justify-between items-center mb-10">
                         <div>
                             <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">
-                                Peralatan Unggulan
+                                Featured Equipment
                             </h2>
                             <p className="text-gray-500 dark:text-gray-400">
-                                Peralatan premium yang siap untuk disewa
+                                Premium equipment available for rental
                             </p>
                         </div>
                         <Link href="/peralatan">
                             <Button
                                 variant="link"
-                                className="text-gray-900 dark:text-gray-100 p-0 flex items-center text-base font-medium"
+                                className="text-red-700 dark:text-red-600 p-0 flex items-center text-base font-medium"
                             >
-                                Lihat Semua{" "}
+                                View All Equipment{" "}
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
                         </Link>
@@ -359,7 +401,7 @@ export default function HomePage({
                             {featuredItems.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group"
+                                    className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden group"
                                 >
                                     <div
                                         className="relative aspect-video bg-gray-100 dark:bg-gray-700 overflow-hidden cursor-pointer"
@@ -399,7 +441,7 @@ export default function HomePage({
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                             <Button className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                Lihat Detail
+                                                View Details
                                             </Button>
                                         </div>
                                     </div>
@@ -414,25 +456,15 @@ export default function HomePage({
                                                 {item.deskripsi}
                                             </p>
                                         )}
-                                        <div className="flex justify-between items-center mb-4 text-sm text-gray-500 dark:text-gray-400">
-                                            <span className="flex items-center">
-                                                <Package className="w-4 h-4 mr-1" />
-                                                Stok: {item.available_units}
-                                            </span>
-                                            <span className="flex items-center">
-                                                <Shield className="w-4 h-4 mr-1" />
-                                                Garansi
-                                            </span>
-                                        </div>
                                         <a
                                             href={getWhatsAppLink(item)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="block"
                                         >
-                                            <Button className="w-full bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 hover:from-gray-800 hover:to-gray-600 dark:hover:from-gray-200 dark:hover:to-gray-400 text-white dark:text-gray-900 h-11 rounded-xl font-medium shadow-md hover:shadow-lg transition-all">
+                                            <Button className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white h-11 rounded-xl font-medium shadow-md hover:shadow-lg transition-all">
                                                 <Phone className="w-4 h-4 mr-2" />
-                                                Pesan Sekarang
+                                                Rent Now
                                             </Button>
                                         </a>
                                     </div>
@@ -440,18 +472,11 @@ export default function HomePage({
                             ))}
                         </div>
 
-                        <DialogContent className="w-full max-w-2xl overflow-y-auto rounded-2xl">
+                        <DialogContent className="max-w-4xl p-0 rounded-2xl overflow-hidden bg-white dark:bg-gray-800">
                             {selectedItem && (
-                                <>
-                                    <DialogHeader className="pb-4">
-                                        <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                                            {selectedItem.nama_barang}
-                                        </DialogTitle>
-                                        <DialogDescription className="text-gray-500 dark:text-gray-400">
-                                            Informasi lengkap peralatan
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="relative aspect-video rounded-xl overflow-hidden mb-6 bg-gray-100 dark:bg-gray-700">
+                                <div className="flex flex-col md:flex-row h-full max-h-[90vh]">
+                                    {/* Image Section */}
+                                    <div className="md:w-1/2 relative aspect-video md:aspect-auto bg-gray-100 dark:bg-gray-700 overflow-hidden">
                                         {selectedItem.image ? (
                                             <img
                                                 src={`/storage/${selectedItem.image}`}
@@ -477,290 +502,167 @@ export default function HomePage({
                                             </Badge>
                                         </div>
                                     </div>
-                                    <div className="overflow-y-auto mb-6">
-                                        <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-3">
-                                            Deskripsi
-                                        </h4>
-                                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">
-                                            {selectedItem.deskripsi ||
-                                                "Tidak ada deskripsi tersedia."}
-                                        </p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 mb-6">
-                                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
-                                            <p className="text-sm text-gray-500 mb-2">
-                                                Stok Tersedia
-                                            </p>
-                                            <p className="text-xl font-bold text-gray-900 dark:text-white">
-                                                {selectedItem?.available_units}{" "}
-                                                unit
+                                    {/* Details Section */}
+                                    <div className="md:w-1/2 p-6 flex flex-col h-full overflow-hidden">
+                                        <DialogHeader className="pb-4">
+                                            <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                {selectedItem.nama_barang}
+                                            </DialogTitle>
+                                            <DialogDescription className="text-gray-500 dark:text-gray-400">
+                                                Equipment details and
+                                                specifications
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="flex-grow overflow-y-auto pr-4 custom-scrollbar">
+                                            <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2">
+                                                Description
+                                            </h4>
+                                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line mb-6">
+                                                {selectedItem.deskripsi ||
+                                                    "No description available."}
                                             </p>
                                         </div>
-                                        {/* <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
-                                            <p className="text-sm text-gray-500 mb-2">
-                                                Periode Sewa
-                                            </p>
-                                            <p className="text-xl font-bold text-gray-900 dark:text-white">
-                                                Harian/Mingguan/Bulanan
-                                            </p>
-                                        </div> */}
+                                        <div className="flex gap-3 pt-4 mt-auto">
+                                            <a
+                                                href={getWhatsAppLink(
+                                                    selectedItem
+                                                )}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex-1"
+                                            >
+                                                <Button className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white h-12 rounded-xl text-base font-medium shadow-md hover:shadow-lg transition-all">
+                                                    <Phone className="w-5 h-5 mr-2" />
+                                                    Contact via WhatsApp
+                                                </Button>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div className="flex gap-3 pt-4">
-                                        <a
-                                            href={getWhatsAppLink(selectedItem)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex-1"
-                                        >
-                                            <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white h-12 rounded-xl text-base font-medium shadow-md hover:shadow-lg transition-all">
-                                                <Phone className="w-5 h-5 mr-2" />
-                                                Pesan via WhatsApp
-                                            </Button>
-                                        </a>
-                                    </div>
-                                </>
+                                </div>
                             )}
                         </DialogContent>
                     </Dialog>
                 </div>
             </section>
 
-            {/* Services Section */}
-            <section className="py-16 bg-gray-50 dark:bg-gray-800">
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-                            Layanan Kami
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-                            Solusi lengkap untuk kebutuhan pencahayaan produksi
-                            Anda
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
-                            <div className="mb-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl w-12 h-12 flex items-center justify-center">
-                                <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
-                                Sewa Fleksibel
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-4">
-                                Pilihan sewa harian, mingguan, atau bulanan
-                                sesuai kebutuhan.
-                            </p>
-                            <ul className="space-y-2">
-                                <li className="flex items-start text-gray-600 dark:text-gray-300">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" />
-                                    <span>Periode sewa yang fleksibel</span>
-                                </li>
-                                <li className="flex items-start text-gray-600 dark:text-gray-300">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" />
-                                    <span>
-                                        Diskon untuk sewa jangka panjang
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
-                            <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/30 rounded-xl w-12 h-12 flex items-center justify-center">
-                                <ShieldCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
-                            </div>
-                            <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
-                                Peralatan Premium
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-4">
-                                Peralatan pencahayaan berkualitas tinggi dari
-                                brand terkemuka.
-                            </p>
-                            <ul className="space-y-2">
-                                <li className="flex items-start text-gray-600 dark:text-gray-300">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" />
-                                    <span>Peralatan selalu terawat</span>
-                                </li>
-                                <li className="flex items-start text-gray-600 dark:text-gray-300">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" />
-                                    <span>Standar kualitas industri</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
-                            <div className="mb-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl w-12 h-12 flex items-center justify-center">
-                                <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                            </div>
-                            <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
-                                Dukungan Teknis
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-4">
-                                Tim ahli kami siap membantu dengan konsultasi
-                                atau bantuan teknis.
-                            </p>
-                            <ul className="space-y-2">
-                                <li className="flex items-start text-gray-600 dark:text-gray-300">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" />
-                                    <span>Konsultasi pra-produksi</span>
-                                </li>
-                                <li className="flex items-start text-gray-600 dark:text-gray-300">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" />
-                                    <span>Bantuan teknis selama proyek</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Recent Projects */}
-            <section id="proyek" className="py-16 bg-white dark:bg-gray-900">
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-                            Post Terbaru
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-                            Beberapa proyek yang telah kami dukung dengan solusi
-                            pencahayaan
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                        {/* Instagram */}
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="mb-6">
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                                    Instagram
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400">
-                                    Dapatkan informasi terkini tentang proyek
-                                    dan layanan kami
-                                </p>
-                            </div>
-                            <div className="aspect-square w-full max-w-sm mx-auto rounded-2xl overflow-hidden shadow-md">
-                                <iframe
-                                    src="https://www.instagram.com/doreproduction/embed"
-                                    className="w-full h-full"
-                                    frameBorder="0"
-                                    scrolling="no"
-                                    allow="encrypted-media"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Facebook */}
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="mb-6">
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                                    Facebook
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400">
-                                    Ikuti kami di Facebook untuk update acara
-                                    dan dokumentasi terbaru
-                                </p>
-                            </div>
-                            <div className="aspect-square w-full max-w-sm mx-auto rounded-2xl overflow-hidden shadow-md">
-                                <iframe
-                                    src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FDorepro&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
-                                    width="100%"
-                                    height="100%"
-                                    style={{
-                                        border: "none",
-                                        overflow: "hidden",
-                                    }}
-                                    scrolling="no"
-                                    frameBorder="0"
-                                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                                    allowFullScreen
-                                    className="rounded-2xl"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* About */}
-            <section id="tentang" className="py-16 bg-gray-50 dark:bg-gray-800">
+            {/* About Section */}
+            <section id="tentang" className="py-16 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col lg:flex-row items-center gap-12">
                         <div className="w-full lg:w-1/2">
                             <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-                                Tentang Dore Production
+                                About Dore Production
                             </h2>
                             <p className="mb-4 text-gray-600 dark:text-gray-300">
-                                Dore Production adalah usaha yang bergerak di
-                                bidang penyewaan Sound and Lighting untuk event
-                                atau acara yang memerlukannya, Dore Production
-                                juga menyediakan jasa mengorganisir acara atau
-                                event organizer
+                                Dore Production is a professional event
+                                equipment rental company specializing in sound
+                                systems, lighting, and full event production
+                                services. With over 10 years of experience, we
+                                have provided solutions for events of all sizes
+                                across Bali and beyond.
                             </p>
                             <p className="mb-6 text-gray-600 dark:text-gray-300">
-                                Dengan pengalaman lebih dari 10 tahun, kami
-                                memahami kebutuhan pencahayaan yang unik dari
-                                berbagai jenis produksi dan berkomitmen untuk
-                                memberikan solusi terbaik.
+                                Our team of experienced technicians and event
+                                professionals are dedicated to making your event
+                                a success with reliable equipment and expert
+                                support.
                             </p>
                             <div className="space-y-4 mb-8">
                                 <div className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                                    <CheckCircle className="w-5 h-5 text-red-600 mr-3 mt-0.5" />
                                     <div>
                                         <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                            Peralatan Standar Industri
+                                            Professional Equipment
                                         </h4>
                                         <p className="text-gray-500 dark:text-gray-400">
-                                            Menyediakan peralatan pencahayaan
-                                            terkini dari brand terpercaya
+                                            High-quality gear from trusted
+                                            brands
                                         </p>
                                     </div>
                                 </div>
                                 <div className="flex items-start">
-                                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                                    <CheckCircle className="w-5 h-5 text-red-600 mr-3 mt-0.5" />
                                     <div>
                                         <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                            Dukungan Teknis Tersedia
+                                            Expert Support
                                         </h4>
                                         <p className="text-gray-500 dark:text-gray-400">
-                                            Tim teknisi berpengalaman siap
-                                            membantu selama proses produksi
+                                            Skilled technicians available
+                                            on-site
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start">
+                                    <CheckCircle className="w-5 h-5 text-red-600 mr-3 mt-0.5" />
+                                    <div>
+                                        <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                                            Flexible Packages
+                                        </h4>
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            Custom solutions for any event type
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             <a href="https://wa.me/089522734461">
-                                <Button className="bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 text-white dark:text-gray-900 hover:opacity-90 transition-opacity px-6 py-3 text-base">
-                                    <Phone className="w-5 h-5 mr-2" /> Hubungi
-                                    Tim Kami
+                                <Button className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-6 py-3 text-base">
+                                    <Phone className="w-5 h-5 mr-2" /> Contact
+                                    Our Team
                                 </Button>
                             </a>
                         </div>
                         <div className="w-full lg:w-1/2">
-                            <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-2xl overflow-hidden shadow-xl">
-                                <img
-                                    src="/banner-video.webp"
-                                    className="w-full h-full object-cover"
-                                    alt="Banner"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-gradient-to-br from-red-600/20 to-blue-600/20 aspect-square rounded-2xl flex items-center justify-center">
+                                    <div className="text-center p-4">
+                                        <div className="text-4xl mb-2">🔊</div>
+                                        <h3 className="font-semibold">
+                                            Sound Systems
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 aspect-square rounded-2xl flex items-center justify-center">
+                                    <div className="text-center p-4">
+                                        <div className="text-4xl mb-2">💡</div>
+                                        <h3 className="font-semibold">
+                                            Lighting
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div className="bg-gradient-to-br from-purple-600/20 to-red-600/20 aspect-square rounded-2xl flex items-center justify-center">
+                                    <div className="text-center p-4">
+                                        <div className="text-4xl mb-2">🎤</div>
+                                        <h3 className="font-semibold">
+                                            Stage Equipment
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div className="bg-gradient-to-br from-green-600/20 to-blue-600/20 aspect-square rounded-2xl flex items-center justify-center">
+                                    <div className="text-center p-4">
+                                        <div className="text-4xl mb-2">📋</div>
+                                        <h3 className="font-semibold">
+                                            Event Planning
+                                        </h3>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Testimonials */}
+            {/* Testimonials Section */}
             <section
                 id="testimonial"
-                className="py-16 bg-white dark:bg-gray-900"
+                className="py-16 bg-gray-50 dark:bg-gray-800"
             >
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-gray-100">
-                            Apa Kata Klien Kami
+                            Client Testimonials
                         </h2>
                         <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-                            Pendapat dari berbagai klien yang telah menggunakan
-                            jasa kami
+                            What our clients say about our services
                         </p>
                     </div>
 
@@ -775,7 +677,7 @@ export default function HomePage({
                                             : "opacity-0 scale-95 absolute top-0 left-0 right-0"
                                     }`}
                                 >
-                                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+                                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
                                         <div className="flex justify-center mb-4">
                                             {renderStars(testimonial.rating)}
                                         </div>
@@ -807,7 +709,7 @@ export default function HomePage({
                                     onClick={() => setActiveTestimonial(idx)}
                                     className={`w-3 h-3 rounded-full mx-2 transition-colors ${
                                         idx === activeTestimonial
-                                            ? "bg-gray-900 dark:bg-gray-100"
+                                            ? "bg-red-600"
                                             : "bg-gray-300 dark:bg-gray-700"
                                     }`}
                                     aria-label={`View testimonial ${idx + 1}`}
@@ -819,16 +721,16 @@ export default function HomePage({
             </section>
 
             {/* Contact Section */}
-            <section id="kontak" className="py-16 bg-gray-50 dark:bg-gray-800">
+            <section id="kontak" className="py-16 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col lg:flex-row gap-12">
                         <div className="w-full lg:w-1/2">
                             <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-                                Hubungi Kami
+                                Contact Us
                             </h2>
                             <p className="mb-8 text-gray-600 dark:text-gray-300">
-                                Punya pertanyaan atau ingin memesan? Jangan ragu
-                                untuk menghubungi kami.
+                                Have questions or want to make a booking? Don't
+                                hesitate to get in touch.
                             </p>
 
                             <div className="space-y-6">
@@ -838,7 +740,7 @@ export default function HomePage({
                                             htmlFor="name"
                                             className="block mb-2 font-medium"
                                         >
-                                            Nama
+                                            Name
                                         </label>
                                         <input
                                             type="text"
@@ -848,7 +750,7 @@ export default function HomePage({
                                                 setFormName(e.target.value)
                                             }
                                             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700"
-                                            placeholder="Nama Lengkap"
+                                            placeholder="Full Name"
                                         />
                                     </div>
                                     <div>
@@ -875,7 +777,7 @@ export default function HomePage({
                                         htmlFor="subject"
                                         className="block mb-2 font-medium"
                                     >
-                                        Subjek
+                                        Subject
                                     </label>
                                     <input
                                         type="text"
@@ -885,7 +787,7 @@ export default function HomePage({
                                             setFormSubject(e.target.value)
                                         }
                                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700"
-                                        placeholder="Subjek pesan"
+                                        placeholder="Message subject"
                                     />
                                 </div>
                                 <div>
@@ -893,7 +795,7 @@ export default function HomePage({
                                         htmlFor="message"
                                         className="block mb-2 font-medium"
                                     >
-                                        Pesan
+                                        Message
                                     </label>
                                     <textarea
                                         id="message"
@@ -903,22 +805,22 @@ export default function HomePage({
                                             setFormMessage(e.target.value)
                                         }
                                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700"
-                                        placeholder="Tulis pesan Anda di sini..."
+                                        placeholder="Type your message here..."
                                     ></textarea>
                                 </div>
 
                                 <a
                                     href={`https://wa.me/6289522734461?text=${encodeURIComponent(
-                                        `Halo Dore Production!\nNama: ${formName}\nEmail: ${formEmail}\nSubjek: ${formSubject}\nPesan: ${formMessage}`
+                                        `Hello Dore Production!\nName: ${formName}\nEmail: ${formEmail}\nSubject: ${formSubject}\nMessage: ${formMessage}`
                                     )}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
                                     <Button
                                         type="button"
-                                        className="bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 text-white dark:text-gray-900 hover:opacity-90 transition-opacity w-full py-3 text-base font-medium"
+                                        className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white w-full py-3 text-base font-medium"
                                     >
-                                        <Send className="w-5 h-5 mr-2" /> Kirim
+                                        <Send className="w-5 h-5 mr-2" /> Send
                                         via WhatsApp
                                     </Button>
                                 </a>
@@ -926,9 +828,9 @@ export default function HomePage({
                         </div>
 
                         <div className="w-full lg:w-1/2">
-                            <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-full">
+                            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-full">
                                 <h3 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-                                    Informasi Kontak
+                                    Contact Information
                                 </h3>
                                 <div className="space-y-6">
                                     <div className="flex items-start">
@@ -937,7 +839,7 @@ export default function HomePage({
                                         </div>
                                         <div>
                                             <h4 className="font-medium text-lg text-gray-900 dark:text-gray-100 mb-1">
-                                                Alamat
+                                                Address
                                             </h4>
                                             <p className="text-gray-500 dark:text-gray-400">
                                                 Jalan Sedap Malam Gg Rampai 1b
@@ -978,7 +880,7 @@ export default function HomePage({
                                         </div>
                                         <div>
                                             <h4 className="font-medium text-lg text-gray-900 dark:text-gray-100 mb-1">
-                                                Telepon / Phone
+                                                Phone
                                             </h4>
                                             <p className="text-gray-500 dark:text-gray-400">
                                                 +62 819-1640-2006
@@ -991,28 +893,28 @@ export default function HomePage({
                                         </div>
                                         <div>
                                             <h4 className="font-medium text-lg text-gray-900 dark:text-gray-100 mb-1">
-                                                Jam Operasional
+                                                Business Hours
                                             </h4>
                                             <p className="text-gray-500 dark:text-gray-400">
-                                                Senin - Sabtu: 08:00 - 21:00
+                                                Monday - Saturday: 08:00 - 21:00
                                             </p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <h3 className="text-xl font-semibold mb-4 mt-8 text-gray-900 dark:text-gray-100">
-                                    Ikuti Kami
+                                    Follow Us
                                 </h3>
                                 <div className="flex space-x-4">
                                     <a
                                         href="https://www.instagram.com/doreproduction/"
-                                        className="bg-gray-100 dark:bg-gray-800 p-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                        className="bg-gray-100 dark:bg-gray-700 p-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                     >
                                         <Instagram className="w-6 h-6 text-gray-900 dark:text-gray-100" />
                                     </a>
                                     <a
                                         href="https://www.facebook.com/Dorepro/"
-                                        className="bg-gray-100 dark:bg-gray-800 p-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                        className="bg-gray-100 dark:bg-gray-700 p-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                     >
                                         <Facebook className="w-6 h-6 text-gray-900 dark:text-gray-100" />
                                     </a>
@@ -1024,7 +926,7 @@ export default function HomePage({
             </section>
 
             {/* Footer */}
-            <footer className="bg-gradient-to-b from-gray-900 to-gray-950 dark:from-gray-950 dark:to-black py-12 text-gray-300 dark:text-gray-400 border-t border-gray-800 dark:border-gray-900">
+            <footer className="bg-gradient-to-b from-gray-900 to-gray-950 dark:from-gray-950 dark:to-black py-12 text-gray-300 dark:text-gray-400">
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                         <div>
@@ -1044,8 +946,8 @@ export default function HomePage({
                                 </h3>
                             </div>
                             <p className="text-sm mb-6">
-                                Solusi pencahayaan profesional untuk produksi
-                                film, fotografi, dan acara.
+                                Professional event equipment rental and
+                                production services in Bali.
                             </p>
                             <div className="flex space-x-3">
                                 <a
@@ -1064,25 +966,50 @@ export default function HomePage({
                         </div>
                         <div>
                             <h4 className="font-medium text-white mb-4 text-lg">
-                                Peralatan
+                                Services
                             </h4>
                             <ul className="space-y-3 text-sm">
-                                {categories.slice(0, 5).map((category) => (
-                                    <li key={category.id}>
-                                        <Link
-                                            href={`/peralatan/`}
-                                            className="hover:text-white transition-colors flex items-center"
-                                        >
-                                            <ArrowRight className="w-3 h-3 mr-2" />{" "}
-                                            {category.nama_kategori}
-                                        </Link>
-                                    </li>
-                                ))}
+                                <li>
+                                    <a
+                                        href="#"
+                                        className="hover:text-white transition-colors flex items-center"
+                                    >
+                                        <ArrowRight className="w-3 h-3 mr-2" />{" "}
+                                        Sound Systems
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="#"
+                                        className="hover:text-white transition-colors flex items-center"
+                                    >
+                                        <ArrowRight className="w-3 h-3 mr-2" />{" "}
+                                        Lighting
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="#"
+                                        className="hover:text-white transition-colors flex items-center"
+                                    >
+                                        <ArrowRight className="w-3 h-3 mr-2" />{" "}
+                                        Stage Equipment
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="#"
+                                        className="hover:text-white transition-colors flex items-center"
+                                    >
+                                        <ArrowRight className="w-3 h-3 mr-2" />{" "}
+                                        Event Planning
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="font-medium text-white mb-4 text-lg">
-                                Links
+                                Quick Links
                             </h4>
                             <ul className="space-y-3 text-sm">
                                 <li>
@@ -1091,16 +1018,16 @@ export default function HomePage({
                                         className="hover:text-white transition-colors flex items-center"
                                     >
                                         <ArrowRight className="w-3 h-3 mr-2" />{" "}
-                                        Tentang Kami
+                                        About Us
                                     </a>
                                 </li>
                                 <li>
                                     <a
-                                        href="#proyek"
+                                        href="#peralatan"
                                         className="hover:text-white transition-colors flex items-center"
                                     >
                                         <ArrowRight className="w-3 h-3 mr-2" />{" "}
-                                        Proyek
+                                        Equipment
                                     </a>
                                 </li>
                                 <li>
@@ -1109,7 +1036,7 @@ export default function HomePage({
                                         className="hover:text-white transition-colors flex items-center"
                                     >
                                         <ArrowRight className="w-3 h-3 mr-2" />{" "}
-                                        Testimonial
+                                        Testimonials
                                     </a>
                                 </li>
                                 <li>
@@ -1118,14 +1045,14 @@ export default function HomePage({
                                         className="hover:text-white transition-colors flex items-center"
                                     >
                                         <ArrowRight className="w-3 h-3 mr-2" />{" "}
-                                        Kontak
+                                        Contact
                                     </a>
                                 </li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="font-medium text-white mb-4 text-lg">
-                                Kontak
+                                Contact
                             </h4>
                             <ul className="space-y-3 text-sm">
                                 <li className="flex items-start">
@@ -1154,6 +1081,33 @@ export default function HomePage({
                     </div>
                 </div>
             </footer>
+
+            {/* Add custom CSS for scrollbar and modal responsiveness */}
+            <style jsx>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #c1c1c1;
+                    border-radius: 10px;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #374151;
+                }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #6b7280;
+                }
+
+                @media (max-width: 768px) {
+                    .max-h-\[90vh\] {
+                        max-height: 90vh;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

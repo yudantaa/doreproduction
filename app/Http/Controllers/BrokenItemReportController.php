@@ -280,6 +280,37 @@ class BrokenItemReportController extends Controller
         }
     }
 
+    /**
+     * Update repair notes only - New method for inline editing
+     */
+    public function updateNotes(Request $request, BrokenItemReport $report)
+    {
+        // Only allow SUPER ADMIN to update notes
+        if (auth()->user()->role !== 'SUPER ADMIN') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'repair_notes' => 'nullable|string|max:1000'
+        ]);
+
+        try {
+            $oldNotes = $report->repair_notes;
+
+            $report->update([
+                'repair_notes' => $validated['repair_notes']
+            ]);
+
+            // Send notification if notes were updated
+            $this->sendRepairNotesUpdateNotification($report, $oldNotes);
+
+            return redirect()->back()->with('success', 'Catatan perbaikan berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['repair_notes' => 'Terjadi kesalahan saat memperbarui catatan: ' . $e->getMessage()]);
+        }
+    }
+
     public function destroy(BrokenItemReport $report)
     {
         if (auth()->user()->role !== 'SUPER ADMIN') {
@@ -322,13 +353,48 @@ class BrokenItemReportController extends Controller
         }
     }
 
+    private function sendRepairNotesUpdateNotification(BrokenItemReport $report, $oldNotes)
+    {
+        try {
+            $report->load(['itemUnit.item', 'reporter']);
+
+            $message = "<b>📝 UPDATE CATATAN PERBAIKAN</b>\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+
+            $message .= "<b>📋 DETAIL LAPORAN:</b>\n";
+            $message .= "• ID Laporan: <code>#{$report->id}</code>\n";
+            $message .= "• Nama Barang: <b>{$report->itemUnit->item->nama_barang}</b>\n";
+            $message .= "• Kode Unit: <code>{$report->itemUnit->kode_unit}</code>\n\n";
+
+            if ($oldNotes) {
+                $message .= "<b>📝 CATATAN SEBELUMNYA:</b>\n";
+                $message .= "<i><code>" . (strlen($oldNotes) > 100 ? substr($oldNotes, 0, 100) . '...' : $oldNotes) . "</code></i>\n\n";
+            }
+
+            if ($report->repair_notes) {
+                $message .= "<b>📝 CATATAN TERBARU:</b>\n";
+                $message .= "<i><code>" . (strlen($report->repair_notes) > 100 ? substr($report->repair_notes, 0, 100) . '...' : $report->repair_notes) . "</code></i>\n\n";
+            } else {
+                $message .= "<b>📝 CATATAN TERBARU:</b>\n";
+                $message .= "<i>Catatan dihapus</i>\n\n";
+            }
+
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Diperbarui: " . now()->format('d/m/Y • H:i') . " WITA</i>";
+
+            (new TelegramBotController)->sendMessage($message);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send repair notes update notification: ' . $e->getMessage());
+        }
+    }
+
     private function sendBrokenItemReportNotification(BrokenItemReport $report)
     {
         try {
             $report->load(['itemUnit.item', 'reporter']);
 
             $message = "<b>🚨 LAPORAN KERUSAKAN BARANG</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL LAPORAN:</b>\n";
             $message .= "• ID Laporan: <code>#{$report->id}</code>\n";
@@ -343,8 +409,8 @@ class BrokenItemReportController extends Controller
             $message .= "<b>📝 DESKRIPSI KERUSAKAN:</b>\n";
             $message .= "<i><code>{$report->description}</code></i>\n\n";
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dilaporkan: " . $report->created_at->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Dilaporkan: " . $report->created_at->format('d/m/Y • H:i') . " WITA</i>";
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {
@@ -371,15 +437,15 @@ class BrokenItemReportController extends Controller
                 'rejected' => '❌'
             ];
 
-            $message = "<b>🔄 UPDATE STATUS LAPORAN</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message = "<b>📄 UPDATE STATUS LAPORAN</b>\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL LAPORAN:</b>\n";
             $message .= "• ID Laporan: <code>#{$report->id}</code>\n";
             $message .= "• Nama Barang: <b>{$report->itemUnit->item->nama_barang}</b>\n";
             $message .= "• Kode Unit: <code>{$report->itemUnit->kode_unit}</code>\n\n";
 
-            $message .= "<b>🔄 PERUBAHAN STATUS:</b>\n";
+            $message .= "<b>📄 PERUBAHAN STATUS:</b>\n";
             $message .= "• Status Sebelumnya: {$statusLabels[$oldStatus]}\n";
             $message .= "• Status Terbaru: <b>{$statusLabels[$report->status]}</b>\n\n";
 
@@ -388,8 +454,8 @@ class BrokenItemReportController extends Controller
                 $message .= "<i> <code>{$report->repair_notes}</code></i>\n\n";
             }
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Diperbarui: " . now()->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Diperbarui: " . now()->format('d/m/Y • H:i') . " WITA</i>";
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {
@@ -408,7 +474,7 @@ class BrokenItemReportController extends Controller
             ];
 
             $message = "<b>🗑️ LAPORAN DIHAPUS</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL LAPORAN:</b>\n";
             $message .= "• ID Laporan: <code>#{$reportData['id']}</code>\n";
@@ -417,8 +483,8 @@ class BrokenItemReportController extends Controller
             $message .= "• Pelapor: <b>{$reportData['reporter_name']}</b>\n";
             $message .= "• Status Terakhir: {$statusLabels[$reportData['status']]}\n\n";
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dihapus: " . now()->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Dihapus: " . now()->format('d/m/Y • H:i') . " WITA</i>";
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {

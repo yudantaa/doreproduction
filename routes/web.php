@@ -59,4 +59,7 @@ Route::middleware(['auth', 'role'])->prefix('dashboard')->group(function () {
     Route::put('/broken-items/{report}', [BrokenItemReportController::class, 'update'])
         ->middleware('isSuperAdmin')
         ->name('dashboard.broken-items.update');
+
+    Route::put('/broken-items/{report}/update-notes', [BrokenItemReportController::class, 'updateNotes'])
+        ->name('dashboard.broken-items.update-notes');
 });

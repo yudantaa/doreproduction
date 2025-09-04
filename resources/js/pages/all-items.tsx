@@ -31,6 +31,7 @@ import {
     Clock,
     Shield,
     Users,
+    Home, // Menambahkan ikon Home
 } from "lucide-react";
 import AppearanceDropdown from "@/components/appearance-dropdown";
 import {
@@ -155,23 +156,39 @@ export default function AllItemsPage({
                 } transition-all duration-300`}
             >
                 <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <Link href="/">
-                        <div className="flex items-center group">
-                            <div className="w-10 h-10 bg-gray-900 dark:bg-gray-100 rounded-full flex items-center justify-center mr-3 transition-all duration-300 group-hover:scale-110">
-                                <img
-                                    src="/logo.jpg"
-                                    alt="Dore Production Logo"
-                                    className="h-8 w-8 object-contain rounded-lg"
-                                />
-                            </div>
-                            <h3 className="text-xl font-bold text-black dark:text-white group-hover:text-red-700 dark:group-hover:text-red-600 transition-colors">
-                                Dore{" "}
-                                <span className="text-red-700 dark:text-red-600">
-                                    Production
+                    <div className="flex items-center gap-4">
+                        {/* Tombol Kembali ke Halaman Utama */}
+                        <Link href="/">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex items-center gap-2 border-gray-300 dark:border-gray-600"
+                            >
+                                <Home className="w-4 h-4" />
+                                <span className="hidden sm:inline">
+                                    Beranda
                                 </span>
-                            </h3>
-                        </div>
-                    </Link>
+                            </Button>
+                        </Link>
+
+                        <Link href="/">
+                            <div className="flex items-center group">
+                                <div className="w-10 h-10 bg-gray-900 dark:bg-gray-100 rounded-full flex items-center justify-center mr-3 transition-all duration-300 group-hover:scale-110">
+                                    <img
+                                        src="/logo.jpg"
+                                        alt="Dore Production Logo"
+                                        className="h-8 w-8 object-contain rounded-lg"
+                                    />
+                                </div>
+                                <h3 className="text-xl font-bold text-black dark:text-white group-hover:text-red-700 dark:group-hover:text-red-600 transition-colors">
+                                    Dore{" "}
+                                    <span className="text-red-700 dark:text-red-600">
+                                        Production
+                                    </span>
+                                </h3>
+                            </div>
+                        </Link>
+                    </div>
 
                     <div className="flex items-center gap-4">
                         <AppearanceDropdown />

@@ -1,11 +1,12 @@
 import AuthenticatedLayout from "@/layouts/authenticated-layout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { BrokenItemReport } from "@/types/broken-item";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Calendar,
     User,
@@ -15,6 +16,9 @@ import {
     Wrench,
     ArrowLeft,
     ClipboardList,
+    Edit,
+    Save,
+    X,
 } from "lucide-react";
 
 interface ShowBrokenItemProps {
@@ -28,6 +32,11 @@ export default function ShowBrokenItem({
 }: ShowBrokenItemProps) {
     const [openItemImage, setOpenItemImage] = useState(false);
     const [openProofImage, setOpenProofImage] = useState(false);
+    const [isEditingNotes, setIsEditingNotes] = useState(false);
+
+    const { data, setData, put, processing, errors, reset } = useForm({
+        repair_notes: report.repair_notes || "",
+    });
 
     // Status color mapping
     const statusColorMap: Record<string, string> = {
@@ -50,6 +59,29 @@ export default function ShowBrokenItem({
         statusColorMap[report.status] ||
         "bg-gray-100 text-gray-800 border-gray-200";
     const statusText = statusTextMap[report.status] || report.status;
+
+    const handleEditNotes = () => {
+        setIsEditingNotes(true);
+        setData("repair_notes", report.repair_notes || "");
+    };
+
+    const handleSaveNotes = () => {
+        put(route("dashboard.broken-items.update-notes", report.id), {
+            onSuccess: () => {
+                setIsEditingNotes(false);
+                // Update the report data locally to reflect changes
+                report.repair_notes = data.repair_notes;
+            },
+            onError: () => {
+                // Keep editing mode open on error
+            },
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditingNotes(false);
+        reset("repair_notes");
+    };
 
     return (
         <AuthenticatedLayout>
@@ -341,26 +373,83 @@ export default function ShowBrokenItem({
                             </CardContent>
                         </Card>
 
-                        {/* Repair Notes */}
-                        {report.repair_notes && (
-                            <Card className="shadow-sm border-0">
-                                <CardHeader className="pb-3">
+                        {/* Repair Notes - Enhanced with editing capability */}
+                        <Card className="shadow-sm border-0">
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center justify-between">
                                     <div className="flex items-center">
                                         <FileText className="h-5 w-5 mr-2 text-muted-foreground" />
                                         <CardTitle className="text-lg font-semibold">
                                             Catatan Perbaikan
                                         </CardTitle>
                                     </div>
-                                </CardHeader>
-                                <CardContent>
+                                    {canUpdateStatus && !isEditingNotes && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleEditNotes}
+                                            className="h-8 w-8 p-0"
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                {isEditingNotes ? (
+                                    <div className="space-y-3">
+                                        <Textarea
+                                            value={data.repair_notes}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "repair_notes",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Masukkan catatan perbaikan..."
+                                            className="min-h-[100px] resize-none"
+                                            maxLength={1000}
+                                        />
+                                        {errors.repair_notes && (
+                                            <p className="text-sm text-red-600">
+                                                {errors.repair_notes}
+                                            </p>
+                                        )}
+                                        <div className="flex justify-end space-x-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={handleCancelEdit}
+                                                disabled={processing}
+                                            >
+                                                <X className="h-4 w-4 mr-1" />
+                                                Batal
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                onClick={handleSaveNotes}
+                                                disabled={processing}
+                                                className="bg-blue-600 hover:bg-blue-700"
+                                            >
+                                                <Save className="h-4 w-4 mr-1" />
+                                                {processing
+                                                    ? "Menyimpan..."
+                                                    : "Simpan"}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
                                     <div className="bg-muted/30 p-4 rounded-lg">
                                         <p className="text-sm whitespace-pre-line">
-                                            {report.repair_notes}
+                                            {report.repair_notes ||
+                                                (canUpdateStatus
+                                                    ? "Belum ada catatan perbaikan. Klik tombol edit untuk menambahkan."
+                                                    : "Belum ada catatan perbaikan.")}
                                         </p>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        )}
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>

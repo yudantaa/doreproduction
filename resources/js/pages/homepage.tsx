@@ -1081,33 +1081,6 @@ export default function HomePage({
                     </div>
                 </div>
             </footer>
-
-            {/* Add custom CSS for scrollbar and modal responsiveness */}
-            <style jsx>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 6px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: #f1f1f1;
-                    border-radius: 10px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #c1c1c1;
-                    border-radius: 10px;
-                }
-                .dark .custom-scrollbar::-webkit-scrollbar-track {
-                    background: #374151;
-                }
-                .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #6b7280;
-                }
-
-                @media (max-width: 768px) {
-                    .max-h-\[90vh\] {
-                        max-height: 90vh;
-                    }
-                }
-            `}</style>
         </div>
     );
 }

@@ -345,49 +345,53 @@ export function DataTable<TData, TValue>({
             </div>
 
             {enablePagination && totalRows > 0 && (
-                <div className="flex flex-col space-y-4 p-4 border-t border-border bg-background/50 rounded-b-lg">
-                    <div className="text-center text-sm text-muted-foreground">
-                        Menampilkan {startRow} - {endRow} dari {totalRows} data
-                    </div>
-
-                    <div className="flex items-center justify-center space-x-2">
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">
-                            Baris per halaman:
-                        </span>
-                        <Select
-                            value={String(table.getState().pagination.pageSize)}
-                            onValueChange={(value) =>
-                                table.setPageSize(Number(value))
-                            }
-                        >
-                            <SelectTrigger className="h-9 w-20">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {pageSizeOptions.map((size) => (
-                                    <SelectItem key={size} value={String(size)}>
-                                        {size}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="flex flex-col items-center space-y-3">
-                        <div className="text-sm text-muted-foreground">
-                            Halaman {currentPage} dari {totalPages}
+                <div className="flex flex-col space-y-3 p-3 border-t border-border bg-background/50 rounded-b-lg">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div className="text-xs text-muted-foreground whitespace-nowrap">
+                            Menampilkan {startRow} - {endRow} dari {totalRows}
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                Baris:
+                            </span>
+                            <Select
+                                value={String(
+                                    table.getState().pagination.pageSize
+                                )}
+                                onValueChange={(value) =>
+                                    table.setPageSize(Number(value))
+                                }
+                            >
+                                <SelectTrigger className="h-8 w-16">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {pageSizeOptions.map((size) => (
+                                        <SelectItem
+                                            key={size}
+                                            value={String(size)}
+                                        >
+                                            {size}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                            <div className="text-xs text-muted-foreground mx-2 whitespace-nowrap">
+                                {currentPage} / {totalPages}
+                            </div>
+
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => table.setPageIndex(0)}
                                 disabled={!table.getCanPreviousPage()}
-                                className="h-9 w-9 p-0 hidden sm:flex"
+                                className="h-8 w-8 p-0 hidden sm:flex"
                             >
                                 <ChevronsLeft className="h-4 w-4" />
-                                <span className="sr-only">Halaman pertama</span>
                             </Button>
 
                             <Button
@@ -395,29 +399,19 @@ export function DataTable<TData, TValue>({
                                 size="sm"
                                 onClick={() => table.previousPage()}
                                 disabled={!table.getCanPreviousPage()}
-                                className="h-9 px-3"
+                                className="h-8 w-8 p-0"
                             >
-                                <ChevronLeft className="h-4 w-4 sm:mr-1" />
-                                <span className="hidden sm:inline">
-                                    Sebelumnya
-                                </span>
+                                <ChevronLeft className="h-4 w-4" />
                             </Button>
-
-                            <div className="flex items-center justify-center min-w-[60px] h-9 px-3 text-sm font-medium border border-border rounded-md bg-background">
-                                {currentPage}
-                            </div>
 
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => table.nextPage()}
                                 disabled={!table.getCanNextPage()}
-                                className="h-9 px-3"
+                                className="h-8 w-8 p-0"
                             >
-                                <span className="hidden sm:inline">
-                                    Selanjutnya
-                                </span>
-                                <ChevronRight className="h-4 w-4 sm:ml-1" />
+                                <ChevronRight className="h-4 w-4" />
                             </Button>
 
                             <Button
@@ -427,12 +421,9 @@ export function DataTable<TData, TValue>({
                                     table.setPageIndex(table.getPageCount() - 1)
                                 }
                                 disabled={!table.getCanNextPage()}
-                                className="h-9 w-9 p-0 hidden sm:flex"
+                                className="h-8 w-8 p-0 hidden sm:flex"
                             >
                                 <ChevronsRight className="h-4 w-4" />
-                                <span className="sr-only">
-                                    Halaman terakhir
-                                </span>
                             </Button>
                         </div>
                     </div>

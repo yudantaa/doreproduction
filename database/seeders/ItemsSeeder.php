@@ -15,7 +15,7 @@ class ItemsSeeder extends Seeder
     {
         $startDate = Carbon::create(2023, 1, 1);
         $endDate = Carbon::create(2025, 12, 31);
-        return $startDate->copy()->addDays(rand(0, $endDate->diffInDays($startDate)));
+        return $startDate->copy()->addDays(rand(0, $endDate->floatDiffInDays($startDate)));
     }
 
     /**

@@ -262,7 +262,8 @@ class LoanController extends Controller
         try {
             DB::beginTransaction();
 
-            $returnTime = Carbon::parse($validated['return_time']);
+            $returnTime = Carbon::parse($validated['return_time'], 'UTC')
+                ->setTimezone('Asia/Makassar');
 
             $loan->itemUnit->update(['status' => 'Tersedia']);
 
@@ -402,7 +403,7 @@ class LoanController extends Controller
             $message .= "• Tanggal Sewa: <b>{$loan->tanggal_sewa->format('d/m/Y')}</b>\n";
             $message .= "• Deadline: <b>{$loan->deadline_pengembalian->format('d/m/Y')}</b>\n";
 
-            $daysUntilDeadline = now()->diffInDays($loan->deadline_pengembalian, false);
+            $daysUntilDeadline = ceil(now()->floatDiffInDays($loan->deadline_pengembalian, false));
             if ($daysUntilDeadline > 0) {
                 $message .= "• Sisa Waktu: <b>{$daysUntilDeadline} hari</b>\n\n";
             } else {
@@ -410,7 +411,10 @@ class LoanController extends Controller
             }
 
             $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dibuat: " . $loan->created_at->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "🕒 <i>Dibuat: "
+                . $loan->created_at->timezone(config('app.timezone'))->format('d/m/Y • H:i')
+                . " WITA</i>";
+
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {
@@ -482,12 +486,15 @@ class LoanController extends Controller
             $message .= "• Status: <b>{$statusIcon} {$statusText}</b>\n\n";
 
             if ($isLate) {
-                $lateDays = $returnTime->diffInDays($loan->deadline_pengembalian);
+                $lateDays = ceil($returnTime->floatDiffInDays($loan->deadline_pengembalian));
                 $message .= "• Terlambat: <b>{$lateDays} hari</b>\n\n";
             }
 
             $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dikembalikan: " . $returnTime->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "🕒 <i>Dikembalikan: "
+                . $returnTime->timezone(config('app.timezone'))->format('d/m/Y • H:i')
+                . " WITA</i>";
+
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {

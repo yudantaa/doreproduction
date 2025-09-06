@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import { ColumnDef } from "@tanstack/react-table";
 import {
     MoreHorizontal,
-    ArrowUpDown,
     CheckCircle,
     XCircle,
     Clock,
@@ -73,15 +72,19 @@ export type Item = {
 export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         header: "No",
-        size: 40,
+        size: 30, // Reduced from 40
         cell: ({ row }) => {
-            return <div className="font-bold text-xs">{row.index + 1}</div>;
+            return (
+                <div className="font-bold text-[10px] text-center">
+                    {row.index + 1}
+                </div>
+            );
         },
     },
     {
         accessorKey: "image",
         header: "Gambar",
-        size: 60,
+        size: 50, // Reduced from 60
         cell: ({ row }) => {
             const item = row.original;
             const [imageError, setImageError] = useState(false);
@@ -102,17 +105,19 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     : `/placeholders/${categorySlug}-placeholder.jpg`;
 
             return (
-                <img
-                    className="rounded"
-                    src={imageUrl}
-                    alt="Item"
-                    onError={() => setImageError(true)}
-                    style={{
-                        width: "40px",
-                        height: "40px",
-                        objectFit: "cover",
-                    }}
-                />
+                <div className="flex justify-center">
+                    <img
+                        className="rounded"
+                        src={imageUrl}
+                        alt="Item"
+                        onError={() => setImageError(true)}
+                        style={{
+                            width: "32px", // Reduced from 40px
+                            height: "32px", // Reduced from 40px
+                            objectFit: "cover",
+                        }}
+                    />
+                </div>
             );
         },
     },
@@ -125,17 +130,17 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
-                    className="text-xs p-1 h-8"
+                    className="text-[11px] p-0 h-6" // More compact
                 >
                     Nama Barang
                 </Button>
             );
         },
-        size: 150,
+        size: 130, // Reduced from 150
         cell: ({ row }) => {
             return (
                 <div
-                    className="text-xs font-medium truncate"
+                    className="text-[11px] font-medium truncate px-1" // Smaller text, added padding
                     title={row.original.nama_barang}
                 >
                     {row.original.nama_barang}
@@ -152,17 +157,17 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
-                    className="text-xs p-1 h-8"
+                    className="text-[11px] p-0 h-6" // More compact
                 >
-                    Kode Unit Utama
+                    Kode Unit
                 </Button>
             );
         },
-        size: 100,
+        size: 80, // Reduced from 100
         cell: ({ row }) => {
             return (
                 <div
-                    className="text-xs font-medium truncate"
+                    className="text-[11px] font-medium truncate px-1" // Smaller text, added padding
                     title={row.original.base_code}
                 >
                     {row.original.base_code}
@@ -179,13 +184,13 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
-                    className="text-xs p-1 h-8"
+                    className="text-[11px] p-0 h-6" // More compact
                 >
                     Status
                 </Button>
             );
         },
-        size: 120,
+        size: 100, // Reduced from 120
         cell: ({ getValue }) => {
             const status = getValue() as string;
             const bgColor =
@@ -197,7 +202,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
 
             return (
                 <div
-                    className={`text-center inline-block rounded-full px-2 py-1 text-xs font-semibold ${bgColor}`}
+                    className={`text-center inline-block rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${bgColor}`} // Smaller padding and text
                 >
                     {status}
                 </div>
@@ -207,11 +212,11 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: "nama_kategori",
         header: "Kategori",
-        size: 120,
+        size: 100, // Reduced from 120
         cell: ({ row }) => {
             return (
                 <div
-                    className="text-xs truncate"
+                    className="text-[11px] truncate px-1" // Smaller text, added padding
                     title={row.original.nama_kategori}
                 >
                     {row.original.nama_kategori}
@@ -222,11 +227,11 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: "total_units",
         header: "Total",
-        size: 60,
+        size: 50, // Reduced from 60
         cell: ({ row }) => {
             const item = row.original;
             return (
-                <div className="text-xs font-bold text-center">
+                <div className="text-[11px] font-bold text-center">
                     {item.total_units}
                 </div>
             );
@@ -235,12 +240,13 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: "available_units",
         header: "Tersedia",
-        size: 70,
+        size: 60, // Reduced from 70
         cell: ({ row }) => {
             const item = row.original;
             return (
-                <div className="flex items-center justify-center text-xs">
-                    <CheckCircle className="h-3 w-3 text-green-600 mr-1" />
+                <div className="flex items-center justify-center text-[11px]">
+                    <CheckCircle className="h-2.5 w-2.5 text-green-600 mr-0.5" />{" "}
+                    {/* Smaller icon */}
                     {item.available_units}
                 </div>
             );
@@ -249,12 +255,13 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: "rented_units",
         header: "Disewa",
-        size: 70,
+        size: 60, // Reduced from 70
         cell: ({ row }) => {
             const item = row.original;
             return (
-                <div className="flex items-center justify-center text-xs">
-                    <Clock className="h-3 w-3 text-blue-600 mr-1" />
+                <div className="flex items-center justify-center text-[11px]">
+                    <Clock className="h-2.5 w-2.5 text-blue-600 mr-0.5" />{" "}
+                    {/* Smaller icon */}
                     {item.rented_units}
                 </div>
             );
@@ -263,12 +270,13 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: "broken_units",
         header: "Rusak",
-        size: 70,
+        size: 60, // Reduced from 70
         cell: ({ row }) => {
             const item = row.original;
             return (
-                <div className="flex items-center justify-center text-xs">
-                    <AlertTriangle className="h-3 w-3 text-red-600 mr-1" />
+                <div className="flex items-center justify-center text-[11px]">
+                    <AlertTriangle className="h-2.5 w-2.5 text-red-600 mr-0.5" />{" "}
+                    {/* Smaller icon */}
                     {item.broken_units}
                 </div>
             );
@@ -277,12 +285,13 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
     {
         accessorKey: "held_units",
         header: "Ditahan",
-        size: 70,
+        size: 60, // Reduced from 70
         cell: ({ row }) => {
             const item = row.original;
             return (
-                <div className="flex items-center justify-center text-xs">
-                    <Clock className="h-3 w-3 text-yellow-600 mr-1" />
+                <div className="flex items-center justify-center text-[11px]">
+                    <Clock className="h-2.5 w-2.5 text-yellow-600 mr-0.5" />{" "}
+                    {/* Smaller icon */}
                     {item.held_units}
                 </div>
             );
@@ -297,17 +306,19 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
-                    className="text-xs p-1 h-8"
+                    className="text-[11px] p-0 h-6" // More compact
                 >
                     Ditambahkan
                 </Button>
             );
         },
-        size: 120,
+        size: 100, // Reduced from 120
         cell: ({ row }) => {
             const date = new Date(row.original.created_at);
             return (
-                <div className="text-xs">
+                <div className="text-[11px] px-1">
+                    {" "}
+                    {/* Smaller text, added padding */}
                     {date.toLocaleDateString("id-ID", {
                         day: "2-digit",
                         month: "2-digit",
@@ -326,7 +337,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
         accessorKey: "action",
         header: "Atur",
         id: "actions",
-        size: 80,
+        size: 60, // Reduced from 80
         cell: ({ row }) => {
             const item = row.original;
             const [imageFile, setImageFile] = useState<File | null>(null);
@@ -420,17 +431,18 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"
-                                        className="h-6 w-6 p-0"
+                                        className="h-5 w-5 p-0" // Smaller button
                                     >
                                         <span className="sr-only">
                                             Open menu
                                         </span>
-                                        <MoreHorizontal className="h-4 w-4" />
+                                        <MoreHorizontal className="h-3.5 w-3.5" />{" "}
+                                        {/* Smaller icon */}
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align="end"
-                                    className="text-xs"
+                                    className="text-[11px]" // Smaller text
                                 >
                                     <DropdownMenuLabel>Atur</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
@@ -457,23 +469,31 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
-                            <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+                            <AlertDialogContent className="max-w-[90vw] sm:max-w-md text-[13px]">
+                                {" "}
+                                {/* Slightly smaller text */}
                                 <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-sm">
+                                    <AlertDialogTitle className="text-[13px]">
+                                        {" "}
+                                        {/* Smaller text */}
                                         Apakah Anda Yakin?
                                     </AlertDialogTitle>
-                                    <AlertDialogDescription className="text-xs">
+                                    <AlertDialogDescription className="text-[11px]">
+                                        {" "}
+                                        {/* Smaller text */}
                                         Tindakan ini tidak dapat dibatalkan. Ini
                                         akan menghapus barang ini secara
                                         permanen dari server kami.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel className="text-xs h-8">
+                                    <AlertDialogCancel className="text-[11px] h-7">
+                                        {" "}
+                                        {/* Smaller */}
                                         Batal
                                     </AlertDialogCancel>
                                     <AlertDialogAction
-                                        className="bg-red-600 text-xs h-8"
+                                        className="bg-red-600 text-[11px] h-7" // Smaller
                                         onClick={() => {
                                             router.delete(`items/${item.id}`, {
                                                 onSuccess: (page: any) => {
@@ -510,29 +530,37 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                             </AlertDialogContent>
 
                             {formData && (
-                                <DialogContent className="max-w-[95vw] sm:max-w-md">
+                                <DialogContent className="max-w-[95vw] sm:max-w-md text-[13px]">
+                                    {" "}
+                                    {/* Slightly smaller text */}
                                     <DialogHeader>
-                                        <DialogTitle className="text-sm">
+                                        <DialogTitle className="text-[13px]">
+                                            {" "}
+                                            {/* Smaller text */}
                                             Ubah Data Barang
                                         </DialogTitle>
-                                        <DialogDescription className="text-xs">
+                                        <DialogDescription className="text-[11px]">
+                                            {" "}
+                                            {/* Smaller text */}
                                             Setelah selesai silahkan klik tombol
                                             ubah.
                                         </DialogDescription>
                                     </DialogHeader>
                                     <form
                                         onSubmit={handleUpdate}
-                                        className="space-y-4"
+                                        className="space-y-3" // Reduced spacing
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter") {
                                                 e.preventDefault();
                                             }
                                         }}
                                     >
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="grid grid-cols-4 items-center gap-3">
+                                            {" "}
+                                            {/* Reduced gap */}
                                             <Label
                                                 htmlFor="nama_barang"
-                                                className="text-right text-xs"
+                                                className="text-right text-[11px]" // Smaller text
                                             >
                                                 Nama Barang
                                             </Label>
@@ -541,14 +569,16 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                 name="nama_barang"
                                                 value={formData.nama_barang}
                                                 onChange={handleInputChange}
-                                                className="col-span-3 text-xs h-8"
+                                                className="col-span-3 text-[11px] h-7" // Smaller
                                             />
                                         </div>
 
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="grid grid-cols-4 items-center gap-3">
+                                            {" "}
+                                            {/* Reduced gap */}
                                             <Label
                                                 htmlFor="base_code"
-                                                className="text-right text-xs"
+                                                className="text-right text-[11px]" // Smaller text
                                             >
                                                 Kode Unit
                                             </Label>
@@ -563,14 +593,16 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                     })
                                                 }
                                                 placeholder="Kode Unit untuk unit baru"
-                                                className="col-span-3 text-xs h-8"
+                                                className="col-span-3 text-[11px] h-7" // Smaller
                                             />
                                         </div>
 
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="grid grid-cols-4 items-center gap-3">
+                                            {" "}
+                                            {/* Reduced gap */}
                                             <Label
                                                 htmlFor="additional_units"
-                                                className="text-right text-xs"
+                                                className="text-right text-[11px]" // Smaller text
                                             >
                                                 Tambah Unit
                                             </Label>
@@ -590,14 +622,16 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                             ) || 0,
                                                     })
                                                 }
-                                                className="col-span-3 text-xs h-8"
+                                                className="col-span-3 text-[11px] h-7" // Smaller
                                             />
                                         </div>
 
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="grid grid-cols-4 items-center gap-3">
+                                            {" "}
+                                            {/* Reduced gap */}
                                             <Label
                                                 htmlFor="status"
-                                                className="text-right text-xs"
+                                                className="text-right text-[11px]" // Smaller text
                                             >
                                                 Status
                                             </Label>
@@ -610,7 +644,9 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                     )
                                                 }
                                             >
-                                                <SelectTrigger className="col-span-3 text-xs h-8">
+                                                <SelectTrigger className="col-span-3 text-[11px] h-7">
+                                                    {" "}
+                                                    {/* Smaller */}
                                                     <SelectValue placeholder="Pilih Status" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -619,7 +655,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                             <SelectItem
                                                                 key={stat}
                                                                 value={stat}
-                                                                className="text-xs"
+                                                                className="text-[11px]" // Smaller text
                                                             >
                                                                 {stat}
                                                             </SelectItem>
@@ -628,10 +664,12 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="grid grid-cols-4 items-center gap-3">
+                                            {" "}
+                                            {/* Reduced gap */}
                                             <Label
                                                 htmlFor="id_kategori"
-                                                className="text-right text-xs"
+                                                className="text-right text-[11px]" // Smaller text
                                             >
                                                 Kategori
                                             </Label>
@@ -644,7 +682,9 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                     )
                                                 }
                                             >
-                                                <SelectTrigger className="col-span-3 text-xs h-8">
+                                                <SelectTrigger className="col-span-3 text-[11px] h-7">
+                                                    {" "}
+                                                    {/* Smaller */}
                                                     <SelectValue placeholder="Pilih Kategori">
                                                         {
                                                             categories.filter(
@@ -667,7 +707,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                                 value={
                                                                     category.id
                                                                 }
-                                                                className="text-xs"
+                                                                className="text-[11px]" // Smaller text
                                                             >
                                                                 {
                                                                     category.nama_kategori
@@ -678,10 +718,12 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="grid grid-cols-4 items-center gap-3">
+                                            {" "}
+                                            {/* Reduced gap */}
                                             <Label
                                                 htmlFor="image"
-                                                className="text-right text-xs"
+                                                className="text-right text-[11px]" // Smaller text
                                             >
                                                 Gambar
                                             </Label>
@@ -696,10 +738,12 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                 />
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="grid grid-cols-4 items-center gap-3">
+                                            {" "}
+                                            {/* Reduced gap */}
                                             <Label
                                                 htmlFor="deskripsi"
-                                                className="text-right text-xs"
+                                                className="text-right text-[11px]" // Smaller text
                                             >
                                                 Deskripsi
                                             </Label>
@@ -708,7 +752,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                 name="deskripsi"
                                                 value={formData.deskripsi || ""}
                                                 onChange={handleInputChange}
-                                                className="col-span-3 min-h-[80px] text-xs"
+                                                className="col-span-3 min-h-[60px] text-[11px]" // Smaller
                                                 rows={2}
                                                 placeholder="Masukkan deskripsi barang"
                                             />
@@ -720,7 +764,7 @@ export const columns = (categories: Category[]): ColumnDef<Item>[] => [
                                                     isSubmitting ||
                                                     isImageUploadOpen
                                                 }
-                                                className="text-xs h-8"
+                                                className="text-[11px] h-7" // Smaller
                                             >
                                                 {isSubmitting
                                                     ? "Sedang Mengubah..."

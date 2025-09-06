@@ -181,7 +181,7 @@ export default function ItemUnitsIndex({
                             <DataTable
                                 columns={columns(items)}
                                 data={filteredItemUnits}
-                                pageSize={10}
+                                pageSize={5}
                                 pageSizeOptions={[5, 10, 20, 50]}
                             />
                         </div>

@@ -157,7 +157,7 @@ export default function BrokenItemIndex({
                                 <DataTable
                                     columns={getColumns(canRequestRepair)}
                                     data={filteredReports}
-                                    pageSize={10}
+                                    pageSize={5}
                                     pageSizeOptions={[5, 10, 20, 50]}
                                 />
                             )}

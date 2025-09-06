@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,5 +24,8 @@ class AppServiceProvider extends ServiceProvider
         if (env('APP_ENV') === 'production') {
             URL::forceScheme('https');
         }
+        config(['app.timezone' => 'Asia/Makassar']);
+        date_default_timezone_set('Asia/Makassar');
+        Carbon::setLocale('id');
     }
 }

@@ -130,6 +130,74 @@ export function DataTable<TData, TValue>({
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }, [safeData, globalFilter]);
 
+    // Helper function to extract header text properly
+    const getHeaderText = (header: any, columnIndex: number): string => {
+        if (!header) {
+            return `Kolom ${columnIndex + 1}`;
+        }
+
+        if (typeof header === "string") {
+            return header;
+        }
+
+        if (typeof header === "function") {
+            try {
+                // For function headers, we need to render them and extract text
+                const headerElement = header({});
+                if (React.isValidElement(headerElement)) {
+                    // If it's a React element, try to extract text content
+                    const props = headerElement.props as any;
+                    if (typeof props?.children === "string") {
+                        return props.children;
+                    }
+                    // If it has nested children, try to extract text
+                    const extractText = (element: any): string => {
+                        if (typeof element === "string") return element;
+                        if (typeof element === "number") return String(element);
+                        if (React.isValidElement(element)) {
+                            const elementProps = element.props as any;
+                            if (typeof elementProps?.children === "string") {
+                                return elementProps.children;
+                            }
+                            if (Array.isArray(elementProps?.children)) {
+                                return elementProps.children
+                                    .map(extractText)
+                                    .join("");
+                            }
+                            return extractText(elementProps?.children) || "";
+                        }
+                        return "";
+                    };
+                    return (
+                        extractText(headerElement) || `Kolom ${columnIndex + 1}`
+                    );
+                }
+                return String(headerElement) || `Kolom ${columnIndex + 1}`;
+            } catch (error) {
+                console.warn("Error rendering header:", error);
+                return `Kolom ${columnIndex + 1}`;
+            }
+        }
+
+        // For React elements
+        if (React.isValidElement(header)) {
+            const props = header.props as any;
+            if (typeof props?.children === "string") {
+                return props.children;
+            }
+        }
+
+        // Fallback for other types
+        if (header && typeof header === "object" && header.toString) {
+            const stringValue = header.toString();
+            if (stringValue !== "[object Object]") {
+                return stringValue;
+            }
+        }
+
+        return `Kolom ${columnIndex + 1}`;
+    };
+
     if (safeColumns.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-32 p-8 text-center border border-dashed border-muted-foreground/25 rounded-lg bg-muted/10">
@@ -294,25 +362,10 @@ export function DataTable<TData, TValue>({
                                 {row
                                     .getVisibleCells()
                                     .map((cell, cellIndex) => {
-                                        const header =
-                                            safeColumns[cellIndex]?.header;
-                                        let headerText = "";
-
-                                        if (typeof header === "string") {
-                                            headerText = header;
-                                        } else if (
-                                            typeof header === "function"
-                                        ) {
-                                            const headerElement = flexRender(
-                                                header as any,
-                                                { column: cell.column } as any
-                                            );
-                                            headerText = String(headerElement);
-                                        } else {
-                                            headerText = `Kolom ${
-                                                cellIndex + 1
-                                            }`;
-                                        }
+                                        const headerText = getHeaderText(
+                                            safeColumns[cellIndex]?.header,
+                                            cellIndex
+                                        );
 
                                         return (
                                             <div

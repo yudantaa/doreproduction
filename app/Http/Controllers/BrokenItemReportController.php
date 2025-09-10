@@ -66,11 +66,8 @@ class BrokenItemReportController extends Controller
         });
 
         return Inertia::render('broken-items/broken-item-index', [
-            'reports' => BrokenItemReport::with(['itemUnit.item', 'reporter'])
-                ->latest()
-                ->get(),
+            'reports' => $reports,
         ]);
-
     }
 
     public function show(BrokenItemReport $report)
@@ -173,7 +170,8 @@ class BrokenItemReportController extends Controller
         $itemUnit = ItemUnit::with('item')->findOrFail($validated['id_item_unit']);
 
         if (!in_array($itemUnit->status, ['Tersedia', 'Disewa'])) {
-            return redirect()->route('dashboard.broken-items.index')
+            return redirect()
+                ->back()
                 ->withErrors(['id_item_unit' => 'Unit ini tidak dapat dilaporkan rusak dalam status saat ini.']);
         }
 
@@ -182,7 +180,8 @@ class BrokenItemReportController extends Controller
             ->first();
 
         if ($existingReport) {
-            return redirect()->route('dashboard.broken-items.index')
+            return redirect()
+                ->back()
                 ->withErrors(['id_item_unit' => 'Unit ini sudah dilaporkan rusak sebelumnya.']);
         }
 
@@ -228,7 +227,8 @@ class BrokenItemReportController extends Controller
                 Storage::disk('public')->delete($imagePath);
             }
 
-            return redirect()->route('dashboard.broken-items.index')
+            return redirect()
+                ->back()
                 ->withErrors(['error' => 'Terjadi kesalahan saat membuat laporan: ' . $e->getMessage()]);
         }
     }
@@ -269,13 +269,14 @@ class BrokenItemReportController extends Controller
 
             DB::commit();
 
+            // Send notification AFTER successful transaction
             $this->sendBrokenItemStatusNotification($report, $oldStatus);
 
-            return redirect()->route('dashboard.broken-items.index')->with('success', 'Status laporan berhasil diperbarui.');
+            return redirect()->back()->with('success', 'Status laporan berhasil diperbarui.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('dashboard.broken-items.index')->withErrors(['error' => 'Terjadi kesalahan saat memperbarui status: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui status: ' . $e->getMessage()]);
         }
     }
 
@@ -303,10 +304,10 @@ class BrokenItemReportController extends Controller
             // Send notification if notes were updated
             $this->sendRepairNotesUpdateNotification($report, $oldNotes);
 
-            return redirect()->route('dashboard.broken-items.index')->with('success', 'Catatan perbaikan berhasil diperbarui.');
+            return redirect()->back()->with('success', 'Catatan perbaikan berhasil diperbarui.');
 
         } catch (\Exception $e) {
-            return redirect()->route('dashboard.broken-items.index')->withErrors(['repair_notes' => 'Terjadi kesalahan saat memperbarui catatan: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['repair_notes' => 'Terjadi kesalahan saat memperbarui catatan: ' . $e->getMessage()]);
         }
     }
 
@@ -348,7 +349,7 @@ class BrokenItemReportController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('dashboard.broken-items.index')->withErrors(['error' => 'Terjadi kesalahan saat menghapus laporan: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus laporan: ' . $e->getMessage()]);
         }
     }
 

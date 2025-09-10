@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
@@ -9,10 +9,22 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { BrokenItemReport } from "@/types/broken-item";
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/hooks/use-toast";
+import type { Page } from "@inertiajs/core";
 
-// Export a function that returns the columns
 export const getColumns = (
     canRequestRepair: boolean
 ): ColumnDef<BrokenItemReport>[] => [
@@ -128,44 +140,120 @@ export const getColumns = (
         header: "Aksi",
         cell: ({ row }) => {
             const report = row.original;
+            const { toast } = useToast();
+            const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+            const handleDelete = () => {
+                router.delete(
+                    route("dashboard.broken-items.destroy", report.id),
+                    {
+                        onFinish: () => setIsDeleteDialogOpen(false),
+                        onSuccess: (
+                            page: Page<{
+                                flash?: { success?: string; error?: string };
+                            }>
+                        ) => {
+                            const flash = page.props?.flash || {};
+                            if (flash.error) {
+                                toast({
+                                    title: "Gagal Menghapus",
+                                    description: flash.error,
+                                    variant: "destructive",
+                                });
+                            } else {
+                                toast({
+                                    description:
+                                        flash.success ||
+                                        "Laporan berhasil dihapus.",
+                                });
+                            }
+                        },
+                        onError: () => {
+                            toast({
+                                title: "Gagal Menghapus",
+                                description:
+                                    "Terjadi kesalahan saat menghapus laporan.",
+                                variant: "destructive",
+                            });
+                        },
+                    }
+                );
+            };
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                            <Link
-                                href={route(
-                                    "dashboard.broken-items.show",
-                                    report.id
-                                )}
-                            >
-                                Lihat Detail
-                            </Link>
-                        </DropdownMenuItem>
-                        {/* Conditionally show repair request option */}
-                        {canRequestRepair && report.status === "reported" && (
+                <>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
                                 <Link
                                     href={route(
-                                        "dashboard.broken-items.request-repair",
+                                        "dashboard.broken-items.show",
                                         report.id
                                     )}
-                                    method="post"
-                                    as="button"
                                 >
-                                    Minta Perbaikan
+                                    Lihat Detail
                                 </Link>
                             </DropdownMenuItem>
-                        )}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                            {canRequestRepair &&
+                                report.status === "reported" && (
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href={route(
+                                                "dashboard.broken-items.request-repair",
+                                                report.id
+                                            )}
+                                            method="post"
+                                            as="button"
+                                        >
+                                            Minta Perbaikan
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
+                            <DropdownMenuItem
+                                className="text-red-600"
+                                onSelect={(e) => {
+                                    e.preventDefault();
+                                    setIsDeleteDialogOpen(true);
+                                }}
+                            >
+                                Hapus
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <AlertDialog
+                        open={isDeleteDialogOpen}
+                        onOpenChange={setIsDeleteDialogOpen}
+                    >
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                    Hapus Laporan?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Tindakan ini tidak bisa dibatalkan. Laporan
+                                    akan dihapus secara permanen.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction
+                                    className="bg-red-600"
+                                    onClick={handleDelete}
+                                >
+                                    Hapus
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </>
             );
         },
     },

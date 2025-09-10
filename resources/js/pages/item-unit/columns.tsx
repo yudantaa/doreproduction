@@ -1,10 +1,4 @@
-import React, { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
-import { router } from "@inertiajs/react";
-import { useFormState } from "@/utilities/form-utilities";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -14,8 +8,16 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -24,15 +26,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -40,9 +35,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ItemUnit } from "@/types/item-unit";
+import { useFormState } from "@/utilities/form-utilities";
+import { router } from "@inertiajs/react";
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
+import React, { useState } from "react";
 
 export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
     {
@@ -125,6 +123,7 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
             const unit = row.original;
             const { toast } = useToast();
             const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+            const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
             const [unitNumber, setUnitNumber] = useState("");
 
             const {
@@ -150,18 +149,6 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                 ? items.find((item) => item.id === formData.id_barang)
                 : null;
 
-            // Update kode_unit when item or unit number changes
-            React.useEffect(() => {
-                if (formData && selectedItem && unitNumber) {
-                    const updatedFormData = {
-                        ...formData,
-                        kode_unit: `${selectedItem.base_code}-${unitNumber}`,
-                    };
-                    // We need to update the form data, but we can't call handleInputChange here
-                    // as it would create an infinite loop. We'll handle this in the submit function.
-                }
-            }, [selectedItem, unitNumber, formData]);
-
             const handleUpdate = async (e: React.FormEvent) => {
                 e.preventDefault();
                 if (!formData || !selectedItem || !unitNumber.trim()) return;
@@ -180,6 +167,7 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                             toast({
                                 description: "Unit berhasil diperbarui.",
                             });
+                            setIsEditDialogOpen(false);
                             closeModal();
                         },
                         onError: (errors) => {
@@ -195,6 +183,42 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                 );
             };
 
+            const handleDelete = () => {
+                router.delete(`item-units/${unit.id}`, {
+                    onFinish: () => {
+                        setIsDeleteDialogOpen(false);
+                    },
+                    onSuccess: (page: any) => {
+                        const flashMessages = page.props.flash || {};
+
+                        if (flashMessages.error) {
+                            toast({
+                                title: "Gagal Menghapus Unit",
+                                description: flashMessages.error,
+                                variant: "destructive",
+                            });
+                        } else if (flashMessages.success) {
+                            toast({
+                                description: flashMessages.success,
+                            });
+                        } else {
+                            toast({
+                                description: "Unit berhasil dihapus.",
+                            });
+                        }
+                    },
+                    onError: (errors) => {
+                        console.log("Delete errors:", errors);
+                        toast({
+                            title: "Gagal Menghapus Unit",
+                            description:
+                                "Terjadi kesalahan saat menghapus unit.",
+                            variant: "destructive",
+                        });
+                    },
+                });
+            };
+
             const handleItemChange = (value: string) => {
                 handleSelectChange("id_barang", value);
             };
@@ -205,215 +229,206 @@ export const columns = (items: any[]): ColumnDef<ItemUnit>[] => [
                 setUnitNumber(e.target.value);
             };
 
+            const openEditModal = () => {
+                openModal(unit);
+                setIsEditDialogOpen(true);
+            };
+
+            const closeEditModal = () => {
+                setIsEditDialogOpen(false);
+                closeModal();
+            };
+
             return (
                 <>
+                    {/* Edit Dialog */}
+                    <Dialog
+                        open={isEditDialogOpen}
+                        onOpenChange={setIsEditDialogOpen}
+                    >
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Ubah Data Unit</DialogTitle>
+                                <DialogDescription>
+                                    Setelah selesai silahkan klik tombol ubah.
+                                </DialogDescription>
+                            </DialogHeader>
+                            {formData && (
+                                <form
+                                    onSubmit={handleUpdate}
+                                    className="space-y-4"
+                                >
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="id_barang"
+                                            className="text-right"
+                                        >
+                                            Barang
+                                        </Label>
+                                        <Select
+                                            value={formData.id_barang}
+                                            onValueChange={handleItemChange}
+                                        >
+                                            <SelectTrigger className="col-span-3">
+                                                <SelectValue placeholder="Pilih Barang" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {items.map((item) => (
+                                                    <SelectItem
+                                                        key={item.id}
+                                                        value={item.id}
+                                                    >
+                                                        {item.nama_barang} (
+                                                        {item.base_code})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="unit_number"
+                                            className="text-right"
+                                        >
+                                            Nomor Unit
+                                        </Label>
+                                        <div className="col-span-3">
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm font-medium text-muted-foreground min-w-fit">
+                                                    {selectedItem
+                                                        ? `${selectedItem.base_code}-`
+                                                        : "Pilih barang dulu"}
+                                                </span>
+                                                <Input
+                                                    id="unit_number"
+                                                    value={unitNumber}
+                                                    onChange={
+                                                        handleUnitNumberChange
+                                                    }
+                                                    placeholder="contoh: 001 atau 102"
+                                                    disabled={!selectedItem}
+                                                    className="flex-1"
+                                                />
+                                            </div>
+                                            {selectedItem && unitNumber && (
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    Kode unit:{" "}
+                                                    <span className="font-medium">
+                                                        {selectedItem.base_code}
+                                                        -{unitNumber}
+                                                    </span>
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label
+                                            htmlFor="status"
+                                            className="text-right"
+                                        >
+                                            Status
+                                        </Label>
+                                        <Select
+                                            value={formData.status}
+                                            onValueChange={(value) =>
+                                                handleSelectChange(
+                                                    "status",
+                                                    value
+                                                )
+                                            }
+                                        >
+                                            <SelectTrigger className="col-span-3">
+                                                <SelectValue placeholder="Pilih Status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Tersedia">
+                                                    Tersedia
+                                                </SelectItem>
+                                                <SelectItem value="Rusak">
+                                                    Rusak
+                                                </SelectItem>
+                                                <SelectItem value="Dalam Perbaikan">
+                                                    Dalam Perbaikan
+                                                </SelectItem>
+                                                <SelectItem value="Disewa">
+                                                    Disewa
+                                                </SelectItem>
+                                                <SelectItem value="Tidak Tersedia">
+                                                    Tidak Tersedia
+                                                </SelectItem>
+                                                <SelectItem value="Sedang Ditahan">
+                                                    Sedang Ditahan
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={closeEditModal}
+                                        >
+                                            Batal
+                                        </Button>
+                                        <Button type="submit">Ubah</Button>
+                                    </DialogFooter>
+                                </form>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* Delete Confirmation Dialog */}
                     <AlertDialog
                         open={isDeleteDialogOpen}
                         onOpenChange={setIsDeleteDialogOpen}
                     >
-                        <Dialog>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        className="h-8 w-8 p-0"
-                                    >
-                                        <span className="sr-only">
-                                            Open menu
-                                        </span>
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DialogTrigger>
-                                        <DropdownMenuItem
-                                            onClick={() => openModal(unit)}
-                                        >
-                                            Ubah Data
-                                        </DropdownMenuItem>
-                                    </DialogTrigger>
-                                    <DropdownMenuSeparator />
-                                    <AlertDialogTrigger>
-                                        <DropdownMenuItem className="text-red-600">
-                                            Hapus Data
-                                        </DropdownMenuItem>
-                                    </AlertDialogTrigger>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                        Apakah Anda Yakin?
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Tindakan ini tidak dapat dibatalkan. Ini
-                                        akan menghapus unit ini secara permanen
-                                        dari server kami.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <AlertDialogAction
-                                        className="bg-red-600"
-                                        onClick={() => {
-                                            router.delete(
-                                                `item-units/${unit.id}`,
-                                                {
-                                                    onSuccess: () => {
-                                                        toast({
-                                                            description:
-                                                                "Unit berhasil dihapus.",
-                                                        });
-                                                    },
-                                                    onError: () => {
-                                                        toast({
-                                                            description:
-                                                                "Gagal menghapus unit.",
-                                                            variant:
-                                                                "destructive",
-                                                        });
-                                                    },
-                                                }
-                                            );
-                                        }}
-                                    >
-                                        Lanjut Hapus
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-
-                            {formData && (
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>
-                                            Ubah Data Unit
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                            Setelah selesai silahkan klik tombol
-                                            ubah.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <form
-                                        onSubmit={handleUpdate}
-                                        className="space-y-4"
-                                    >
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="id_barang"
-                                                className="text-right"
-                                            >
-                                                Barang
-                                            </Label>
-                                            <Select
-                                                value={formData.id_barang}
-                                                onValueChange={handleItemChange}
-                                            >
-                                                <SelectTrigger className="col-span-3">
-                                                    <SelectValue placeholder="Pilih Barang" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {items.map((item) => (
-                                                        <SelectItem
-                                                            key={item.id}
-                                                            value={item.id}
-                                                        >
-                                                            {item.nama_barang} (
-                                                            {item.base_code})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="unit_number"
-                                                className="text-right"
-                                            >
-                                                Nomor Unit
-                                            </Label>
-                                            <div className="col-span-3">
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="text-sm font-medium text-muted-foreground min-w-fit">
-                                                        {selectedItem
-                                                            ? `${selectedItem.base_code}-`
-                                                            : "Pilih barang dulu"}
-                                                    </span>
-                                                    <Input
-                                                        id="unit_number"
-                                                        value={unitNumber}
-                                                        onChange={
-                                                            handleUnitNumberChange
-                                                        }
-                                                        placeholder="contoh: 001 atau 102"
-                                                        disabled={!selectedItem}
-                                                        className="flex-1"
-                                                    />
-                                                </div>
-                                                {selectedItem && unitNumber && (
-                                                    <p className="text-xs text-muted-foreground mt-1">
-                                                        Kode unit:{" "}
-                                                        <span className="font-medium">
-                                                            {
-                                                                selectedItem.base_code
-                                                            }
-                                                            -{unitNumber}
-                                                        </span>
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label
-                                                htmlFor="status"
-                                                className="text-right"
-                                            >
-                                                Status
-                                            </Label>
-                                            <Select
-                                                value={formData.status}
-                                                onValueChange={(value) =>
-                                                    handleSelectChange(
-                                                        "status",
-                                                        value
-                                                    )
-                                                }
-                                            >
-                                                <SelectTrigger className="col-span-3">
-                                                    <SelectValue placeholder="Pilih Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Tersedia">
-                                                        Tersedia
-                                                    </SelectItem>
-                                                    <SelectItem value="Rusak">
-                                                        Rusak
-                                                    </SelectItem>
-                                                    <SelectItem value="Dalam Perbaikan">
-                                                        Dalam Perbaikan
-                                                    </SelectItem>
-                                                    <SelectItem value="Disewa">
-                                                        Disewa
-                                                    </SelectItem>
-                                                    <SelectItem value="Tidak Tersedia">
-                                                        Tidak Tersedia
-                                                    </SelectItem>
-                                                    <SelectItem value="Sedang Ditahan">
-                                                        Sedang Ditahan
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <DialogFooter>
-                                            <Button type="submit">Ubah</Button>
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            )}
-                        </Dialog>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                    Apakah Anda Yakin?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Tindakan ini tidak dapat dibatalkan. Ini
+                                    akan menghapus unit{" "}
+                                    <strong>{unit.kode_unit}</strong> secara
+                                    permanen dari server kami.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction
+                                    className="bg-red-600 hover:bg-red-700"
+                                    onClick={handleDelete}
+                                >
+                                    Lanjut Hapus
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
                     </AlertDialog>
+
+                    {/* Dropdown Menu */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={openEditModal}>
+                                Ubah Data
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => setIsDeleteDialogOpen(true)}
+                            >
+                                Hapus Data
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </>
             );
         },

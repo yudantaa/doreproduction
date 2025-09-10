@@ -81,6 +81,8 @@ export default function CategoriesIndex({ categories }: CategoriesPageProps) {
                                 .toLowerCase()
                                 .includes(nameFilter.toLowerCase())
                         )}
+                        pageSize={5}
+                        pageSizeOptions={[5, 10, 20, 50]}
                     />
                 </div>
             </div>

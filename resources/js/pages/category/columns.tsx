@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { useToast } from "@/components/hooks/use-toast";
 import { router } from "@inertiajs/react";
+import type { Page } from "@inertiajs/core";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -111,17 +112,31 @@ export const columns: ColumnDef<Category>[] = [
             const handleUpdate = () => {
                 if (formData) {
                     router.put(`categories/${formData.id}`, formData, {
-                        onSuccess: () => {
+                        onSuccess: (
+                            page: Page<{
+                                flash?: { success?: string; error?: string };
+                            }>
+                        ) => {
+                            const flash = page.props?.flash || {};
                             closeDialog();
-                            toast({
-                                description: "Data berhasil diubah.",
-                            });
+
+                            if (flash.error) {
+                                toast({
+                                    title: "Gagal Mengubah Kategori",
+                                    description: flash.error,
+                                    variant: "destructive",
+                                });
+                            } else if (flash.success) {
+                                toast({ description: flash.success });
+                            } else {
+                                toast({ description: "Data berhasil diubah." });
+                            }
                         },
-                        onError: (errors) => {
+                        onError: () => {
                             toast({
                                 title: "Gagal Mengubah Data",
                                 description:
-                                    "Data ini sudah ada, silakan periksa kembali input Anda.",
+                                    "Terjadi kesalahan saat mengubah data.",
                                 variant: "destructive",
                             });
                         },
@@ -129,129 +144,85 @@ export const columns: ColumnDef<Category>[] = [
                 }
             };
 
+            const handleDelete = () => {
+                router.delete(`categories/${category.id}`, {
+                    onSuccess: (
+                        page: Page<{
+                            flash?: { success?: string; error?: string };
+                        }>
+                    ) => {
+                        const flash = page.props?.flash || {};
+
+                        if (flash.error) {
+                            toast({
+                                title: "Gagal Menghapus Kategori",
+                                description: flash.error,
+                                variant: "destructive",
+                            });
+                        } else if (flash.success) {
+                            toast({ description: flash.success });
+                        } else {
+                            toast({ description: "Data berhasil dihapus." });
+                        }
+                    },
+                    onError: () => {
+                        toast({
+                            title: "Gagal Menghapus Data",
+                            description:
+                                "Terjadi kesalahan saat menghapus data.",
+                            variant: "destructive",
+                        });
+                    },
+                });
+            };
+
             return (
-                <AlertDialog>
-                    <Dialog>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <span className="sr-only">Open menu</span>
-                                    <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Atur</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-
-                                <DialogTrigger>
-                                    <DropdownMenuItem onClick={openDialog}>
-                                        Ubah Data
-                                    </DropdownMenuItem>
-                                </DialogTrigger>
-
-                                <DropdownMenuSeparator></DropdownMenuSeparator>
-
-                                <AlertDialogTrigger>
-                                    <DropdownMenuItem className="text-red-600">
-                                        Hapus Data
-                                    </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        {/* Delete Confirmation Dialog */}
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    Apakah Anda Yakin?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Tindakan ini tidak dapat dibatalkan. Ini
-                                    akan menghapus kategori ini secara permanen
-                                    dari server kami.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction
-                                    className="bg-red-600"
-                                    onClick={() => {
-                                        router.delete(
-                                            `categories/${category.id}`,
-                                            {
-                                                onSuccess: () => {
-                                                    toast({
-                                                        description:
-                                                            "Data berhasil dihapus.",
-                                                    });
-                                                },
-                                                onError: () => {
-                                                    toast({
-                                                        description:
-                                                            "Gagal menghapus data.",
-                                                        variant: "destructive",
-                                                    });
-                                                },
-                                            }
-                                        );
-                                    }}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={openDialog}>
+                            Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <DropdownMenuItem
+                                    className="text-red-600"
+                                    onSelect={(e) => e.preventDefault()}
                                 >
-                                    Lanjut Hapus
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-
-                        {/* Update Category Dialog */}
-                        {formData && (
-                            <Dialog
-                                open={!!formData}
-                                onOpenChange={closeDialog}
-                            >
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>
-                                            Ubah Data Kategori
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                            Setelah selesai silahkan klik tombol
-                                            ubah.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 categories-center gap-4">
-                                            <Label
-                                                htmlFor="nama_kategori"
-                                                className="text-right"
-                                            >
-                                                Nama Kategori
-                                            </Label>
-                                            <Input
-                                                id="nama_kategori"
-                                                value={formData.nama_kategori}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        nama_kategori:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="col-span-3"
-                                            />
-                                        </div>
-                                    </div>
-                                    <DialogFooter>
-                                        <Button
-                                            type="submit"
-                                            onClick={handleUpdate}
-                                        >
-                                            Ubah
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                        )}
-                    </Dialog>
-                </AlertDialog>
+                                    Hapus
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        Apakah kamu yakin ingin menghapus
+                                        kategori ini?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Data yang sudah dihapus tidak bisa
+                                        dikembalikan.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        className="bg-red-600"
+                                        onClick={handleDelete}
+                                    >
+                                        Lanjut Hapus
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             );
         },
     },

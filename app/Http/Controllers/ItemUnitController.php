@@ -96,23 +96,29 @@ class ItemUnitController extends Controller
 
     public function destroy(ItemUnit $itemUnit)
     {
-        // Validation: Check if unit has any loans
-        if ($itemUnit->loans()->exists()) {
-            return redirect()->route('item-units.index')
-                ->with('error', 'Unit ini memiliki riwayat peminjaman dan tidak dapat dihapus.');
-        }
-
-        // Validation: Check if unit has broken item reports
-        if ($itemUnit->brokenItemReports()->exists()) {
-            return redirect()->route('item-units.index')
-                ->with('error', 'Unit ini memiliki laporan kerusakan dan tidak dapat dihapus.');
-        }
-
-        // Validation: Check if unit is currently being used
+        // Validation: Check if unit is currently being used (has active loans)
         if ($itemUnit->status === 'Disewa') {
-            return redirect()->route('item-units.index')
-                ->with('error', 'Unit ini sedang disewa dan tidak dapat dihapus.');
+            $hasActiveLoan = $itemUnit->loans()->where('status', 'Disewa')->exists();
+            if ($hasActiveLoan) {
+                return redirect()->route('item-units.index')
+                    ->with('error', 'Unit ini sedang disewa dan tidak dapat dihapus.');
+            }
         }
+
+        // Validation: Check if unit has active broken item reports
+        if (in_array($itemUnit->status, ['Rusak', 'Dalam Perbaikan'])) {
+            $hasActiveReport = $itemUnit->brokenItemReports()
+                ->whereIn('status', ['reported', 'in_repair'])
+                ->exists();
+
+            if ($hasActiveReport) {
+                return redirect()->route('item-units.index')
+                    ->with('error', 'Unit ini memiliki laporan kerusakan aktif dan tidak dapat dihapus.');
+            }
+        }
+
+        // Note: We allow deletion of units with historical loans/reports,
+        // but prevent deletion of units with active/current issues
 
         try {
             DB::beginTransaction();

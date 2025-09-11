@@ -167,6 +167,8 @@ class LoanController extends Controller
         try {
             DB::beginTransaction();
 
+            $createdLoans = [];
+
             foreach ($availableUnits as $unit) {
                 $unit->update(['status' => 'Disewa']);
 
@@ -180,10 +182,13 @@ class LoanController extends Controller
                     'tanggal_kembali' => null,
                 ]);
 
-                $this->sendLoanCreatedNotification($loan);
+                $createdLoans[] = $loan;
             }
 
             DB::commit();
+
+            // Send single grouped notification for all created loans
+            $this->sendGroupedLoanCreatedNotification($createdLoans);
 
             return redirect()->route('loans.index')->with('success', 'Penyewaan berhasil ditambahkan.');
         } catch (\Exception $e) {
@@ -382,43 +387,65 @@ class LoanController extends Controller
             });
     }
 
-    private function sendLoanCreatedNotification(Loan $loan)
+
+    private function sendGroupedLoanCreatedNotification(array $loans)
     {
+        if (empty($loans)) {
+            return;
+        }
+
         try {
-            $loan->load(['itemUnit.item']);
+            foreach ($loans as $loan) {
+                $loan->load(['itemUnit.item']);
+            }
+
+            $firstLoan = $loans[0];
+            $totalUnits = count($loans);
 
             $message = "<b>📋 PEMINJAMAN BARU</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL PEMINJAMAN:</b>\n";
-            $message .= "• ID Peminjaman: <code>#{$loan->id}</code>\n";
-            $message .= "• Nama Penyewa: <b>{$loan->nama_penyewa}</b>\n";
-            $message .= "• No. Telepon: <code>{$loan->no_tlp_penyewa}</code>\n\n";
+            if ($totalUnits > 1) {
+                $minId = min(array_column($loans, 'id'));
+                $maxId = max(array_column($loans, 'id'));
+                $message .= "• ID Peminjaman: <code>#{$minId} - #{$maxId}</code>\n";
+            } else {
+                $message .= "• ID Peminjaman: <code>#{$firstLoan->id}</code>\n";
+            }
+            $message .= "• Nama Penyewa: <b>{$firstLoan->nama_penyewa}</b>\n";
+            $message .= "• No. Telepon: <code>{$firstLoan->no_tlp_penyewa}</code>\n\n";
 
             $message .= "<b>📦 DETAIL BARANG:</b>\n";
-            $message .= "• Nama Barang: <b>{$loan->itemUnit->item->nama_barang}</b>\n";
-            $message .= "• Kode Unit: <code>{$loan->itemUnit->kode_unit}</code>\n\n";
+            $message .= "• Nama Barang: <b>{$firstLoan->itemUnit->item->nama_barang}</b>\n";
+            $message .= "• Jumlah Unit: <b>{$totalUnits} unit</b>\n";
+
+            // List all unit codes
+            $message .= "• Kode Unit:\n";
+            foreach ($loans as $index => $loan) {
+                $message .= "  ├ <code>{$loan->itemUnit->kode_unit}</code>\n";
+            }
+            $message .= "\n";
 
             $message .= "<b>📅 JADWAL PEMINJAMAN:</b>\n";
-            $message .= "• Tanggal Sewa: <b>{$loan->tanggal_sewa->format('d/m/Y')}</b>\n";
-            $message .= "• Deadline: <b>{$loan->deadline_pengembalian->format('d/m/Y')}</b>\n";
+            $message .= "• Tanggal Sewa: <b>{$firstLoan->tanggal_sewa->format('d/m/Y')}</b>\n";
+            $message .= "• Deadline: <b>{$firstLoan->deadline_pengembalian->format('d/m/Y')}</b>\n";
 
-            $daysUntilDeadline = ceil(now()->floatDiffInDays($loan->deadline_pengembalian, false));
+            $daysUntilDeadline = ceil(now()->floatDiffInDays($firstLoan->deadline_pengembalian, false));
             if ($daysUntilDeadline > 0) {
                 $message .= "• Sisa Waktu: <b>{$daysUntilDeadline} hari</b>\n\n";
             } else {
                 $message .= "• Status: <b>⚠️ Sudah Melewati Deadline</b>\n\n";
             }
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dibuat: "
-                . $loan->created_at->timezone(config('app.timezone'))->format('d/m/Y • H:i')
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Dibuat: "
+                . $firstLoan->created_at->timezone(config('app.timezone'))->format('d/m/Y • H:i')
                 . " WITA</i>";
-
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {
-            \Log::error('Failed to send loan created notification: ' . $e->getMessage());
+            \Log::error('Failed to send grouped loan created notification: ' . $e->getMessage());
         }
     }
 
@@ -428,7 +455,7 @@ class LoanController extends Controller
             $loan->load(['itemUnit.item']);
 
             $message = "<b>🔄 PEMINJAMAN DIPERBARUI</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL PEMINJAMAN:</b>\n";
             $message .= "• ID Peminjaman: <code>#{$loan->id}</code>\n";
@@ -450,8 +477,8 @@ class LoanController extends Controller
             $message .= "• Tanggal Sewa: <b>{$loan->tanggal_sewa->format('d/m/Y')}</b>\n";
             $message .= "• Deadline: <b>{$loan->deadline_pengembalian->format('d/m/Y')}</b>\n\n";
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Diperbarui: " . now()->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Diperbarui: " . now()->format('d/m/Y • H:i') . " WITA</i>";
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {
@@ -469,7 +496,7 @@ class LoanController extends Controller
             $statusText = $isLate ? "TERLAMBAT" : "TEPAT WAKTU";
 
             $message = "<b>✅ PEMINJAMAN DIKEMBALIKAN</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL PEMINJAMAN:</b>\n";
             $message .= "• ID Peminjaman: <code>#{$loan->id}</code>\n";
@@ -490,11 +517,10 @@ class LoanController extends Controller
                 $message .= "• Terlambat: <b>{$lateDays} hari</b>\n\n";
             }
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dikembalikan: "
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Dikembalikan: "
                 . $returnTime->timezone(config('app.timezone'))->format('d/m/Y • H:i')
                 . " WITA</i>";
-
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {
@@ -508,7 +534,7 @@ class LoanController extends Controller
             $loan->load(['itemUnit.item']);
 
             $message = "<b>❌ PEMINJAMAN DIBATALKAN</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL PEMINJAMAN:</b>\n";
             $message .= "• ID Peminjaman: <code>#{$loan->id}</code>\n";
@@ -523,8 +549,8 @@ class LoanController extends Controller
             $message .= "• Tanggal Sewa: <b>{$loan->tanggal_sewa->format('d/m/Y')}</b>\n";
             $message .= "• Deadline: <b>{$loan->deadline_pengembalian->format('d/m/Y')}</b>\n\n";
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dibatalkan: " . now()->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Dibatalkan: " . now()->format('d/m/Y • H:i') . " WITA</i>";
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {
@@ -536,7 +562,7 @@ class LoanController extends Controller
     {
         try {
             $message = "<b>🗑️ PEMINJAMAN DIHAPUS</b>\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
             $message .= "<b>📋 DETAIL PEMINJAMAN:</b>\n";
             $message .= "• ID Peminjaman: <code>#{$loanData['id']}</code>\n";
@@ -552,8 +578,8 @@ class LoanController extends Controller
             $message .= "• Tanggal Sewa: <b>{$loanData['tanggal_sewa']->format('d/m/Y')}</b>\n";
             $message .= "• Deadline: <b>{$loanData['deadline_pengembalian']->format('d/m/Y')}</b>\n\n";
 
-            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "🕒 <i>Dihapus: " . now()->format('d/m/Y • H:i') . " WITA</i>";
+            $message .= "━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "🕐 <i>Dihapus: " . now()->format('d/m/Y • H:i') . " WITA</i>";
 
             (new TelegramBotController)->sendMessage($message);
         } catch (\Exception $e) {

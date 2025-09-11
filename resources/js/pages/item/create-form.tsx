@@ -39,7 +39,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
     const [formData, setFormData] = useState({
         nama_barang: "",
         base_code: "",
-        initial_units: 1,
+        initial_units: "",
         status: "Tersedia",
         deskripsi: "",
         id_kategori: "",
@@ -170,12 +170,11 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
                     <Input
                         id="initial_units"
                         type="number"
-                        min="1"
                         value={formData.initial_units}
                         onChange={(e) =>
                             setFormData({
                                 ...formData,
-                                initial_units: parseInt(e.target.value) || 1,
+                                initial_units: e.target.value,
                             })
                         }
                         className="col-span-3"

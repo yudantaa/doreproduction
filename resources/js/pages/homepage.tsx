@@ -188,12 +188,11 @@ export default function HomePage({
                     </Link>
                     <nav className="hidden md:flex space-x-8">
                         {[
-                            "peralatan",
-                            "layanan",
-                            "tentang",
-                            "proyek",
-                            "testimonial",
-                            "kontak",
+                            "equipment",
+                            "services",
+                            "about",
+                            "testimony",
+                            "contact",
                         ].map((section) => (
                             <a
                                 key={section}
@@ -207,27 +206,7 @@ export default function HomePage({
                     </nav>
                     <div className="flex items-center gap-3">
                         <AppearanceDropdown />
-                        {isAuthenticated ? (
-                            <Link href="/dashboard">
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    className="bg-gradient-to-r from-red-600 to-red-800 text-white hover:opacity-90 transition-opacity shadow-md"
-                                >
-                                    Dashboard
-                                </Button>
-                            </Link>
-                        ) : (
-                            <Link href="/login">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="border-gray-300 dark:border-gray-600 shadow-sm"
-                                >
-                                    Login
-                                </Button>
-                            </Link>
-                        )}
+
                         <a
                             href="https://wa.me/089522734461"
                             className="md:flex items-center hidden"
@@ -237,7 +216,7 @@ export default function HomePage({
                                 size="sm"
                                 className="bg-gradient-to-r from-red-600 to-red-800 text-white hover:opacity-90 transition-opacity shadow-md"
                             >
-                                <Phone className="w-4 h-4 mr-1" /> Hubungi Kami
+                                <Phone className="w-4 h-4 mr-1" /> Contact Us
                             </Button>
                         </a>
                         <button
@@ -256,12 +235,11 @@ export default function HomePage({
                     <div className="md:hidden py-4 px-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
                         <nav className="flex flex-col space-y-4">
                             {[
-                                "peralatan",
-                                "layanan",
-                                "tentang",
-                                "proyek",
-                                "testimonial",
-                                "kontak",
+                                "equipment",
+                                "services",
+                                "about",
+                                "testimony",
+                                "contact",
                             ].map((section) => (
                                 <a
                                     key={section}
@@ -277,7 +255,7 @@ export default function HomePage({
                                 href="https://wa.me/089522734461"
                                 className="flex items-center py-1 text-sm font-medium text-gray-900 dark:text-gray-100 mt-2"
                             >
-                                <Phone className="w-4 h-4 mr-2" /> Hubungi Kami
+                                <Phone className="w-4 h-4 mr-2" /> Contact Us
                             </a>
                         </nav>
                     </div>
@@ -338,7 +316,7 @@ export default function HomePage({
             </section>
 
             {/* Services Section */}
-            <section id="layanan" className="py-16 bg-white dark:bg-gray-900">
+            <section id="services" className="py-16 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold mb-3 text-gray-900 dark:text-gray-100">
@@ -372,7 +350,7 @@ export default function HomePage({
 
             {/* Equipment Section */}
             <section
-                id="peralatan"
+                id="equipment"
                 className="py-16 bg-gray-50 dark:bg-gray-800"
             >
                 <div className="container mx-auto px-4">
@@ -436,7 +414,7 @@ export default function HomePage({
                                                 } font-medium py-1 px-3`}
                                             >
                                                 <CheckCircle className="w-3 h-3 mr-1" />
-                                                {item.status}
+                                                Available
                                             </Badge>
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -546,7 +524,7 @@ export default function HomePage({
             </section>
 
             {/* About Section */}
-            <section id="tentang" className="py-16 bg-white dark:bg-gray-900">
+            <section id="about" className="py-16 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col lg:flex-row items-center gap-12">
                         <div className="w-full lg:w-1/2">
@@ -653,7 +631,7 @@ export default function HomePage({
 
             {/* Testimonials Section */}
             <section
-                id="testimonial"
+                id="testimony"
                 className="py-16 bg-gray-50 dark:bg-gray-800"
             >
                 <div className="container mx-auto px-4">
@@ -721,7 +699,7 @@ export default function HomePage({
             </section>
 
             {/* Contact Section */}
-            <section id="kontak" className="py-16 bg-white dark:bg-gray-900">
+            <section id="contact" className="py-16 bg-white dark:bg-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col lg:flex-row gap-12">
                         <div className="w-full lg:w-1/2">
@@ -1014,7 +992,7 @@ export default function HomePage({
                             <ul className="space-y-3 text-sm">
                                 <li>
                                     <a
-                                        href="#tentang"
+                                        href="#about-us"
                                         className="hover:text-white transition-colors flex items-center"
                                     >
                                         <ArrowRight className="w-3 h-3 mr-2" />{" "}
@@ -1032,7 +1010,7 @@ export default function HomePage({
                                 </li>
                                 <li>
                                     <a
-                                        href="#testimonial"
+                                        href="#testimony"
                                         className="hover:text-white transition-colors flex items-center"
                                     >
                                         <ArrowRight className="w-3 h-3 mr-2" />{" "}

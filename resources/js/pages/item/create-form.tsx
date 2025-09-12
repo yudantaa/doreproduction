@@ -170,6 +170,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({
                     <Input
                         id="initial_units"
                         type="number"
+                        placeholder="Masukan jumlah, minimal 1"
                         value={formData.initial_units}
                         onChange={(e) =>
                             setFormData({
